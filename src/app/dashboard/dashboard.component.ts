@@ -21,6 +21,8 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+    protected readonly Object = Object;
+
 
     // ── State ──────────────────────────────────────────
     categories = signal<CategoryWithTopics[]>([]);
@@ -138,15 +140,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // ── Space shortcut to toggle focused topic ────────
     @HostListener('document:keydown.space', ['$event'])
-    onSpaceKey(event: KeyboardEvent) {
-        const tag = (event.target as HTMLElement).tagName;
+    onSpaceKey(event: Event) {
+        const kbEvent = event as KeyboardEvent;
+        const tag = (kbEvent.target as HTMLElement).tagName;
         // Don't intercept if user is typing in input/textarea
         if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
         const openId = this.expandedTopicId();
         if (!openId) return;
 
-        event.preventDefault();
+        kbEvent.preventDefault();
 
         // Find the topic and toggle it
         for (const cat of this.categories()) {
