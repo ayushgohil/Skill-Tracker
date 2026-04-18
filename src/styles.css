@@ -1,1 +1,21 @@
-/* You can add global styles to this file, and also import other style files */
+/* src/styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .animate-slide-up {
+    animation: slideUp 0.2s ease-out;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

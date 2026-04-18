@@ -1,0 +1,282 @@
+<!-- src/app/dashboard/dashboard.component.html -->
+<div class="min-h-screen bg-zinc-950 text-white">
+
+    <!-- ── Navbar ───────────────────────────────────── -->
+    <header class="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur px-6 py-4">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <span class="text-zinc-950 font-black text-sm">ST</span>
+                </div>
+                <span class="font-bold text-lg tracking-tight">SkillTracker</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a routerLink="/profile"
+                    class="text-zinc-500 hover:text-white text-sm transition-colors hidden sm:block">
+                    {{ userEmail() }}
+                </a>
+                <a routerLink="/profile" class="sm:hidden text-zinc-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                </a>
+                <button (click)="logout()" class="text-zinc-500 hover:text-white text-sm transition-colors">
+                    Sign out
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-8">
+
+        <!-- ── Overall Progress ──────────────────────── -->
+        <div class="mb-6 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <div class="flex items-end justify-between mb-3">
+                <div>
+                    <h1 class="text-xl font-semibold text-white">My Learning Progress</h1>
+                    <p class="text-zinc-500 text-sm mt-0.5">
+                        {{ totalCompleted() }} of {{ totalTopics() }} topics completed
+                    </p>
+                </div>
+                <span class="text-3xl font-bold text-emerald-400">{{ overallPercent() }}%</span>
+            </div>
+            <div class="w-full bg-zinc-800 rounded-full h-2.5">
+                <div class="bg-emerald-500 h-2.5 rounded-full transition-all duration-700"
+                    [style.width.%]="overallPercent()"></div>
+            </div>
+        </div>
+
+        <!-- ── Search + Sort Bar ──────────────────────── -->
+        <div class="flex items-center gap-3 mb-6">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text"
+                    placeholder="Search topics..."
+                    class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl pl-9 pr-4 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-zinc-600" />
+                @if (isSearching()) {
+                <button (click)="searchQuery.set('')"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                }
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="relative sort-menu-container">
+                <button (click)="showSortMenu.update(v => !v)"
+                    class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white rounded-xl px-3 py-2.5 text-sm transition-colors"
+                    [class.border-emerald-500]="sortOption() !== 'default'"
+                    [class.text-emerald-400]="sortOption() !== 'default'">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4" />
+                    </svg>
+                    <span class="hidden sm:inline">{{ sortLabels[sortOption()] }}</span>
+                </button>
+
+                @if (showSortMenu()) {
+                <div
+                    class="absolute right-0 top-full mt-2 w-52 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-30 py-1 overflow-hidden">
+                    @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
+                    <button (click)="setSort(entry[0])"
+                        class="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between"
+                        [class.text-emerald-400]="sortOption() === entry[0]"
+                        [class.text-zinc-300]="sortOption() !== entry[0]" [class.hover:bg-zinc-800]="true">
+                        {{ entry[1] }}
+                        @if (sortOption() === entry[0]) {
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        }
+                    </button>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Search results info -->
+        @if (isSearching()) {
+        <p class="text-zinc-500 text-sm mb-4">
+            @if (filteredCategories().length === 0) {
+            No topics found for "<span class="text-white">{{ searchQuery() }}</span>"
+            } @else {
+            Results for "<span class="text-white">{{ searchQuery() }}</span>"
+            }
+        </p>
+        }
+
+        @if (loading()) {
+        <div class="text-center py-20 text-zinc-600 text-sm">Loading your topics...</div>
+
+        } @else if (categories().length === 0) {
+
+        <!-- ── Empty State ────────────────────────── -->
+        <div class="text-center py-20">
+            <div
+                class="w-16 h-16 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h2 class="text-white font-semibold text-lg mb-2">No categories yet</h2>
+            <p class="text-zinc-500 text-sm mb-6 max-w-xs mx-auto">
+                Create your first category to start tracking what you learn.
+                <br />e.g. "Angular", "Backend", "DevOps"
+            </p>
+            <button (click)="showAddCategory.set(true)"
+                class="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">
+                Create first category
+            </button>
+        </div>
+
+        } @else {
+
+        <!-- ── Categories ────────────────────────── -->
+        @for (cat of filteredCategories(); track cat.id) {
+        <section class="mb-6">
+
+            <!-- Category header -->
+            @if (editingCategoryId() === cat.id) {
+            <div class="flex items-center gap-2 mb-3">
+                <input [(ngModel)]="editCategoryName" (keydown.enter)="saveEditCategory(cat.id)"
+                    (keydown.escape)="cancelEditCategory()"
+                    class="flex-1 bg-zinc-800 border border-emerald-500 text-white rounded-lg px-3 py-1.5 text-sm outline-none" />
+                <input [(ngModel)]="editCategoryColor" type="color"
+                    class="w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800 cursor-pointer p-0.5 flex-shrink-0" />
+                <button (click)="saveEditCategory(cat.id)"
+                    class="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Save</button>
+                <button (click)="cancelEditCategory()"
+                    class="text-zinc-500 hover:text-white text-xs px-2 transition-colors">Cancel</button>
+            </div>
+            } @else {
+            <div class="flex items-center justify-between mb-3 group/cat">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full" [style.background-color]="cat.color"></div>
+                    <h2 class="font-semibold text-white">{{ cat.name }}</h2>
+                    <span class="text-zinc-600 text-sm">{{ cat.completedCount }}/{{ cat.totalCount }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="hidden sm:flex items-center gap-2">
+                        <div class="w-20 bg-zinc-800 rounded-full h-1.5">
+                            <div class="h-1.5 rounded-full transition-all duration-500" [style.width.%]="cat.percent"
+                                [style.background-color]="cat.color"></div>
+                        </div>
+                        <span class="text-zinc-500 text-xs w-8 text-right">{{ cat.percent }}%</span>
+                    </div>
+                    <button (click)="startEditCategory($event, cat)"
+                        class="opacity-0 group-hover/cat:opacity-100 text-zinc-600 hover:text-zinc-300 transition-all p-1 rounded">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <button (click)="deleteCategory(cat.id, cat.name)"
+                        class="opacity-0 group-hover/cat:opacity-100 text-zinc-600 hover:text-red-400 transition-all p-1 rounded">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            }
+
+            <!-- Topics -->
+            <div class="space-y-2">
+                @for (topic of cat.topics; track topic.id) {
+                <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
+                    (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
+                    (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)" />
+                }
+
+                <!-- Add topic form -->
+                @if (!isSearching()) {
+                @if (addingTopicForCategory() === cat.id) {
+                <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 space-y-3">
+                    <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic title"
+                        (keydown.enter)="addTopic(cat.id)" (keydown.escape)="addingTopicForCategory.set(null)"
+                        class="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-zinc-600" />
+                    <div class="flex items-center gap-3">
+                        <select [(ngModel)]="newTopicDepth"
+                            class="bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500">
+                            <option value="shallow">Shallow</option>
+                            <option value="medium">Medium</option>
+                            <option value="deep">Deep</option>
+                        </select>
+                        <button (click)="addTopic(cat.id)" [disabled]="savingTopic() || !newTopicTitle.trim()"
+                            class="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-zinc-950 font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+                            {{ savingTopic() ? 'Adding...' : 'Add' }}
+                        </button>
+                        <button (click)="addingTopicForCategory.set(null)"
+                            class="text-zinc-500 hover:text-white text-sm transition-colors px-2">Cancel</button>
+                    </div>
+                </div>
+                } @else {
+                <button (click)="addingTopicForCategory.set(cat.id)"
+                    class="w-full text-left text-zinc-600 hover:text-zinc-400 text-sm px-4 py-2.5 border border-dashed border-zinc-800 hover:border-zinc-600 rounded-xl transition-all flex items-center gap-2">
+                    <span class="text-base leading-none">+</span> Add topic to {{ cat.name }}
+                </button>
+                }
+                }
+            </div>
+        </section>
+        }
+
+        <!-- ── Add Category ───────────────────────── -->
+        @if (!isSearching()) {
+        @if (showAddCategory()) {
+        <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-5 space-y-3 mb-4">
+            <h3 class="text-white text-sm font-medium">New category</h3>
+            <div class="flex items-center gap-3">
+                <input [(ngModel)]="newCategoryName" type="text" placeholder="e.g. Angular, DevOps, System Design"
+                    (keydown.enter)="addCategory()" (keydown.escape)="showAddCategory.set(false)"
+                    class="flex-1 bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-zinc-600" />
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <label class="text-zinc-500 text-xs">Color</label>
+                    <input [(ngModel)]="newCategoryColor" type="color"
+                        class="w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800 cursor-pointer p-0.5" />
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button (click)="addCategory()" [disabled]="savingCategory() || !newCategoryName.trim()"
+                    class="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-zinc-950 font-semibold text-sm px-5 py-2 rounded-lg transition-colors">
+                    {{ savingCategory() ? 'Creating...' : 'Create category' }}
+                </button>
+                <button (click)="showAddCategory.set(false)"
+                    class="text-zinc-500 hover:text-white text-sm transition-colors px-3">Cancel</button>
+            </div>
+        </div>
+        } @else {
+        <button (click)="showAddCategory.set(true)"
+            class="w-full border border-dashed border-zinc-700 hover:border-emerald-500 text-zinc-500 hover:text-emerald-400 rounded-xl py-4 text-sm font-medium transition-all flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add new category
+        </button>
+        }
+        }
+
+        <!-- Space shortcut hint -->
+        @if (expandedTopicId()) {
+        <p class="text-center text-zinc-700 text-xs mt-6">
+            Press <kbd
+                class="bg-zinc-800 border border-zinc-700 text-zinc-500 px-1.5 py-0.5 rounded text-xs">Space</kbd> to
+            toggle complete
+        </p>
+        }
+        }
+    </main>
+</div>
+
+<app-toast />

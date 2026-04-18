@@ -1,20 +1,19 @@
-// src/app/core/guards/auth.guard.ts
+// src/app/core/guards/guest.guard.ts
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { supabase } from '../supabase.client';
 
-export const authGuard: CanActivateFn = async () => {
+export const guestGuard: CanActivateFn = async () => {
     const auth = inject(AuthService);
     const router = inject(Router);
 
-    // Wait for Supabase to restore session from storage before checking
     const { data } = await supabase.auth.getSession();
 
     if (data.session) {
         auth.currentUser.set(data.session.user);
-        return true;
+        return router.createUrlTree(['/dashboard']);
     }
 
-    return router.createUrlTree(['/auth/login']);
+    return true;
 };
