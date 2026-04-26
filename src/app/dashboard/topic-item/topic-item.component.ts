@@ -1,5 +1,5 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
-import { Component, Input, Output, EventEmitter, signal, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TopicWithProgress, Depth } from '../../core/models';
 
@@ -15,6 +15,22 @@ export interface TopicEditEvent {
     depth: Depth;
 }
 
+export interface SubtopicToggleEvent {
+    subtopicId: string;
+    completed: boolean;
+    topicId: string;
+}
+
+export interface SubtopicAddEvent {
+    topicId: string;
+    title: string;
+}
+
+export interface SubtopicDeleteEvent {
+    subtopicId: string;
+    topicId: string;
+}
+
 @Component({
     selector: 'app-topic-item',
     standalone: true,
@@ -28,6 +44,9 @@ export class TopicItemComponent implements OnChanges {
     @Output() progressChanged = new EventEmitter<ProgressChange>();
     @Output() topicEdited = new EventEmitter<TopicEditEvent>();
     @Output() topicDeleted = new EventEmitter<string>();
+    @Output() subtopicToggled = new EventEmitter<SubtopicToggleEvent>();
+    @Output() subtopicAdded = new EventEmitter<SubtopicAddEvent>();
+    @Output() subtopicDeleted = new EventEmitter<SubtopicDeleteEvent>();
 
     localNotes = '';
     notesDirty = false;
@@ -36,11 +55,29 @@ export class TopicItemComponent implements OnChanges {
     editTitle = '';
     editDepth: Depth = 'medium';
 
+    addingSubtopic = signal(false);
+    newSubtopicTitle = '';
+
     readonly depthConfig: Record<Depth, { label: string; classes: string }> = {
         shallow: { label: 'Shallow', classes: 'bg-zinc-800 text-zinc-400' },
         medium: { label: 'Medium', classes: 'bg-amber-500/20 text-amber-400' },
         deep: { label: 'Deep', classes: 'bg-red-500/20 text-red-400' }
     };
+
+    // ── Subtopic computed helpers ──────────────────────
+    hasSubtopics = computed(() => this.topic?.subtopics?.length > 0);
+    allSubtopicsComplete = computed(() =>
+        this.topic?.subtopics?.length > 0 && this.topic.subtopics.every(s => s.completed)
+    );
+    subtopicCompletedCount = computed(() =>
+        this.topic?.subtopics?.filter(s => s.completed).length ?? 0
+    );
+    subtopicTotalCount = computed(() =>
+        this.topic?.subtopics?.length ?? 0
+    );
+    isTopicChecked = computed(() =>
+        this.topic?.completed || this.allSubtopicsComplete()
+    );
 
     ngOnChanges() {
         if (this.isOpen) {
@@ -55,6 +92,8 @@ export class TopicItemComponent implements OnChanges {
 
     onCheck(event: Event) {
         event.stopPropagation();
+        // Disable manual toggle when subtopics exist
+        if (this.hasSubtopics()) return;
         this.progressChanged.emit({
             topicId: this.topic.id,
             completed: !this.topic.completed,
@@ -94,5 +133,37 @@ export class TopicItemComponent implements OnChanges {
     onDelete(event: Event) {
         event.stopPropagation();
         this.topicDeleted.emit(this.topic.id);
+    }
+
+    // ── Subtopic actions ──────────────────────────────
+    onSubtopicCheck(subtopicId: string, currentCompleted: boolean) {
+        this.subtopicToggled.emit({
+            subtopicId,
+            completed: !currentCompleted,
+            topicId: this.topic.id
+        });
+    }
+
+    onSubtopicDelete(event: Event, subtopicId: string) {
+        event.stopPropagation();
+        this.subtopicDeleted.emit({
+            subtopicId,
+            topicId: this.topic.id
+        });
+    }
+
+    submitSubtopic() {
+        if (!this.newSubtopicTitle.trim()) return;
+        this.subtopicAdded.emit({
+            topicId: this.topic.id,
+            title: this.newSubtopicTitle.trim()
+        });
+        this.newSubtopicTitle = '';
+        this.addingSubtopic.set(false);
+    }
+
+    cancelAddSubtopic() {
+        this.newSubtopicTitle = '';
+        this.addingSubtopic.set(false);
     }
 }

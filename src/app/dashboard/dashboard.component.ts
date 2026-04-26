@@ -1,292 +1,130 @@
 // src/app/dashboard/dashboard.component.ts
-import { Component, OnInit, OnDestroy, signal, computed, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, signal, computed } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TopicsService } from '../core/services/topics.service';
-import { CategoriesService } from '../core/services/categories.service';
+import { SubjectsService } from '../core/services/subjects.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
-import { CategoryWithTopics, Depth, TopicWithProgress } from '../core/models';
-import { TopicItemComponent, ProgressChange, TopicEditEvent } from './topic-item/topic-item.component';
+import { SubjectWithTopics } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
-
-export type SortOption = 'default' | 'depth-asc' | 'depth-desc' | 'completed-last' | 'completed-first';
-
-const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [TopicItemComponent, ToastComponent, FormsModule, RouterLink],
+    imports: [ToastComponent, FormsModule, RouterLink],
     templateUrl: './dashboard.component.html'
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-    protected readonly Object = Object;
-
+export class DashboardComponent implements OnInit {
 
     // ── State ──────────────────────────────────────────
-    categories = signal<CategoryWithTopics[]>([]);
+    subjects = signal<SubjectWithTopics[]>([]);
     loading = signal(true);
-    expandedTopicId = signal<string | null>(null);
 
-    // Search & sort
-    searchQuery = signal('');
-    sortOption = signal<SortOption>('default');
-    showSortMenu = signal(false);
+    // Add subject
+    showAddSubject = signal(false);
+    newSubjectName = '';
+    newSubjectColor = '#10b981';
+    savingSubject = signal(false);
 
-    // Add category
-    showAddCategory = signal(false);
-    newCategoryName = '';
-    newCategoryColor = '#10b981';
-    savingCategory = signal(false);
-
-    // Edit category
-    editingCategoryId = signal<string | null>(null);
-    editCategoryName = '';
-    editCategoryColor = '';
-
-    // Add topic
-    addingTopicForCategory = signal<string | null>(null);
-    newTopicTitle = '';
-    newTopicDepth: Depth = 'medium';
-    savingTopic = signal(false);
+    // Edit subject
+    editingSubjectId = signal<string | null>(null);
+    editSubjectName = '';
+    editSubjectColor = '';
 
     // ── Computed ───────────────────────────────────────
-    totalTopics = computed(() => this.categories().reduce((s, c) => s + c.totalCount, 0));
-    totalCompleted = computed(() => this.categories().reduce((s, c) => s + c.completedCount, 0));
+    totalTopics = computed(() => this.subjects().reduce((s, c) => s + c.totalCount, 0));
+    totalCompleted = computed(() => this.subjects().reduce((s, c) => s + c.completedCount, 0));
     overallPercent = computed(() =>
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
     );
     userEmail = computed(() => this.auth.currentUser()?.email ?? '');
 
-    // Filtered + sorted categories (search + sort applied)
-    filteredCategories = computed(() => {
-        const q = this.searchQuery().toLowerCase().trim();
-        const sort = this.sortOption();
-
-        return this.categories()
-            .map(cat => {
-                let topics = q
-                    ? cat.topics.filter(t => t.title.toLowerCase().includes(q))
-                    : [...cat.topics];
-
-                topics = this.sortTopics(topics, sort);
-
-                return { ...cat, topics };
-            })
-            .filter(cat => !q || cat.topics.length > 0); // hide empty categories when searching
-    });
-
-    isSearching = computed(() => this.searchQuery().trim().length > 0);
-
-    sortLabels: Record<SortOption, string> = {
-        'default': 'Default',
-        'depth-asc': 'Depth: Shallow → Deep',
-        'depth-desc': 'Depth: Deep → Shallow',
-        'completed-last': 'Incomplete first',
-        'completed-first': 'Completed first'
-    };
-
-    private clickOutsideHandler = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest('.sort-menu-container')) {
-            this.showSortMenu.set(false);
-        }
-    };
-
     constructor(
         private topicsService: TopicsService,
-        private categoriesService: CategoriesService,
+        private subjectsService: SubjectsService,
         private auth: AuthService,
-        private toast: ToastService
+        private toast: ToastService,
+        private router: Router
     ) { }
 
     async ngOnInit() {
         await this.load();
-        document.addEventListener('click', this.clickOutsideHandler);
-    }
-
-    ngOnDestroy() {
-        document.removeEventListener('click', this.clickOutsideHandler);
     }
 
     async load() {
         this.loading.set(true);
         try {
-            this.categories.set(await this.topicsService.getCategoriesWithTopics());
+            this.subjects.set(await this.topicsService.getSubjectsWithTopics());
         } catch {
-            this.toast.error('Failed to load topics.');
+            this.toast.error('Failed to load subjects.');
         } finally {
             this.loading.set(false);
         }
     }
 
-    // ── Sort ───────────────────────────────────────────
-    sortTopics(topics: TopicWithProgress[], sort: SortOption): TopicWithProgress[] {
-        const arr = [...topics];
-        switch (sort) {
-            case 'depth-asc': return arr.sort((a, b) => DEPTH_ORDER[a.depth] - DEPTH_ORDER[b.depth]);
-            case 'depth-desc': return arr.sort((a, b) => DEPTH_ORDER[b.depth] - DEPTH_ORDER[a.depth]);
-            case 'completed-last': return arr.sort((a, b) => Number(a.completed) - Number(b.completed));
-            case 'completed-first': return arr.sort((a, b) => Number(b.completed) - Number(a.completed));
-            default: return arr;
-        }
+    // ── Navigate to subject detail ────────────────────
+    openSubject(id: string) {
+        this.router.navigate(['/subjects', id]);
     }
 
-    setSort(option: SortOption) {
-        this.sortOption.set(option);
-        this.showSortMenu.set(false);
-    }
-
-    // ── Space shortcut to toggle focused topic ────────
-    @HostListener('document:keydown.space', ['$event'])
-    onSpaceKey(event: Event) {
-        const kbEvent = event as KeyboardEvent;
-        const tag = (kbEvent.target as HTMLElement).tagName;
-        // Don't intercept if user is typing in input/textarea
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-
-        const openId = this.expandedTopicId();
-        if (!openId) return;
-
-        kbEvent.preventDefault();
-
-        // Find the topic and toggle it
-        for (const cat of this.categories()) {
-            const topic = cat.topics.find(t => t.id === openId);
-            if (topic) {
-                this.onProgressChanged({ topicId: openId, completed: !topic.completed, notes: topic.notes });
-                this.toast.info(`${topic.completed ? 'Marked incomplete' : 'Marked complete'}`);
-                return;
-            }
-        }
-    }
-
-    // ── Accordion ──────────────────────────────────────
-    onToggleTopic(topicId: string) {
-        this.expandedTopicId.update(id => id === topicId ? null : topicId);
-    }
-
-    // ── Progress (optimistic) ─────────────────────────
-    async onProgressChanged(event: ProgressChange) {
-        this.categories.update(cats => cats.map(cat => {
-            const topics = cat.topics.map(t =>
-                t.id === event.topicId ? { ...t, completed: event.completed, notes: event.notes } : t
-            );
-            const completedCount = topics.filter(t => t.completed).length;
-            return { ...cat, topics, completedCount, percent: cat.totalCount ? Math.round((completedCount / cat.totalCount) * 100) : 0 };
-        }));
+    // ── Add Subject ───────────────────────────────────
+    async addSubject() {
+        if (!this.newSubjectName.trim()) return;
+        this.savingSubject.set(true);
         try {
-            await this.topicsService.upsertProgress(event.topicId, event.completed, event.notes);
-        } catch {
-            this.toast.error('Failed to save progress.');
+            await this.subjectsService.create(this.newSubjectName.trim(), this.newSubjectColor);
+            this.newSubjectName = '';
+            this.newSubjectColor = '#10b981';
+            this.showAddSubject.set(false);
             await this.load();
-        }
-    }
-
-    // ── Edit Topic ────────────────────────────────────
-    async onTopicEdited(event: TopicEditEvent) {
-        this.categories.update(cats => cats.map(cat => ({
-            ...cat,
-            topics: cat.topics.map(t =>
-                t.id === event.topicId ? { ...t, title: event.title, depth: event.depth } : t
-            )
-        })));
-        try {
-            await this.topicsService.updateTopic(event.topicId, event.title, event.depth);
-            this.toast.success('Topic updated.');
+            this.toast.success('Subject created.');
         } catch {
-            this.toast.error('Failed to update topic.');
-            await this.load();
-        }
-    }
-
-    // ── Delete Topic ──────────────────────────────────
-    async onTopicDeleted(topicId: string) {
-        this.categories.update(cats => cats.map(cat => {
-            const topics = cat.topics.filter(t => t.id !== topicId);
-            const completedCount = topics.filter(t => t.completed).length;
-            return { ...cat, topics, completedCount, totalCount: topics.length, percent: topics.length ? Math.round((completedCount / topics.length) * 100) : 0 };
-        }));
-        try {
-            await this.topicsService.deleteTopic(topicId);
-            this.toast.success('Topic deleted.');
-        } catch {
-            this.toast.error('Failed to delete topic.');
-            await this.load();
-        }
-    }
-
-    // ── Add Category ──────────────────────────────────
-    async addCategory() {
-        if (!this.newCategoryName.trim()) return;
-        this.savingCategory.set(true);
-        try {
-            await this.categoriesService.create(this.newCategoryName.trim(), this.newCategoryColor);
-            this.newCategoryName = '';
-            this.newCategoryColor = '#10b981';
-            this.showAddCategory.set(false);
-            await this.load();
-            this.toast.success('Category created.');
-        } catch {
-            this.toast.error('Failed to create category.');
+            this.toast.error('Failed to create subject.');
         } finally {
-            this.savingCategory.set(false);
+            this.savingSubject.set(false);
         }
     }
 
-    // ── Edit Category ─────────────────────────────────
-    startEditCategory(event: Event, cat: CategoryWithTopics) {
+    // ── Edit Subject ──────────────────────────────────
+    startEditSubject(event: Event, sub: SubjectWithTopics) {
         event.stopPropagation();
-        this.editCategoryName = cat.name;
-        this.editCategoryColor = cat.color;
-        this.editingCategoryId.set(cat.id);
+        this.editSubjectName = sub.name;
+        this.editSubjectColor = sub.color;
+        this.editingSubjectId.set(sub.id);
     }
 
-    cancelEditCategory() { this.editingCategoryId.set(null); }
+    cancelEditSubject(event?: Event) {
+        event?.stopPropagation();
+        this.editingSubjectId.set(null);
+    }
 
-    async saveEditCategory(catId: string) {
-        if (!this.editCategoryName.trim()) return;
-        this.categories.update(cats => cats.map(c =>
-            c.id === catId ? { ...c, name: this.editCategoryName.trim(), color: this.editCategoryColor } : c
+    async saveEditSubject(event: Event, subId: string) {
+        event.stopPropagation();
+        if (!this.editSubjectName.trim()) return;
+        this.subjects.update(subs => subs.map(s =>
+            s.id === subId ? { ...s, name: this.editSubjectName.trim(), color: this.editSubjectColor } : s
         ));
-        this.editingCategoryId.set(null);
+        this.editingSubjectId.set(null);
         try {
-            await this.categoriesService.update(catId, this.editCategoryName.trim(), this.editCategoryColor);
-            this.toast.success('Category updated.');
+            await this.subjectsService.update(subId, this.editSubjectName.trim(), this.editSubjectColor);
+            this.toast.success('Subject updated.');
         } catch {
-            this.toast.error('Failed to update category.');
+            this.toast.error('Failed to update subject.');
             await this.load();
         }
     }
 
-    // ── Delete Category ───────────────────────────────
-    async deleteCategory(id: string, name: string) {
-        this.categories.update(cats => cats.filter(c => c.id !== id));
+    // ── Delete Subject ────────────────────────────────
+    async deleteSubject(event: Event, id: string, name: string) {
+        event.stopPropagation();
+        this.subjects.update(subs => subs.filter(s => s.id !== id));
         try {
-            await this.categoriesService.delete(id);
+            await this.subjectsService.delete(id);
             this.toast.success(`"${name}" deleted.`);
         } catch {
-            this.toast.error('Failed to delete category.');
+            this.toast.error('Failed to delete subject.');
             await this.load();
-        }
-    }
-
-    // ── Add Topic ─────────────────────────────────────
-    async addTopic(categoryId: string) {
-        if (!this.newTopicTitle.trim()) return;
-        this.savingTopic.set(true);
-        try {
-            await this.topicsService.addTopic(categoryId, this.newTopicTitle.trim(), this.newTopicDepth);
-            this.newTopicTitle = '';
-            this.newTopicDepth = 'medium';
-            this.addingTopicForCategory.set(null);
-            await this.load();
-            this.toast.success('Topic added.');
-        } catch {
-            this.toast.error('Failed to add topic.');
-        } finally {
-            this.savingTopic.set(false);
         }
     }
 

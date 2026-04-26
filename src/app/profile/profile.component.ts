@@ -23,7 +23,7 @@ export class ProfileComponent implements OnInit {
     editingName = signal(false);
     totalTopics = signal(0);
     totalCompleted = signal(0);
-    totalCategories = signal(0);
+    totalSubjects = signal(0);
 
     percent = computed(() =>
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
@@ -45,15 +45,15 @@ export class ProfileComponent implements OnInit {
     async ngOnInit() {
         this.loading.set(true);
         try {
-            const [profile, categories] = await Promise.all([
+            const [profile, subjects] = await Promise.all([
                 this.profileService.getProfile(),
-                this.topicsService.getCategoriesWithTopics()
+                this.topicsService.getSubjectsWithTopics()
             ]);
             this.profile.set(profile);
             this.displayName = profile.display_name ?? '';
-            this.totalCategories.set(categories.length);
-            this.totalTopics.set(categories.reduce((s, c) => s + c.totalCount, 0));
-            this.totalCompleted.set(categories.reduce((s, c) => s + c.completedCount, 0));
+            this.totalSubjects.set(subjects.length);
+            this.totalTopics.set(subjects.reduce((s, c) => s + c.totalCount, 0));
+            this.totalCompleted.set(subjects.reduce((s, c) => s + c.completedCount, 0));
         } catch {
             this.toast.error('Failed to load profile.');
         } finally {

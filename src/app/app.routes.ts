@@ -3,7 +3,11 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 export const routes: Routes = [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    {
+        path: '',
+        canActivate: [guestGuard],
+        loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent)
+    },
     {
         path: 'auth',
         canActivate: [guestGuard],
@@ -13,6 +17,11 @@ export const routes: Routes = [
         path: 'dashboard',
         canActivate: [authGuard],
         loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
+    },
+    {
+        path: 'subjects/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./subjects/subject-detail/subject-detail.component').then(m => m.SubjectDetailComponent)
     },
     {
         path: 'profile',

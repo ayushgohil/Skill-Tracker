@@ -1,0 +1,178 @@
+<!-- src/app/landing/landing.component.html -->
+<div class="page-gradient text-white">
+
+    <!-- ── Navbar ───────────────────────────────────── -->
+    <header class="sticky top-0 z-20 border-b border-white/[0.06] bg-black/40 backdrop-blur-xl px-6 py-4">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <span class="text-zinc-950 font-black text-sm">ST</span>
+                </div>
+                <span class="font-bold text-lg tracking-tight">SkillTracker</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a routerLink="/auth/login"
+                    class="text-zinc-400 hover:text-white text-sm transition-colors">
+                    Sign in
+                </a>
+                <a routerLink="/auth/register"
+                    class="bg-emerald-500 hover:bg-emerald-400 hover-glow text-zinc-950 font-semibold px-5 py-2 rounded-xl text-sm transition-all">
+                    Get started free
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Hero Section ────────────────────────────── -->
+    <section class="py-32 px-4 text-center">
+        <div class="max-w-2xl mx-auto">
+            <!-- Badge -->
+            <div class="inline-flex items-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-4 py-1.5 rounded-full mb-6">
+                Built for serious learners
+            </div>
+
+            <!-- Headline -->
+            <h1 class="text-5xl font-bold tracking-tight text-white leading-tight">
+                Track what you learn.<br />Own your growth.
+            </h1>
+
+            <!-- Subheadline -->
+            <p class="text-zinc-400 text-lg mt-4 max-w-md mx-auto">
+                Organize your learning by subject, track topics with depth levels,
+                take notes, and watch your progress compound over time.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="mt-8 flex justify-center flex-wrap gap-4">
+                <a routerLink="/auth/register"
+                    class="bg-emerald-500 hover:bg-emerald-400 hover-glow text-zinc-950 font-semibold px-6 py-3 rounded-xl text-sm transition-all">
+                    Get started free
+                </a>
+                <a routerLink="/auth/login"
+                    class="border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white bg-transparent rounded-xl px-6 py-3 text-sm transition-all">
+                    Sign in
+                </a>
+            </div>
+
+            <!-- Sub-note -->
+            <p class="text-zinc-600 text-xs mt-4">Free forever · No credit card required</p>
+        </div>
+    </section>
+
+    <!-- ── Features Section ────────────────────────── -->
+    <section class="py-24 px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center">
+                <span class="text-emerald-400 text-xs font-semibold uppercase tracking-widest">FEATURES</span>
+                <h2 class="text-white text-3xl font-bold mt-2">Everything a learner needs</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                <!-- Feature 1 -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <h3 class="text-white font-semibold text-lg mb-2">Subjects &amp; Topics</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Organize your learning into subjects. Break each subject into
+                        trackable topics with depth levels — shallow, medium, or deep.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-white font-semibold text-lg mb-2">Subtopic Checklists</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Break complex topics into smaller subtopics. When all subtopics
+                        are complete, the parent topic auto-completes.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94" />
+                        </svg>
+                    </div>
+                    <h3 class="text-white font-semibold text-lg mb-2">Progress at a Glance</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        See completion percentages per subject and overall.
+                        Visual progress bars make your momentum visible.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── How It Works ────────────────────────────── -->
+    <section class="py-24 bg-black/20 px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-emerald-400 text-xs font-semibold uppercase tracking-widest">HOW IT WORKS</span>
+                <h2 class="text-white text-3xl font-bold mt-2">Three steps to mastery</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="text-6xl font-black text-zinc-800 mb-4">1</div>
+                    <h3 class="text-white font-semibold text-lg mb-2">Create a subject</h3>
+                    <p class="text-zinc-500 text-sm">
+                        e.g. Angular, Backend, DevOps — whatever you're learning right now.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="text-6xl font-black text-zinc-800 mb-4">2</div>
+                    <h3 class="text-white font-semibold text-lg mb-2">Add topics</h3>
+                    <p class="text-zinc-500 text-sm">
+                        With depth levels showing what to prioritize — shallow, medium, or deep.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="text-6xl font-black text-zinc-800 mb-4">3</div>
+                    <h3 class="text-white font-semibold text-lg mb-2">Track &amp; take notes</h3>
+                    <p class="text-zinc-500 text-sm">
+                        Check off topics, save links and thoughts, watch your progress grow.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA Banner ──────────────────────────────── -->
+    <section class="py-20 px-4">
+        <div class="glass-card rounded-3xl p-12 max-w-2xl mx-auto text-center">
+            <h2 class="text-white text-3xl font-bold mb-3">Start tracking your learning today</h2>
+            <p class="text-zinc-400 text-sm mb-8">Free forever. No credit card required.</p>
+            <a routerLink="/auth/register"
+                class="inline-block bg-emerald-500 hover:bg-emerald-400 hover-glow text-zinc-950 font-semibold px-8 py-3 rounded-xl text-sm transition-all">
+                Create free account
+            </a>
+        </div>
+    </section>
+
+    <!-- ── Footer ──────────────────────────────────── -->
+    <footer class="border-t border-zinc-900 py-6 px-4">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <span class="text-zinc-700 text-xs">&copy; 2026 SkillTracker. All rights reserved.</span>
+            <span class="text-zinc-700 text-xs">Built with Angular + Supabase</span>
+        </div>
+    </footer>
+
+</div>

@@ -1,22 +1,30 @@
 <!-- src/app/auth/login/login.component.html -->
-<div class="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
-    <div class="w-full max-w-md">
+<div class="page-gradient flex items-center justify-center min-h-screen px-4">
+    <!-- Background grid -->
+    <div class="fixed inset-0 z-0"
+        style="background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 32px 32px;">
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
 
         <div class="text-center mb-10">
             <div class="inline-flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                    <span class="text-zinc-950 font-black text-lg">ST</span>
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-[0_0_24px_rgba(16,185,129,0.4)]">
+                    <span class="text-zinc-950 font-black text-xl">ST</span>
                 </div>
-                <span class="text-white font-bold text-2xl tracking-tight">SkillTracker</span>
+                <span class="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent tracking-tight">SkillTracker</span>
             </div>
             <p class="text-zinc-500 text-sm">Track what you learn. Own your growth.</p>
         </div>
 
-        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
+        <div class="glass-card rounded-2xl p-8">
             <h2 class="text-white font-semibold text-xl mb-6">Welcome back</h2>
 
             @if (error()) {
-            <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-lg px-4 py-3 mb-5">
+            <div class="bg-red-500/[0.08] border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
                 {{ error() }}
             </div>
             }
@@ -25,15 +33,15 @@
                 <div>
                     <label class="text-zinc-400 text-sm block mb-1.5">Email</label>
                     <input [(ngModel)]="email" type="email" placeholder="you@example.com"
-                        class="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-zinc-600" />
+                        class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-zinc-600" />
                 </div>
                 <div>
                     <label class="text-zinc-400 text-sm block mb-1.5">Password</label>
                     <input [(ngModel)]="password" type="password" placeholder="••••••••" (keydown.enter)="submit()"
-                        class="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors placeholder:text-zinc-600" />
+                        class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-zinc-600" />
                 </div>
                 <button (click)="submit()" [disabled]="loading()"
-                    class="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-zinc-950 font-semibold rounded-lg py-2.5 text-sm transition-colors mt-2">
+                    class="w-full bg-emerald-500 hover:bg-emerald-400 hover-glow disabled:opacity-50 text-zinc-950 font-semibold rounded-xl py-2.5 text-sm transition-all mt-2">
                     {{ loading() ? 'Signing in...' : 'Sign in' }}
                 </button>
             </div>

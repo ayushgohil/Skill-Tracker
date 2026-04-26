@@ -1,0 +1,213 @@
+<!-- src/app/subjects/subject-detail/subject-detail.component.html -->
+<div class="page-gradient text-white">
+
+    <!-- ── Sticky Header ───────────────────────────── -->
+    <header class="sticky top-0 z-20 border-b border-white/[0.06] bg-black/40 backdrop-blur-xl px-6 py-4">
+        <div class="max-w-3xl mx-auto flex items-center gap-4">
+            <button (click)="goBack()"
+                class="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-colors text-sm flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span class="hidden sm:inline">Dashboard</span>
+            </button>
+
+            @if (subject(); as sub) {
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-4 h-4 rounded-full flex-shrink-0 ring-2 ring-offset-2 ring-offset-black"
+                    [style.background-color]="sub.color" [style.ring-color]="sub.color + '40'"></div>
+                <h1 class="font-bold text-lg tracking-tight text-white truncate">{{ sub.name }}</h1>
+            </div>
+            }
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-8">
+
+        @if (loading()) {
+        <!-- ── Skeleton Loader ────────────────────── -->
+        <div class="glass-card rounded-2xl p-6 mb-6 animate-pulse">
+            <div class="flex items-end justify-between mb-3">
+                <div>
+                    <div class="h-5 bg-zinc-800 rounded w-40 mb-2"></div>
+                    <div class="h-3 bg-zinc-800 rounded w-28"></div>
+                </div>
+                <div class="h-8 bg-zinc-800 rounded w-16"></div>
+            </div>
+            <div class="h-2.5 bg-zinc-800 rounded-full"></div>
+        </div>
+        <div class="space-y-2">
+            <div class="glass-card rounded-xl h-12 animate-pulse"></div>
+            <div class="glass-card rounded-xl h-12 animate-pulse"></div>
+            <div class="glass-card rounded-xl h-12 animate-pulse"></div>
+            <div class="glass-card rounded-xl h-12 animate-pulse"></div>
+            <div class="glass-card rounded-xl h-12 animate-pulse"></div>
+        </div>
+
+        } @else if (subject(); as sub) {
+
+        <!-- ── Subject Progress ──────────────────────── -->
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-end justify-between mb-3">
+                <div>
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full ring-2 ring-offset-2 ring-offset-black"
+                            [style.background-color]="sub.color" [style.ring-color]="sub.color + '40'"></div>
+                        {{ sub.name }}
+                    </h2>
+                    <p class="text-zinc-500 text-sm mt-0.5">
+                        {{ completedCount() }} of {{ totalCount() }} topics completed
+                    </p>
+                </div>
+                <span class="text-3xl font-bold text-emerald-400">{{ percent() }}%</span>
+            </div>
+            <div class="w-full bg-zinc-800/60 rounded-full h-2.5">
+                <div class="h-2.5 rounded-full transition-all duration-700 progress-shimmer" [style.width.%]="percent()"
+                    [style.background-color]="sub.color"></div>
+            </div>
+        </div>
+
+        <!-- ── Search + Sort Bar ──────────────────────── -->
+        <div class="flex items-center gap-3 mb-6">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text"
+                    placeholder="Search topics..."
+                    class="w-full bg-zinc-900/80 border border-zinc-800 text-white rounded-xl pl-9 pr-4 py-2.5 text-sm outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-zinc-600" />
+                @if (isSearching()) {
+                <button (click)="searchQuery.set('')"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                }
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="relative sort-menu-container">
+                <button (click)="showSortMenu.update(v => !v)"
+                    class="glass-card flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors text-zinc-400 hover:text-white"
+                    [class.border-emerald-500]="sortOption() !== 'default'"
+                    [class.text-emerald-400]="sortOption() !== 'default'">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4" />
+                    </svg>
+                    <span class="hidden sm:inline">{{ sortLabels[sortOption()] }}</span>
+                </button>
+
+                @if (showSortMenu()) {
+                <div
+                    class="absolute right-0 top-full mt-2 w-52 glass-card rounded-xl shadow-2xl z-30 py-1 overflow-hidden">
+                    @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
+                    <button (click)="setSort(entry[0])"
+                        class="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between"
+                        [class.text-emerald-400]="sortOption() === entry[0]"
+                        [class.text-zinc-300]="sortOption() !== entry[0]" [class.hover:bg-white/[0.04]]="true">
+                        {{ entry[1] }}
+                        @if (sortOption() === entry[0]) {
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        }
+                    </button>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Search results info -->
+        @if (isSearching()) {
+        <p class="text-zinc-500 text-sm mb-4">
+            @if (filteredTopics().length === 0) {
+            No topics found for "<span class="text-white">{{ searchQuery() }}</span>"
+            } @else {
+            Results for "<span class="text-white">{{ searchQuery() }}</span>"
+            }
+        </p>
+        }
+
+        <!-- ── Topics List ────────────────────────── -->
+        <div class="space-y-2">
+            @for (topic of filteredTopics(); track topic.id) {
+            <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
+                (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
+                (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
+                (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
+                (subtopicDeleted)="onSubtopicDeleted($event)" />
+            }
+
+            @if (filteredTopics().length === 0 && !isSearching()) {
+            <div class="text-center py-12">
+                <div class="glass-card w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="8" y="8" width="48" height="48" rx="6"
+                            fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                        <rect x="18" y="22" width="8" height="8" rx="2"
+                            fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                        <rect x="30" y="24" width="18" height="3" rx="1.5" fill="rgba(255,255,255,0.08)"/>
+                        <rect x="18" y="36" width="8" height="8" rx="2"
+                            fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+                        <path d="M20 40l2 2 4-4" stroke="rgba(16,185,129,0.8)"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="30" y="38" width="14" height="3" rx="1.5" fill="rgba(255,255,255,0.06)"/>
+                    </svg>
+                </div>
+                <p class="text-zinc-500 text-sm">No topics yet. Add one to start tracking!</p>
+            </div>
+            }
+        </div>
+
+        <!-- ── Add Topic ───────────────────────── -->
+        @if (!isSearching()) {
+        <div class="mt-4">
+            @if (showAddTopic()) {
+            <div class="glass-card rounded-xl p-4 space-y-3">
+                <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic title" (keydown.enter)="addTopic()"
+                    (keydown.escape)="showAddTopic.set(false)"
+                    class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-zinc-600" />
+                <div class="flex items-center gap-3">
+                    <select [(ngModel)]="newTopicDepth"
+                        class="bg-zinc-900 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500/60">
+                        <option value="shallow">Shallow</option>
+                        <option value="medium">Medium</option>
+                        <option value="deep">Deep</option>
+                    </select>
+                    <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()"
+                        class="bg-emerald-500 hover:bg-emerald-400 hover-glow disabled:opacity-50 text-zinc-950 font-semibold text-sm px-4 py-2 rounded-lg transition-all">
+                        {{ savingTopic() ? 'Adding...' : 'Add' }}
+                    </button>
+                    <button (click)="showAddTopic.set(false)"
+                        class="text-zinc-500 hover:text-white text-sm transition-colors px-2">Cancel</button>
+                </div>
+            </div>
+            } @else {
+            <button (click)="showAddTopic.set(true)"
+                class="w-full text-left text-zinc-600 hover:text-zinc-400 text-sm px-4 py-2.5 border border-dashed border-zinc-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 rounded-xl transition-all flex items-center gap-2">
+                <span class="text-base leading-none">+</span> Add topic
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Space shortcut hint -->
+        @if (expandedTopicId()) {
+        <p class="text-center text-zinc-700 text-xs mt-6">
+            Press <kbd
+                class="bg-zinc-900 border border-zinc-700 text-zinc-400 px-2 py-1 rounded-lg text-xs font-mono">Space</kbd> to
+            toggle complete
+        </p>
+        }
+
+        }
+    </main>
+</div>
+
+<app-toast />

@@ -1,19 +1,19 @@
 // src/app/core/services/topics.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
-import { Topic, TopicWithProgress, Depth, CategoryWithTopics } from '../models';
+import { Topic, TopicWithProgress, Depth, SubjectWithTopics, Subtopic } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class TopicsService {
 
-    async getCategoriesWithTopics(): Promise<CategoryWithTopics[]> {
+    async getSubjectsWithTopics(): Promise<SubjectWithTopics[]> {
         const { data: { user } } = await supabase.auth.getUser();
 
-        const { data: categories, error: catErr } = await supabase
-            .from('categories')
+        const { data: subjects, error: subErr } = await supabase
+            .from('subjects')
             .select('*')
             .order('created_at', { ascending: true });
-        if (catErr) throw catErr;
+        if (subErr) throw subErr;
 
         const { data: topics, error: topErr } = await supabase
             .from('topics')
@@ -27,24 +27,41 @@ export class TopicsService {
             .eq('user_id', user!.id);
         if (progErr) throw progErr;
 
-        return (categories ?? []).map(cat => {
-            const catTopics: TopicWithProgress[] = (topics ?? [])
-                .filter(t => t.category_id === cat.id)
+        // Batch-fetch ALL subtopics for this user in one query
+        const { data: allSubtopics, error: subTopErr } = await supabase
+            .from('subtopics')
+            .select('*')
+            .eq('user_id', user!.id)
+            .order('order', { ascending: true });
+        if (subTopErr) throw subTopErr;
+
+        return (subjects ?? []).map(sub => {
+            const subTopics: TopicWithProgress[] = (topics ?? [])
+                .filter(t => t.subject_id === sub.id)
                 .map(t => {
                     const p = (progress ?? []).find(pr => pr.topic_id === t.id);
+                    const topicSubtopics = (allSubtopics ?? []).filter(st => st.topic_id === t.id);
                     return {
                         ...t,
                         completed: p?.completed ?? false,
-                        notes: p?.notes ?? ''
+                        notes: p?.notes ?? '',
+                        subtopics: topicSubtopics as Subtopic[]
                     };
                 });
 
-            const completedCount = catTopics.filter(t => t.completed).length;
-            const totalCount = catTopics.length;
+            const totalCount = subTopics.reduce((sum, t) =>
+                sum + (t.subtopics.length > 0 ? t.subtopics.length : 1), 0);
+
+            const completedCount = subTopics.reduce((sum, t) => {
+                if (t.subtopics.length > 0) {
+                    return sum + t.subtopics.filter(s => s.completed).length;
+                }
+                return sum + (t.completed ? 1 : 0);
+            }, 0);
 
             return {
-                ...cat,
-                topics: catTopics,
+                ...sub,
+                topics: subTopics,
                 completedCount,
                 totalCount,
                 percent: totalCount ? Math.round((completedCount / totalCount) * 100) : 0
@@ -52,11 +69,11 @@ export class TopicsService {
         });
     }
 
-    async addTopic(categoryId: string, title: string, depth: Depth): Promise<Topic> {
+    async addTopic(subjectId: string, title: string, depth: Depth): Promise<Topic> {
         const { data: { user } } = await supabase.auth.getUser();
         const { data, error } = await supabase
             .from('topics')
-            .insert({ category_id: categoryId, title, depth, user_id: user!.id })
+            .insert({ subject_id: subjectId, title, depth, user_id: user!.id })
             .select()
             .single();
         if (error) throw error;
