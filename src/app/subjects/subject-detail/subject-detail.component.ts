@@ -47,9 +47,22 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     newTopicDepth: Depth = 'medium';
     savingTopic = signal(false);
 
-    // ── Computed ───────────────────────────────────────
-    totalCount = computed(() => this.topics().length);
-    completedCount = computed(() => this.topics().filter(t => t.completed).length);
+    // ── Computed (subtopic-aware progress) ─────────────
+    totalCount = computed(() => {
+        return this.topics().reduce((sum, t) => {
+            return sum + (t.subtopics.length > 0 ? t.subtopics.length : 1);
+        }, 0);
+    });
+
+    completedCount = computed(() => {
+        return this.topics().reduce((sum, t) => {
+            if (t.subtopics.length > 0) {
+                return sum + t.subtopics.filter(s => s.completed).length;
+            }
+            return sum + (t.completed ? 1 : 0);
+        }, 0);
+    });
+
     percent = computed(() =>
         this.totalCount() ? Math.round((this.completedCount() / this.totalCount()) * 100) : 0
     );
@@ -166,153 +179,184 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         this.expandedTopicId.update(id => id === topicId ? null : topicId);
     }
 
-    // ── Progress (optimistic) ─────────────────────────
-    async onProgressChanged(event: ProgressChange) {
+    // ── Progress (optimistic, no reload) ──────────────
+    onProgressChanged(event: ProgressChange) {
+        // 1. Optimistic signal update
         this.topics.update(topics => topics.map(t =>
             t.id === event.topicId ? { ...t, completed: event.completed, notes: event.notes } : t
         ));
-        try {
-            await this.topicsService.upsertProgress(event.topicId, event.completed, event.notes);
-        } catch {
-            this.toast.error('Failed to save progress.');
-            await this.load();
-        }
+
+        // 2. Fire-and-forget background save
+        this.topicsService.upsertProgress(event.topicId, event.completed, event.notes)
+            .catch(() => {
+                this.toast.error('Failed to save progress.');
+                this.load();
+            });
     }
 
     // ── Edit Topic ────────────────────────────────────
-    async onTopicEdited(event: TopicEditEvent) {
+    onTopicEdited(event: TopicEditEvent) {
+        // 1. Optimistic signal update
         this.topics.update(topics => topics.map(t =>
             t.id === event.topicId ? { ...t, title: event.title, depth: event.depth } : t
         ));
-        try {
-            await this.topicsService.updateTopic(event.topicId, event.title, event.depth);
-            this.toast.success('Topic updated.');
-        } catch {
-            this.toast.error('Failed to update topic.');
-            await this.load();
-        }
+
+        // 2. Fire-and-forget background save
+        this.topicsService.updateTopic(event.topicId, event.title, event.depth)
+            .then(() => this.toast.success('Topic updated.'))
+            .catch(() => {
+                this.toast.error('Failed to update topic.');
+                this.load();
+            });
     }
 
-    // ── Delete Topic (optimistic) ─────────────────────
-    async onTopicDeleted(topicId: string) {
+    // ── Delete Topic (optimistic, no reload) ──────────
+    onTopicDeleted(topicId: string) {
+        // 1. Optimistic signal remove
         this.topics.update(topics => topics.filter(t => t.id !== topicId));
-        try {
-            await this.topicsService.deleteTopic(topicId);
-            this.toast.success('Topic deleted.');
-        } catch {
-            this.toast.error('Failed to delete topic.');
-            await this.load();
-        }
+
+        // 2. Fire-and-forget background delete
+        this.topicsService.deleteTopic(topicId)
+            .then(() => this.toast.success('Topic deleted.'))
+            .catch(() => {
+                this.toast.error('Failed to delete topic.');
+                this.load();
+            });
     }
 
-    // ── Add Topic ─────────────────────────────────────
+    // ── Add Topic (optimistic, no reload) ─────────────
     async addTopic() {
         if (!this.newTopicTitle.trim()) return;
         this.savingTopic.set(true);
         try {
-            await this.topicsService.addTopic(this.subjectId, this.newTopicTitle.trim(), this.newTopicDepth);
+            const returnedTopic = await this.topicsService.addTopic(
+                this.subjectId, this.newTopicTitle.trim(), this.newTopicDepth
+            );
+
+            // Build a TopicWithProgress from the returned Topic
+            const newTopic: TopicWithProgress = {
+                ...returnedTopic,
+                completed: false,
+                notes: '',
+                subtopics: []
+            };
+
+            // Optimistic push into signal
+            this.topics.update(t => [...t, newTopic]);
+
+            // Reset form
             this.newTopicTitle = '';
             this.newTopicDepth = 'medium';
             this.showAddTopic.set(false);
-            await this.load();
             this.toast.success('Topic added.');
         } catch {
             this.toast.error('Failed to add topic.');
+            this.load();
         } finally {
             this.savingTopic.set(false);
         }
     }
 
-    // ── Subtopic Toggled ──────────────────────────────
-    async onSubtopicToggled(event: SubtopicToggleEvent) {
-        // 1. Optimistic update — flip subtopic completed
-        this.topics.update(topics => topics.map(t => {
-            if (t.id !== event.topicId) return t;
+    // ── Subtopic Toggled (optimistic, no reload) ──────
+    onSubtopicToggled(event: SubtopicToggleEvent) {
+        // Capture previous topic state for rollback context
+        const prevTopic = this.topics().find(t => t.id === event.topicId);
+        const wasCompleted = prevTopic?.completed ?? false;
 
-            const updatedSubtopics = t.subtopics.map(st =>
-                st.id === event.subtopicId ? { ...st, completed: event.completed } : st
-            );
+        // 1. Optimistic signal update — flip subtopic and recompute topic.completed
+        this.topics.update(topics =>
+            topics.map(t => {
+                if (t.id !== event.topicId) return t;
+                const updatedSubtopics = t.subtopics.map(s =>
+                    s.id === event.subtopicId ? { ...s, completed: event.completed } : s
+                );
+                const allDone = updatedSubtopics.length > 0 &&
+                    updatedSubtopics.every(s => s.completed);
+                return { ...t, subtopics: updatedSubtopics, completed: allDone };
+            })
+        );
 
-            // Auto-complete: all subtopics done → topic complete; any incomplete → topic incomplete
-            const allComplete = updatedSubtopics.length > 0 && updatedSubtopics.every(st => st.completed);
-            return { ...t, subtopics: updatedSubtopics, completed: allComplete };
-        }));
+        // 2. Read the updated topic state from signal
+        const updatedTopic = this.topics().find(t => t.id === event.topicId);
+        const nowComplete = updatedTopic?.completed ?? false;
 
-        try {
-            // 2. Persist subtopic toggle
-            await this.subtopicsService.toggleSubtopic(event.subtopicId, event.completed);
+        // 3. Fire-and-forget background saves
+        this.subtopicsService.toggleSubtopic(event.subtopicId, event.completed)
+            .catch(() => {
+                this.toast.error('Failed to update subtopic.');
+                this.load();
+            });
 
-            // 3. Recompute auto-complete for topic
-            const topic = this.topics().find(t => t.id === event.topicId);
-            if (topic) {
-                const allComplete = topic.subtopics.length > 0 && topic.subtopics.every(st => st.completed);
-                await this.subtopicsService.updateTopicProgress(event.topicId, allComplete);
-            }
-        } catch {
-            this.toast.error('Failed to update subtopic.');
-            await this.load();
+        // 4. Sync topic-level progress if auto-complete state changed
+        if (nowComplete !== wasCompleted) {
+            this.subtopicsService.updateTopicProgress(event.topicId, nowComplete)
+                .catch(() => {
+                    this.toast.error('Failed to sync topic progress.');
+                    this.load();
+                });
         }
     }
 
-    // ── Subtopic Added ────────────────────────────────
+    // ── Subtopic Added (optimistic, no reload) ────────
     async onSubtopicAdded(event: SubtopicAddEvent) {
         try {
             const newSub = await this.subtopicsService.addSubtopic(event.topicId, event.title);
 
-            // Optimistic push
-            this.topics.update(topics => topics.map(t => {
-                if (t.id !== event.topicId) return t;
-                const updatedSubtopics = [...t.subtopics, newSub];
-                // If we just added a subtopic and it's not completed, topic should be incomplete
-                const allComplete = updatedSubtopics.every(st => st.completed);
-                return { ...t, subtopics: updatedSubtopics, completed: allComplete };
-            }));
+            // Optimistic push into the correct topic's subtopics
+            this.topics.update(topics =>
+                topics.map(t => {
+                    if (t.id !== event.topicId) return t;
+                    const updatedSubtopics = [...t.subtopics, newSub];
+                    // New subtopic is incomplete → topic can't be complete
+                    const allDone = updatedSubtopics.every(s => s.completed);
+                    return { ...t, subtopics: updatedSubtopics, completed: allDone };
+                })
+            );
 
-            // Update topic progress if needed (new incomplete subtopic → topic not complete)
-            const topic = this.topics().find(t => t.id === event.topicId);
-            if (topic && !topic.completed) {
-                await this.subtopicsService.updateTopicProgress(event.topicId, false);
-            }
+            // Sync topic progress (new incomplete subtopic → topic not complete)
+            this.subtopicsService.updateTopicProgress(event.topicId, false)
+                .catch(() => { /* best-effort */ });
 
             this.toast.success('Subtopic added.');
         } catch {
             this.toast.error('Failed to add subtopic.');
-            await this.load();
+            this.load();
         }
     }
 
-    // ── Subtopic Deleted ──────────────────────────────
-    async onSubtopicDeleted(event: SubtopicDeleteEvent) {
-        // 1. Optimistic remove
-        this.topics.update(topics => topics.map(t => {
-            if (t.id !== event.topicId) return t;
+    // ── Subtopic Deleted (optimistic, no reload) ──────
+    onSubtopicDeleted(event: SubtopicDeleteEvent) {
+        // 1. Optimistic remove from signal
+        this.topics.update(topics =>
+            topics.map(t => {
+                if (t.id !== event.topicId) return t;
+                const remaining = t.subtopics.filter(s => s.id !== event.subtopicId);
+                // No subtopics left → leave topic.completed as-is (manual control)
+                if (remaining.length === 0) {
+                    return { ...t, subtopics: remaining };
+                }
+                // Remaining all complete → auto-complete topic
+                const allDone = remaining.every(s => s.completed);
+                return { ...t, subtopics: remaining, completed: allDone };
+            })
+        );
 
-            const updatedSubtopics = t.subtopics.filter(st => st.id !== event.subtopicId);
+        // 2. Read updated state
+        const updatedTopic = this.topics().find(t => t.id === event.topicId);
 
-            // If no subtopics left, leave completion as-is (user controls manually)
-            if (updatedSubtopics.length === 0) {
-                return { ...t, subtopics: updatedSubtopics };
-            }
+        // 3. Fire-and-forget background delete
+        this.subtopicsService.deleteSubtopic(event.subtopicId)
+            .then(() => this.toast.success('Subtopic removed.'))
+            .catch(() => {
+                this.toast.error('Failed to delete subtopic.');
+                this.load();
+            });
 
-            // If remaining subtopics all complete, auto-complete topic
-            const allComplete = updatedSubtopics.every(st => st.completed);
-            return { ...t, subtopics: updatedSubtopics, completed: allComplete };
-        }));
-
-        try {
-            await this.subtopicsService.deleteSubtopic(event.subtopicId);
-
-            // Persist auto-complete state
-            const topic = this.topics().find(t => t.id === event.topicId);
-            if (topic && topic.subtopics.length > 0) {
-                const allComplete = topic.subtopics.every(st => st.completed);
-                await this.subtopicsService.updateTopicProgress(event.topicId, allComplete);
-            }
-
-            this.toast.success('Subtopic removed.');
-        } catch {
-            this.toast.error('Failed to delete subtopic.');
-            await this.load();
+        // 4. Sync topic progress if subtopics remain
+        if (updatedTopic && updatedTopic.subtopics.length > 0) {
+            const allDone = updatedTopic.subtopics.every(s => s.completed);
+            this.subtopicsService.updateTopicProgress(event.topicId, allDone)
+                .catch(() => { /* best-effort */ });
         }
     }
 
