@@ -48,7 +48,7 @@
         <!-- Title -->
         <span class="flex-1 text-sm font-medium transition-colors" [class.text-white]="!isTopicChecked()"
             [class.text-zinc-500]="isTopicChecked()" [class.line-through]="isTopicChecked()">
-            {{ topic.title }}
+            {{ topic().title }}
         </span>
 
         <!-- Subtopic count badge (inline, next to depth) -->
@@ -64,12 +64,17 @@
 
         <!-- Depth badge -->
         <span class="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0"
-            [class]="depthConfig[topic.depth].classes">
-            {{ depthConfig[topic.depth].label }}
+            [class]="depthConfig[topic().depth].classes">
+            {{ depthConfig[topic().depth].label }}
         </span>
 
+        <!-- Starred badge -->
+        @if (topic().starred) {
+        <span class="text-sm flex-shrink-0" title="Focus topic this week">⭐</span>
+        }
+
         <!-- Has notes dot -->
-        @if (topic.notes) {
+        @if (topic().notes) {
         <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></div>
         }
 
@@ -94,14 +99,14 @@
         </button>
 
         <!-- Arrow -->
-        <svg class="w-4 h-4 text-zinc-600 transition-transform duration-200 flex-shrink-0" [class.rotate-180]="isOpen"
+        <svg class="w-4 h-4 text-zinc-600 transition-transform duration-200 flex-shrink-0" [class.rotate-180]="isOpen()"
             fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
     </div>
 
     <!-- Expanded panel (accordion) -->
-    @if (isOpen) {
+    @if (isOpen()) {
     <div class="px-4 pb-4 border-t border-white/[0.06] pt-3" (click)="$event.stopPropagation()">
 
         <!-- Notes -->
@@ -132,7 +137,7 @@
             </div>
 
             <!-- Subtopic rows -->
-            @for (st of topic.subtopics; track st.id) {
+            @for (st of topic().subtopics; track st.id) {
             <div class="flex items-center gap-2.5 h-9 group/st px-1 rounded-lg hover:bg-white/[0.03] transition-colors">
                 <!-- Subtopic checkbox -->
                 <button (click)="onSubtopicCheck(st.id, st.completed)"

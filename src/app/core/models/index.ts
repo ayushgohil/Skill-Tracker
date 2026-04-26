@@ -24,6 +24,7 @@ export interface Topic {
     subject_id: string;
     title: string;
     depth: Depth;
+    starred: boolean;
     created_at: string;
 }
 
@@ -58,4 +59,24 @@ export interface SubjectWithTopics extends Subject {
     completedCount: number;
     totalCount: number;
     percent: number;
+}
+
+export interface WeeklyGoal {
+    id: string;
+    user_id: string;
+    topic_id: string;
+    week_start: string;
+    created_at: string;
+}
+
+export interface WeeklyReview {
+    id: string;
+    user_id: string;
+    week_start: string;
+    completed_at: string;
+}
+
+export interface StarredTopic extends TopicWithProgress {
+    subject_name: string;
+    subject_color: string;
 }

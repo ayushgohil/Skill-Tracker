@@ -28,5 +28,10 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent)
     },
+    {
+        path: 'weekly',
+        canActivate: [authGuard],
+        loadComponent: () => import('./weekly/weekly.component').then(m => m.WeeklyComponent)
+    },
     { path: '**', redirectTo: 'dashboard' }
 ];

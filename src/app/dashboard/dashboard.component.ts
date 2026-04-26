@@ -1,18 +1,20 @@
 // src/app/dashboard/dashboard.component.ts
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TopicsService } from '../core/services/topics.service';
 import { SubjectsService } from '../core/services/subjects.service';
+import { WeeklyService } from '../core/services/weekly.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
-import { SubjectWithTopics } from '../core/models';
+import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ToastComponent, FormsModule, RouterLink],
+    imports: [ToastComponent, FormsModule, RouterLink, TitleCasePipe],
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
@@ -20,6 +22,11 @@ export class DashboardComponent implements OnInit {
     // ── State ──────────────────────────────────────────
     subjects = signal<SubjectWithTopics[]>([]);
     loading = signal(true);
+
+    // Weekly review
+    reviewDue = signal(false);
+    starredTopics = signal<StarredTopic[]>([]);
+    loadingWeekly = signal(true);
 
     // Add subject
     showAddSubject = signal(false);
@@ -43,6 +50,7 @@ export class DashboardComponent implements OnInit {
     constructor(
         private topicsService: TopicsService,
         private subjectsService: SubjectsService,
+        private weeklyService: WeeklyService,
         private auth: AuthService,
         private toast: ToastService,
         private router: Router
@@ -50,6 +58,8 @@ export class DashboardComponent implements OnInit {
 
     async ngOnInit() {
         await this.load();
+        // Load weekly data in parallel (non-blocking)
+        this.loadWeeklyData();
     }
 
     async load() {
@@ -63,9 +73,28 @@ export class DashboardComponent implements OnInit {
         }
     }
 
-    // ── Navigate to subject detail ────────────────────
+    private async loadWeeklyData() {
+        try {
+            const [isDue, starred] = await Promise.all([
+                this.weeklyService.isReviewDue(),
+                this.weeklyService.getAllStarredTopics()
+            ]);
+            this.reviewDue.set(isDue);
+            this.starredTopics.set(starred);
+        } catch {
+            // Non-critical — silently ignore
+        } finally {
+            this.loadingWeekly.set(false);
+        }
+    }
+
+    // ── Navigate ──────────────────────────────────────
     openSubject(id: string) {
         this.router.navigate(['/subjects', id]);
+    }
+
+    goToWeeklyReview() {
+        this.router.navigate(['/weekly']);
     }
 
     // ── Add Subject ───────────────────────────────────
