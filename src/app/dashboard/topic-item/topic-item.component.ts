@@ -2,6 +2,7 @@
 import { Component, input, output, signal, computed, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TopicWithProgress, Depth } from '../../core/models';
+import { PomodoroService } from '../../core/services/pomodoro.service';
 
 export interface ProgressChange {
     topicId: string;
@@ -91,7 +92,7 @@ export class TopicItemComponent {
     );
 
     // ── Effect replaces ngOnChanges ───────────────────
-    constructor() {
+    constructor(public pomodoro: PomodoroService) {
         effect(() => {
             if (this.isOpen()) {
                 this.localNotes = this.topic().notes;

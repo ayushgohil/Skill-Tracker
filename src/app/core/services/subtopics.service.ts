@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { Subtopic } from '../models';
+import { ActivityService } from './activity.service';
 
 @Injectable({ providedIn: 'root' })
 export class SubtopicsService {
@@ -45,12 +46,18 @@ export class SubtopicsService {
         return data as Subtopic;
     }
 
+    constructor(private activityService: ActivityService) {}
+
     async toggleSubtopic(id: string, completed: boolean): Promise<void> {
         const { error } = await supabase
             .from('subtopics')
             .update({ completed })
             .eq('id', id);
         if (error) throw error;
+        
+        if (completed) {
+            this.activityService.logActivity();
+        }
     }
 
     async updateSubtopicNotes(id: string, notes: string): Promise<void> {

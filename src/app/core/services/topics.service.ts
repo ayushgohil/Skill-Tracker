@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { Topic, TopicWithProgress, Depth, SubjectWithTopics, Subtopic } from '../models';
+import { ActivityService } from './activity.service';
 
 @Injectable({ providedIn: 'root' })
 export class TopicsService {
@@ -96,6 +97,8 @@ export class TopicsService {
         if (error) throw error;
     }
 
+    constructor(private activityService: ActivityService) {}
+
     async upsertProgress(topicId: string, completed: boolean, notes: string): Promise<void> {
         const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
@@ -108,5 +111,10 @@ export class TopicsService {
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id,topic_id' });
         if (error) throw error;
+        
+        // Log activity if completed
+        if (completed) {
+            this.activityService.logActivity();
+        }
     }
 }

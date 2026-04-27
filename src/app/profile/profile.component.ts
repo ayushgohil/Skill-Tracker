@@ -8,11 +8,12 @@ import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
 import { ToastComponent } from '../shared/toast/toast.component';
 import { Profile } from '../core/models';
+import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 
 @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [FormsModule, RouterLink, ToastComponent],
+    imports: [FormsModule, RouterLink, ToastComponent, ActivityHeatmapComponent],
     templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
@@ -33,6 +34,12 @@ export class ProfileComponent implements OnInit {
         const p = this.profile();
         if (!p) return '';
         return new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    });
+
+    joinYear = computed(() => {
+        const p = this.profile();
+        if (!p) return new Date().getFullYear();
+        return new Date(p.created_at).getFullYear();
     });
 
     constructor(

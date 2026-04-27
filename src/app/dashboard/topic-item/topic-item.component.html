@@ -78,6 +78,15 @@
         <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></div>
         }
 
+        <!-- Pomodoro button (visible on hover) -->
+        <button (click)="pomodoro.startSession(topic().id, topic().title); $event.stopPropagation()"
+            class="opacity-0 group-hover/row:opacity-100 text-zinc-600 hover:text-emerald-400 transition-all flex-shrink-0 p-0.5"
+            title="Start Focus Session">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" />
+            </svg>
+        </button>
+
         <!-- Edit button (visible on hover) -->
         <button (click)="startEdit($event)"
             class="opacity-0 group-hover/row:opacity-100 text-zinc-600 hover:text-zinc-300 transition-all flex-shrink-0 p-0.5"

@@ -1,0 +1,69 @@
+<!-- src/app/shared/pomodoro/pomodoro.component.html -->
+@if (pomodoroService.isVisible() && pomodoroService.state() !== 'idle') {
+<div class="fixed bottom-6 right-6 z-50 w-72 glass-card rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] border border-emerald-500/20 overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+    
+    <!-- Header -->
+    <div class="px-4 py-3 border-b border-white/[0.06] bg-black/40 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="text-base">🍅</span>
+            <span class="text-sm font-semibold text-white truncate max-w-[140px]">
+                {{ pomodoroService.state() === 'break' ? 'Break Time' : pomodoroService.activeTopicTitle() }}
+            </span>
+        </div>
+        <button (click)="close()" class="text-zinc-500 hover:text-white transition-colors" title="Hide widget (keeps running)">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Timer Body -->
+    <div class="p-5 text-center bg-zinc-900/40 relative overflow-hidden">
+        
+        <!-- Progress backdrop glow based on state -->
+        <div class="absolute inset-0 opacity-20 transition-colors duration-1000"
+            [class.bg-emerald-500]="pomodoroService.state() === 'running'"
+            [class.bg-amber-500]="pomodoroService.state() === 'paused'"
+            [class.bg-blue-500]="pomodoroService.state() === 'break'">
+        </div>
+
+        <div class="relative z-10 text-4xl font-black tracking-tight font-mono tabular-nums mb-1"
+             [class.text-emerald-400]="pomodoroService.state() === 'running'"
+             [class.text-amber-400]="pomodoroService.state() === 'paused'"
+             [class.text-blue-400]="pomodoroService.state() === 'break'">
+            {{ pomodoroService.formattedTime() }}
+        </div>
+        
+        <div class="relative z-10 text-zinc-400 text-xs uppercase tracking-widest font-semibold mb-4">
+            {{ pomodoroService.state() }}
+        </div>
+
+        <!-- Controls -->
+        <div class="relative z-10 flex items-center justify-center gap-3">
+            <button (click)="toggle()" 
+                class="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105"
+                [class.bg-emerald-500]="pomodoroService.state() !== 'running'"
+                [class.text-zinc-950]="pomodoroService.state() !== 'running'"
+                [class.bg-amber-500]="pomodoroService.state() === 'running'"
+                [class.text-amber-950]="pomodoroService.state() === 'running'">
+                
+                @if (pomodoroService.state() === 'running') {
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 4h4v16H6zm8 0h4v16h-4z"/>
+                    </svg>
+                } @else {
+                    <svg class="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                }
+            </button>
+            
+            <button (click)="stop()" class="w-10 h-10 rounded-full bg-zinc-800 text-zinc-300 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center" title="Stop session">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 6h12v12H6z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+}

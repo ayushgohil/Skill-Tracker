@@ -142,7 +142,7 @@
             </div>
         </div>
 
-        } @else if (subjects().length === 0) {
+        } @else if (subjects().length === 0 && !showAddSubject()) {
 
         <!-- ── Empty State ────────────────────────── -->
         <div class="text-center py-20">
@@ -172,6 +172,7 @@
         } @else {
 
         <!-- ── Subject Cards Grid ─────────────────── -->
+        @if (subjects().length > 0) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             @for (sub of subjects(); track sub.id) {
 
@@ -253,6 +254,7 @@
 
             }
         </div>
+        }
 
         <!-- ── Add Subject ───────────────────────── -->
         @if (showAddSubject()) {
