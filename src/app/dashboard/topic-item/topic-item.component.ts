@@ -32,11 +32,14 @@ export interface SubtopicDeleteEvent {
     topicId: string;
 }
 
+import { expandCollapse } from '../../core/animations/app.animations';
+
 @Component({
     selector: 'app-topic-item',
     standalone: true,
     imports: [FormsModule],
-    templateUrl: './topic-item.component.html'
+    templateUrl: './topic-item.component.html',
+    animations: [expandCollapse]
 })
 export class TopicItemComponent {
     // ── Signal inputs ─────────────────────────────────

@@ -1,20 +1,23 @@
-// src/app/profile/profile.component.ts
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ProfileService } from '../core/services/profile.service';
+import { SubjectsService } from '../core/services/subjects.service';
 import { TopicsService } from '../core/services/topics.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
-import { ToastComponent } from '../shared/toast/toast.component';
-import { Profile } from '../core/models';
+import { Profile, SubjectWithTopics } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
+import { ToastComponent } from '../shared/toast/toast.component';
+import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 
 @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [FormsModule, RouterLink, ToastComponent, ActivityHeatmapComponent],
-    templateUrl: './profile.component.html'
+    imports: [CommonModule, FormsModule, RouterModule, ActivityHeatmapComponent, ToastComponent],
+    templateUrl: './profile.component.html',
+    animations: [staggerList, fadeSlideInOut]
 })
 export class ProfileComponent implements OnInit {
     profile = signal<Profile | null>(null);
@@ -59,8 +62,8 @@ export class ProfileComponent implements OnInit {
             this.profile.set(profile);
             this.displayName = profile.display_name ?? '';
             this.totalSubjects.set(subjects.length);
-            this.totalTopics.set(subjects.reduce((s, c) => s + c.totalCount, 0));
-            this.totalCompleted.set(subjects.reduce((s, c) => s + c.completedCount, 0));
+            this.totalTopics.set(subjects.reduce((s: number, c: SubjectWithTopics) => s + c.totalCount, 0));
+            this.totalCompleted.set(subjects.reduce((s: number, c: SubjectWithTopics) => s + c.completedCount, 0));
         } catch {
             this.toast.error('Failed to load profile.');
         } finally {

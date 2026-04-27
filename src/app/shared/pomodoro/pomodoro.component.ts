@@ -1,13 +1,14 @@
-// src/app/shared/pomodoro/pomodoro.component.ts
 import { Component, OnInit } from '@angular/core';
-import { TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { PomodoroService } from '../../core/services/pomodoro.service';
+import { fadeSlideInOut } from '../../core/animations/app.animations';
 
 @Component({
     selector: 'app-pomodoro',
     standalone: true,
-    imports: [TitleCasePipe],
-    templateUrl: './pomodoro.component.html'
+    imports: [CommonModule],
+    templateUrl: './pomodoro.component.html',
+    animations: [fadeSlideInOut]
 })
 export class PomodoroComponent implements OnInit {
 

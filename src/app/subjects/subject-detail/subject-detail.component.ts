@@ -16,6 +16,7 @@ import {
     SubtopicDeleteEvent
 } from '../../dashboard/topic-item/topic-item.component';
 import { ToastComponent } from '../../shared/toast/toast.component';
+import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
 
 export type SortOption = 'default' | 'depth-asc' | 'depth-desc' | 'completed-last' | 'completed-first';
 
@@ -25,7 +26,8 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
     selector: 'app-subject-detail',
     standalone: true,
     imports: [TopicItemComponent, ToastComponent, FormsModule],
-    templateUrl: './subject-detail.component.html'
+    templateUrl: './subject-detail.component.html',
+    animations: [staggerList, fadeSlideInOut]
 })
 export class SubjectDetailComponent implements OnInit, OnDestroy {
     protected readonly Object = Object;

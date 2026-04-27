@@ -1,29 +1,32 @@
 <!-- src/app/auth/login/login.component.html -->
 <div class="page-gradient flex items-center justify-center min-h-screen px-4">
-    <!-- Background grid -->
-    <div class="fixed inset-0 z-0"
-        style="background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 32px 32px;">
+
+    <!-- Subtle dot grid background -->
+    <div class="fixed inset-0 z-0 pointer-events-none"
+        style="background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 28px 28px;">
     </div>
 
-    <div class="w-full max-w-md relative z-10">
+    <div class="w-full max-w-sm relative z-10">
 
-        <div class="text-center mb-10">
-            <div class="inline-flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-[0_0_24px_rgba(16,185,129,0.4)]">
-                    <span class="text-zinc-950 font-black text-xl">ST</span>
-                </div>
-                <span class="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent tracking-tight">SkillTracker</span>
+        <!-- Logo + Branding -->
+        <div class="text-center mb-8 animate-fade-in">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500 shadow-[0_0_32px_rgba(16,185,129,0.4)] mb-4">
+                <svg class="w-7 h-7 text-zinc-950" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
             </div>
+            <h1 class="text-2xl font-black text-white tracking-tight mb-1">SkillTracker</h1>
             <p class="text-zinc-500 text-sm">Track what you learn. Own your growth.</p>
         </div>
 
-        <div class="glass-card rounded-2xl p-8">
-            <h2 class="text-white font-semibold text-xl mb-6">Welcome back</h2>
+        <!-- Card -->
+        <div class="glass-card rounded-2xl p-7 animate-scale-in">
+            <h2 class="text-white font-bold text-lg mb-6">Welcome back</h2>
 
             @if (error()) {
-            <div class="bg-red-500/[0.08] border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
+            <div class="flex items-center gap-2.5 bg-red-500/[0.08] border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3 mb-5">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
                 {{ error() }}
             </div>
@@ -31,25 +34,24 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="text-zinc-400 text-sm block mb-1.5">Email</label>
-                    <input [(ngModel)]="email" type="email" placeholder="you@example.com"
-                        class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-zinc-600" />
+                    <label class="text-zinc-500 text-xs font-semibold uppercase tracking-wide block mb-1.5">Email</label>
+                    <input [(ngModel)]="email" type="email" placeholder="you@example.com" class="input" />
                 </div>
                 <div>
-                    <label class="text-zinc-400 text-sm block mb-1.5">Password</label>
-                    <input [(ngModel)]="password" type="password" placeholder="••••••••" (keydown.enter)="submit()"
-                        class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/10 transition-all placeholder:text-zinc-600" />
+                    <label class="text-zinc-500 text-xs font-semibold uppercase tracking-wide block mb-1.5">Password</label>
+                    <input [(ngModel)]="password" type="password" placeholder="••••••••"
+                        (keydown.enter)="submit()" class="input" />
                 </div>
-                <button (click)="submit()" [disabled]="loading()"
-                    class="w-full bg-emerald-500 hover:bg-emerald-400 hover-glow disabled:opacity-50 text-zinc-950 font-semibold rounded-xl py-2.5 text-sm transition-all mt-2">
+                <button (click)="submit()" [disabled]="loading()" class="btn-primary w-full justify-center mt-1">
                     {{ loading() ? 'Signing in...' : 'Sign in' }}
                 </button>
             </div>
 
-            <p class="text-zinc-500 text-sm text-center mt-6">
+            <p class="text-zinc-600 text-sm text-center mt-6">
                 No account?
-                <a routerLink="/auth/register" class="text-emerald-400 hover:text-emerald-300 transition-colors">Create
-                    one</a>
+                <a routerLink="/auth/register" class="text-emerald-400 hover:text-emerald-300 transition-colors font-medium">
+                    Create one
+                </a>
             </p>
         </div>
 

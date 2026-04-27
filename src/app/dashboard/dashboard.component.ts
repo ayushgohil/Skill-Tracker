@@ -1,5 +1,4 @@
-// src/app/dashboard/dashboard.component.ts
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,14 +9,30 @@ import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
 import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
+import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
     imports: [ToastComponent, FormsModule, RouterLink, TitleCasePipe],
-    templateUrl: './dashboard.component.html'
+    templateUrl: './dashboard.component.html',
+    animations: [staggerList, fadeSlideInOut]
 })
 export class DashboardComponent implements OnInit {
+
+    // ── Spotlight Tracking ────────────────────────────
+    @HostListener('mousemove', ['$event'])
+    onMouseMove(event: MouseEvent) {
+        if (!this.el) return;
+        const cards = this.el.nativeElement.querySelectorAll('.spotlight-card');
+        for (const card of cards) {
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        }
+    }
 
     // ── State ──────────────────────────────────────────
     subjects = signal<SubjectWithTopics[]>([]);
@@ -53,7 +68,8 @@ export class DashboardComponent implements OnInit {
         private weeklyService: WeeklyService,
         private auth: AuthService,
         private toast: ToastService,
-        private router: Router
+        private router: Router,
+        private el: ElementRef
     ) { }
 
     async ngOnInit() {
