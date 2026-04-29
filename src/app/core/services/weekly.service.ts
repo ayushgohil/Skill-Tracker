@@ -145,18 +145,20 @@ export class WeeklyService {
         const subjects = subjectsRes.data ?? [];
         const progress = progressRes.data ?? [];
 
-        return topics.map(t => {
-            const sub = subjects.find(s => s.id === t.subject_id);
-            const p = progress.find(pr => pr.topic_id === t.id);
-            return {
-                ...t,
-                completed: p?.completed ?? false,
-                notes: p?.notes ?? '',
-                subtopics: [],
-                subject_name: sub?.name ?? '',
-                subject_color: sub?.color ?? '#71717a'
-            };
-        });
+        return topics
+            .map(t => {
+                const sub = subjects.find(s => s.id === t.subject_id);
+                const p = progress.find(pr => pr.topic_id === t.id);
+                return {
+                    ...t,
+                    completed: p?.completed ?? false,
+                    notes: p?.notes ?? '',
+                    subtopics: [],
+                    subject_name: sub?.name ?? '',
+                    subject_color: sub?.color ?? '#71717a'
+                };
+            })
+            .filter(t => !t.completed);
     }
 
     // ── Incomplete topics across all subjects ─────────

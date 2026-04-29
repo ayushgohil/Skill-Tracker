@@ -1,178 +1,137 @@
 <!-- src/app/landing/landing.component.html -->
-<div class="page-gradient text-white">
+<main class="relative min-h-screen overflow-hidden text-zinc-100 font-sans selection:bg-[#00C8E8]/30 selection:text-white"
+      style="background: linear-gradient(165deg, #03001e 0%, #7303c0 50%, #ec38bc 100%);">
 
-    <!-- ── Navbar ───────────────────────────────────── -->
-    <header class="sticky top-0 z-20 border-b border-white/[0.06] bg-black/40 backdrop-blur-xl px-6 py-4">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                    <span class="text-zinc-950 font-black text-sm">ST</span>
-                </div>
-                <span class="font-bold text-lg tracking-tight">SkillTracker</span>
+    <!-- Ultra-Premium Backdrop Canvas -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <!-- Dynamic Mesh Gradients / Light Orbs -->
+        <div class="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#00C8E8]/40 rounded-full blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
+        <div class="absolute top-1/3 -left-60 w-[600px] h-[600px] bg-[#7303c0]/50 rounded-full blur-[160px] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
+        <div class="absolute -bottom-40 right-1/4 w-[450px] h-[450px] bg-[#ec38bc]/30 rounded-full blur-[120px] animate-pulse" style="animation-duration: 10s; animation-delay: 4s;"></div>
+        
+        <!-- SVG Grid Pattern Overlay -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+    </div>
+
+    <!-- Premium Top Navigation -->
+    <header class="relative z-30 border-b border-white/[0.08] bg-black/20 backdrop-blur-2xl px-6 py-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <!-- Scaled, Premium Logo Allocation -->
+            <div class="flex items-center">
+                <img src="assets/nextlyr-logo.png" onerror="this.src='nextlyr-logo.png'" alt="Nextlyr Logo" class="w-40 md:w-52 h-auto object-contain transition-transform duration-500 hover:scale-[1.02]" />
             </div>
-            <div class="flex items-center gap-4">
-                <a routerLink="/auth/login"
-                    class="text-zinc-400 hover:text-white text-sm transition-colors">
-                    Sign in
+            
+            <!-- Consolidated Navigation Controls -->
+            <div class="flex items-center gap-6">
+                <a routerLink="/auth/login" class="text-zinc-300 hover:text-white text-sm font-semibold tracking-wide transition-all">
+                    Sign In
                 </a>
-                <a routerLink="/auth/register"
-                    class="bg-emerald-500 hover:bg-emerald-400 hover-glow text-zinc-950 font-semibold px-5 py-2 rounded-xl text-sm transition-all">
-                    Get started free
+                <a routerLink="/auth/register" 
+                   class="relative group overflow-hidden bg-white text-[#03001e] font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_10px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:translate-y-0">
+                    <span class="relative z-10">Get Started</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- ── Hero Section ────────────────────────────── -->
-    <section class="py-32 px-4 text-center">
-        <div class="max-w-2xl mx-auto">
-            <!-- Badge -->
-            <div class="inline-flex items-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-4 py-1.5 rounded-full mb-6">
-                Built for serious learners
+    <!-- Hero Section / Core Content -->
+    <section class="relative z-20 px-4 pt-24 pb-16 flex flex-col items-center justify-center text-center min-h-[70vh]">
+        <div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+            
+            <!-- Subtext Pill -->
+            <div class="inline-flex items-center px-5 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[#00C8E8] text-xs font-bold uppercase tracking-widest shadow-sm">
+                Nextlyr Skill Tracker
             </div>
-
-            <!-- Headline -->
-            <h1 class="text-5xl font-bold tracking-tight text-white leading-tight">
-                Track what you learn.<br />Own your growth.
+            
+            <!-- Strategic Headline -->
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1] drop-shadow-md">
+                Track what you learn.<br>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#00C8E8] via-[#ec38bc] to-[#ffd700]">
+                    Own your compound growth.
+                </span>
             </h1>
-
-            <!-- Subheadline -->
-            <p class="text-zinc-400 text-lg mt-4 max-w-md mx-auto">
-                Organize your learning by subject, track topics with depth levels,
-                take notes, and watch your progress compound over time.
+            
+            <!-- Description -->
+            <p class="text-zinc-200/80 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed drop-shadow">
+                Organize your workflow by subject, monitor milestones with adaptive depth thresholds, archive notes securely, and unlock progress over time.
             </p>
-
-            <!-- CTA Buttons -->
-            <div class="mt-8 flex justify-center flex-wrap gap-4">
-                <a routerLink="/auth/register"
-                    class="bg-emerald-500 hover:bg-emerald-400 hover-glow text-zinc-950 font-semibold px-6 py-3 rounded-xl text-sm transition-all">
-                    Get started free
-                </a>
-                <a routerLink="/auth/login"
-                    class="border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white bg-transparent rounded-xl px-6 py-3 text-sm transition-all">
-                    Sign in
-                </a>
-            </div>
-
-            <!-- Sub-note -->
-            <p class="text-zinc-600 text-xs mt-4">Free forever · No credit card required</p>
-        </div>
-    </section>
-
-    <!-- ── Features Section ────────────────────────── -->
-    <section class="py-24 px-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center">
-                <span class="text-emerald-400 text-xs font-semibold uppercase tracking-widest">FEATURES</span>
-                <h2 class="text-white text-3xl font-bold mt-2">Everything a learner needs</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <!-- Feature 1 -->
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                    </div>
-                    <h3 class="text-white font-semibold text-lg mb-2">Subjects &amp; Topics</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">
-                        Organize your learning into subjects. Break each subject into
-                        trackable topics with depth levels — shallow, medium, or deep.
-                    </p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-white font-semibold text-lg mb-2">Subtopic Checklists</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">
-                        Break complex topics into smaller subtopics. When all subtopics
-                        are complete, the parent topic auto-completes.
-                    </p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94" />
-                        </svg>
-                    </div>
-                    <h3 class="text-white font-semibold text-lg mb-2">Progress at a Glance</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">
-                        See completion percentages per subject and overall.
-                        Visual progress bars make your momentum visible.
-                    </p>
-                </div>
+            
+            <!-- Simple Sub-Note -->
+            <div class="flex items-center justify-center gap-2 text-zinc-300/60 text-xs tracking-widest uppercase font-semibold mt-6">
+                <span>• No Complexity</span>
+                <span>• Full Visibility</span>
+                <span>• Scalable Tracking</span>
             </div>
         </div>
     </section>
 
-    <!-- ── How It Works ────────────────────────────── -->
-    <section class="py-24 bg-black/20 px-4">
+    <!-- Minimalist High-Aesthetic Features Block -->
+    <section class="relative z-20 py-20 px-4 border-t border-white/[0.08] bg-black/30 backdrop-blur-sm">
         <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16">
-                <span class="text-emerald-400 text-xs font-semibold uppercase tracking-widest">HOW IT WORKS</span>
-                <h2 class="text-white text-3xl font-bold mt-2">Three steps to mastery</h2>
-            </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Step 1 -->
-                <div class="text-center">
-                    <div class="text-6xl font-black text-zinc-800 mb-4">1</div>
-                    <h3 class="text-white font-semibold text-lg mb-2">Create a subject</h3>
-                    <p class="text-zinc-500 text-sm">
-                        e.g. Angular, Backend, DevOps — whatever you're learning right now.
+                <!-- Card 1 -->
+                <div class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-3xl p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#00C8E8]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500"></div>
+                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-6 h-6 text-[#00C8E8]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Subjects & Topics</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed relative z-10">
+                        Map goals conceptually. Structure targets against deep, intermediate, or shallow criteria seamlessly.
                     </p>
                 </div>
 
-                <!-- Step 2 -->
-                <div class="text-center">
-                    <div class="text-6xl font-black text-zinc-800 mb-4">2</div>
-                    <h3 class="text-white font-semibold text-lg mb-2">Add topics</h3>
-                    <p class="text-zinc-500 text-sm">
-                        With depth levels showing what to prioritize — shallow, medium, or deep.
+                <!-- Card 2 -->
+                <div class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-3xl p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#7303c0]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500"></div>
+                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-6 h-6 text-[#ec38bc]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Subtopic Checklists</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed relative z-10">
+                        Partition milestones granularly. Observe recursive parent completions aggregate immediately.
                     </p>
                 </div>
 
-                <!-- Step 3 -->
-                <div class="text-center">
-                    <div class="text-6xl font-black text-zinc-800 mb-4">3</div>
-                    <h3 class="text-white font-semibold text-lg mb-2">Track &amp; take notes</h3>
-                    <p class="text-zinc-500 text-sm">
-                        Check off topics, save links and thoughts, watch your progress grow.
+                <!-- Card 3 -->
+                <div class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-3xl p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#ec38bc]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500"></div>
+                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-6 h-6 text-[#ffd700]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Progress Analytics</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed relative z-10">
+                        Isolate completion ratios clearly. Drive real-time trajectory tracking effortlessly.
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ── CTA Banner ──────────────────────────────── -->
-    <section class="py-20 px-4">
-        <div class="glass-card rounded-3xl p-12 max-w-2xl mx-auto text-center">
-            <h2 class="text-white text-3xl font-bold mb-3">Start tracking your learning today</h2>
-            <p class="text-zinc-400 text-sm mb-8">Free forever. No credit card required.</p>
-            <a routerLink="/auth/register"
-                class="inline-block bg-emerald-500 hover:bg-emerald-400 hover-glow text-zinc-950 font-semibold px-8 py-3 rounded-xl text-sm transition-all">
-                Create free account
-            </a>
-        </div>
-    </section>
-
-    <!-- ── Footer ──────────────────────────────────── -->
-    <footer class="border-t border-zinc-900 py-6 px-4">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <span class="text-zinc-700 text-xs">&copy; 2026 SkillTracker. All rights reserved.</span>
-            <span class="text-zinc-700 text-xs">Built with Angular + Supabase</span>
+    <!-- Final Conversion / Footer -->
+    <footer class="relative z-20 border-t border-white/[0.08] bg-[#03001e]/80 backdrop-blur-xl py-8 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-zinc-500 text-xs">© 2026 SkillTracker.</span>
+            </div>
+            <span class="text-zinc-600 text-xs tracking-widest uppercase font-bold">Built with Angular & Supabase</span>
         </div>
     </footer>
 
-</div>
+</main>
+
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+</style>

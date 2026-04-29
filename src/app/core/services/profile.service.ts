@@ -1,10 +1,11 @@
 // src/app/core/services/profile.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { Profile } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
+    userProfile = signal<Profile | null>(null);
 
     async getProfile(): Promise<Profile> {
         const { data: { user } } = await supabase.auth.getUser();
@@ -16,7 +17,10 @@ export class ProfileService {
             .eq('id', user.id)
             .single();
         if (error) throw error;
-        return data as Profile;
+        
+        const profile = data as Profile;
+        this.userProfile.set(profile);
+        return profile;
     }
 
     async updateDisplayName(name: string): Promise<void> {
@@ -28,5 +32,7 @@ export class ProfileService {
             .update({ display_name: name })
             .eq('id', user.id);
         if (error) throw error;
+
+        this.userProfile.update(p => p ? { ...p, display_name: name } : { id: user.id, display_name: name, created_at: new Date().toISOString(), email: user.email ?? '' });
     }
 }
