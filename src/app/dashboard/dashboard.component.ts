@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, computed, HostListener, ElementRef } from '@angular/core';
+import Swal from 'sweetalert2';
 import { TitleCasePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -113,12 +114,17 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/weekly']);
     }
 
+    // ── Title Case helper ─────────────────────────────
+    toTitleCase(value: string): string {
+        return value.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.slice(1));
+    }
+
     // ── Add Subject ───────────────────────────────────
     async addSubject() {
         if (!this.newSubjectName.trim()) return;
         this.savingSubject.set(true);
         try {
-            await this.subjectsService.create(this.newSubjectName.trim(), this.newSubjectColor);
+            await this.subjectsService.create(this.toTitleCase(this.newSubjectName.trim()), this.newSubjectColor);
             this.newSubjectName = '';
             this.newSubjectColor = '#10b981';
             this.showAddSubject.set(false);
@@ -147,12 +153,13 @@ export class DashboardComponent implements OnInit {
     async saveEditSubject(event: Event, subId: string) {
         event.stopPropagation();
         if (!this.editSubjectName.trim()) return;
+        const titledName = this.toTitleCase(this.editSubjectName.trim());
         this.subjects.update(subs => subs.map(s =>
-            s.id === subId ? { ...s, name: this.editSubjectName.trim(), color: this.editSubjectColor } : s
+            s.id === subId ? { ...s, name: titledName, color: this.editSubjectColor } : s
         ));
         this.editingSubjectId.set(null);
         try {
-            await this.subjectsService.update(subId, this.editSubjectName.trim(), this.editSubjectColor);
+            await this.subjectsService.update(subId, titledName, this.editSubjectColor);
             this.toast.success('Subject updated.');
         } catch {
             this.toast.error('Failed to update subject.');
@@ -163,6 +170,19 @@ export class DashboardComponent implements OnInit {
     // ── Delete Subject ────────────────────────────────
     async deleteSubject(event: Event, id: string, name: string) {
         event.stopPropagation();
+        const result = await Swal.fire({
+            title: 'Delete Subject?',
+            text: `"${name}" and all its topics will be permanently removed.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            background: '#18181b',
+            color: '#f4f4f5',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#3f3f46'
+        });
+        if (!result.isConfirmed) return;
         this.subjects.update(subs => subs.filter(s => s.id !== id));
         try {
             await this.subjectsService.delete(id);

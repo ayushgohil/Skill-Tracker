@@ -177,6 +177,7 @@
             <div class="glass-card rounded-xl p-4 space-y-3 border-emerald-500/20 animate-slide-up">
                 <p class="section-title">Add Topic</p>
                 <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic title"
+                    (input)="newTopicTitle = toTitleCase(newTopicTitle)"
                     (keydown.enter)="addTopic()" (keydown.escape)="showAddTopic.set(false)"
                     class="input" />
                 <div class="flex items-center gap-2 flex-wrap">
