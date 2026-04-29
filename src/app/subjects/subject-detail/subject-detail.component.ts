@@ -153,6 +153,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     setSort(option: SortOption) {
         this.sortOption.set(option);
         this.showSortMenu.set(false);
+        this.expandedTopicId.set(null);
     }
 
     // ── Space shortcut to toggle focused topic ────────

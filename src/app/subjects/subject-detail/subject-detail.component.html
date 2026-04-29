@@ -47,7 +47,7 @@
         } @else if (subject(); as sub) {
 
         <!-- Search & Sort Panel -->
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex items-center gap-3 mb-6 relative z-[200]">
             <div class="relative flex-1">
                 <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -68,7 +68,8 @@
                 </button>
 
                 @if (showSortMenu()) {
-                <div class="absolute right-0 top-full mt-2 w-48 bg-white border border-zinc-100 rounded-2xl shadow-xl z-30 py-1.5 overflow-hidden animate-scale-in">
+                <div class="absolute right-0 top-full mt-2 w-48 bg-white border border-zinc-100 rounded-2xl shadow-xl z-30 py-1.5 overflow-hidden animate-scale-in"
+                    style="background-color: #ffffff !important;">
                     @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
                     <button (click)="setSort(entry[0])" class="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center justify-between hover:bg-[#F4F5FC]" [class.text-blue-600]="sortOption() === entry[0]" [class.text-[#434654]]="sortOption() !== entry[0]">
                         {{ entry[1] }}
@@ -85,7 +86,7 @@
         <!-- Topics Overview -->
         <div class="space-y-3" [@staggerList]="filteredTopics().length">
             @for (topic of filteredTopics(); track topic.id) {
-            <div class="animate-slide-up">
+            <div class="animate-slide-up relative" [style.z-index]="100 - $index">
                 <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
                     (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
                     (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
