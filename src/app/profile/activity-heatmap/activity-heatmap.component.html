@@ -5,19 +5,19 @@
     <div class="flex items-center gap-1.5">
         <span class="text-lg">🔥</span>
         <div>
-            <span class="text-white font-bold text-base">{{ currentStreak() }}</span>
-            <span class="text-zinc-600 text-xs ml-1">day streak</span>
+            <span class="text-[#131B2E] font-bold text-base">{{ currentStreak() }}</span>
+            <span class="text-[#737686] text-xs ml-1">day streak</span>
         </div>
     </div>
-    <div class="w-px h-4 bg-white/[0.08]"></div>
+    <div class="w-px h-4 bg-zinc-200"></div>
     <div>
-        <span class="text-zinc-400 font-semibold text-sm">{{ maxStreak() }}</span>
-        <span class="text-zinc-700 text-xs ml-1">best</span>
+        <span class="text-[#434654] font-semibold text-sm">{{ maxStreak() }}</span>
+        <span class="text-[#737686] text-xs ml-1">best</span>
     </div>
-    <div class="w-px h-4 bg-white/[0.08]"></div>
+    <div class="w-px h-4 bg-zinc-200"></div>
     <div>
-        <span class="text-zinc-400 font-semibold text-sm">{{ totalCompletions() }}</span>
-        <span class="text-zinc-700 text-xs ml-1">in {{ selectedYear() }}</span>
+        <span class="text-[#434654] font-semibold text-sm">{{ totalCompletions() }}</span>
+        <span class="text-[#737686] text-xs ml-1">in {{ selectedYear() }}</span>
     </div>
 </div>
 
@@ -53,12 +53,12 @@
         <div class="flex md:flex-col gap-1.5 overflow-x-auto md:overflow-visible flex-shrink-0">
             @for (year of availableYears(); track year) {
                 <button (click)="selectYear(year)"
-                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap"
-                    [class.bg-emerald-500]="selectedYear() === year"
-                    [class.text-zinc-950]="selectedYear() === year"
-                    [class.text-zinc-600]="selectedYear() !== year"
-                    [class.hover:text-white]="selectedYear() !== year"
-                    style="{{ selectedYear() !== year ? 'background: rgba(255,255,255,0.04);' : '' }}">
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
+                    [class.bg-blue-600]="selectedYear() === year"
+                    [class.text-white]="selectedYear() === year"
+                    [class.text-[#737686]]="selectedYear() !== year"
+                    [class.hover:text-[#131B2E]]="selectedYear() !== year"
+                    style="{{ selectedYear() !== year ? 'background: rgba(0,0,0,0.04);' : '' }}">
                     {{ year }}
                 </button>
             }

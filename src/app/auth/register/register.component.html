@@ -1,30 +1,38 @@
 <!-- src/app/auth/register/register.component.html -->
-<div class="page-gradient flex items-center justify-center min-h-screen px-4">
+<div class="flex items-center justify-center min-h-screen px-4 relative overflow-hidden"
+     style="background: linear-gradient(160deg, #0A2272 0%, #1A56DB 60%, #00C8E8 100%);">
 
-    <div class="fixed inset-0 z-0 pointer-events-none"
-        style="background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 28px 28px;">
+    <!-- Visual Context Image -->
+    <div class="absolute inset-0 opacity-40 pointer-events-none z-0">
+        <img alt="Abstract generative flow" class="w-full h-full object-cover" 
+             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe5dPamX4aL0YBJ77PZBtm5ModZ-yzbSLV95FBVWa3EEyM1-jSHi6rxbVz7AJmA4aJ4ru2xCaCaxu4XIOiv75v9zgkVa2Oj8RIJ6Tuk3tfEm6lwvrHRML9-fLmEY4v_k-f6YhaR1-wlrnEZhQMobLKakRKWhHHesiiJfNUZmCZ8uQJAI2yPj2AN9itMj3UsXffbTziqcxklxr4uP-8TaM6Ci29cy_EwO6tYNBijc5SFsC7RhjNWlc_TpW0w7xH65ZU3K4LEP8pd4A"/>
     </div>
 
+    <!-- Decorative Circles -->
+    <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <div class="absolute top-[-10%] right-[-10%] w-64 h-64 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute bottom-[-5%] left-[-5%] w-80 h-80 rounded-full bg-cyan-400 blur-3xl"></div>
+    </div>
+
+    <!-- Content Card Wrapper -->
     <div class="w-full max-w-sm relative z-10">
 
         <!-- Logo -->
         <div class="text-center mb-8 animate-fade-in">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500 shadow-[0_0_32px_rgba(16,185,129,0.4)] mb-4">
-                <svg class="w-7 h-7 text-zinc-950" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white shadow-xl mb-2 transform rotate-3 transition-transform hover:rotate-0">
+                <svg class="w-7 h-7 text-[#1A56DB]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
             </div>
-            <h1 class="text-2xl font-black text-white tracking-tight mb-1">SkillTracker</h1>
-            <p class="text-zinc-500 text-sm">Track what you learn. Own your growth.</p>
         </div>
 
-        <!-- Card -->
-        <div class="glass-card rounded-2xl p-7 animate-scale-in">
-            <h2 class="text-white font-bold text-lg mb-6">Create account</h2>
+        <!-- Interactive Container -->
+        <div class="bg-white border border-zinc-100 rounded-[32px] p-7 shadow-2xl animate-scale-in">
+            <h2 class="text-[#131B2E] font-black text-xl mb-6">Create account</h2>
 
             @if (error()) {
-            <div class="flex items-center gap-2.5 bg-red-500/[0.08] border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3 mb-5">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl px-4 py-3 mb-5 font-bold animate-slide-up">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
                 {{ error() }}
@@ -32,20 +40,17 @@
             }
 
             @if (success()) {
-            <div class="bg-emerald-500/[0.08] border border-emerald-500/20 text-emerald-400 text-sm rounded-xl px-4 py-3 animate-slide-up">
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-600 text-sm rounded-2xl px-4 py-3 animate-slide-up font-bold">
                 🎉 Account created! Check your email to confirm, then
-                <a routerLink="/auth/login" class="underline font-medium">sign in</a>.
+                <a routerLink="/auth/login" class="underline text-blue-600 hover:text-blue-700">sign in</a>.
             </div>
             } @else {
 
-            <!-- Google Sign-up -->
+            <!-- Google Auth Trigger -->
             <button (click)="loginWithGoogle()" [disabled]="googleLoading() || loading()"
-                class="w-full flex items-center justify-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-zinc-200 border transition-all mb-5"
-                style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1);"
-                onmouseenter="this.style.background='rgba(255,255,255,0.08)'"
-                onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
+                class="w-full h-12 flex items-center justify-center gap-3 rounded-2xl px-4 text-sm font-bold text-[#131B2E] border border-zinc-200 hover:bg-[#F4F5FC] active:scale-95 transition-all mb-5">
                 @if (googleLoading()) {
-                <svg class="w-4 h-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 animate-spin text-[#737686]" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
                 </svg>
@@ -61,30 +66,30 @@
                 }
             </button>
 
-            <!-- Divider -->
+            <!-- Decorative Splitter -->
             <div class="flex items-center gap-3 mb-5">
-                <div class="flex-1 h-px" style="background: rgba(255,255,255,0.07);"></div>
-                <span class="text-zinc-700 text-xs font-medium">or sign up with email</span>
-                <div class="flex-1 h-px" style="background: rgba(255,255,255,0.07);"></div>
+                <div class="flex-1 h-px bg-zinc-100"></div>
+                <span class="text-zinc-400 text-xs font-bold">or sign up with email</span>
+                <div class="flex-1 h-px bg-zinc-100"></div>
             </div>
 
+            <!-- Credentials Block -->
             <div class="space-y-4">
                 <div>
-                    <label class="text-zinc-500 text-xs font-semibold uppercase tracking-wide block mb-1.5">Email</label>
-                    <input [(ngModel)]="email" type="email" placeholder="you@example.com" class="input" />
+                    <label class="text-[#737686] text-xs font-bold uppercase tracking-wide block mb-1.5">Email</label>
+                    <input [(ngModel)]="email" type="email" placeholder="you@example.com" class="w-full h-12 px-4 rounded-2xl bg-[#F4F5FC] border border-zinc-200 text-[#131B2E] text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all" />
                 </div>
 
-                <!-- Password with show/hide -->
                 <div>
-                    <label class="text-zinc-500 text-xs font-semibold uppercase tracking-wide block mb-1.5">Password</label>
+                    <label class="text-[#737686] text-xs font-bold uppercase tracking-wide block mb-1.5">Password</label>
                     <div class="relative">
                         <input [(ngModel)]="password"
                             [type]="showPassword() ? 'text' : 'password'"
                             placeholder="Min 6 characters"
                             (keydown.enter)="submit()"
-                            class="input pr-10" />
+                            class="w-full h-12 px-4 rounded-2xl bg-[#F4F5FC] border border-zinc-200 text-[#131B2E] text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all pr-10" />
                         <button type="button" (click)="showPassword.update(v => !v)"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300 transition-colors"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#131B2E] transition-colors"
                             [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
                             @if (showPassword()) {
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -100,14 +105,15 @@
                     </div>
                 </div>
 
-                <button (click)="submit()" [disabled]="loading() || googleLoading()" class="btn-primary w-full justify-center mt-1">
+                <button (click)="submit()" [disabled]="loading() || googleLoading()" class="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all flex items-center justify-center shadow-lg shadow-blue-600/20 mt-2 disabled:opacity-50">
                     {{ loading() ? 'Creating account...' : 'Create account' }}
                 </button>
             </div>
 
-            <p class="text-zinc-600 text-sm text-center mt-6">
+            <!-- Alternate Gate -->
+            <p class="text-[#737686] text-sm text-center mt-6 font-medium">
                 Already have an account?
-                <a routerLink="/auth/login" class="text-emerald-400 hover:text-emerald-300 transition-colors font-medium">Sign in</a>
+                <a routerLink="/auth/login" class="text-blue-600 hover:text-blue-700 font-bold transition-colors">Sign in</a>
             </p>
             }
         </div>
