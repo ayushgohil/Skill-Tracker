@@ -156,9 +156,11 @@
             <div class="glass-card rounded-xl p-4 space-y-3 border-emerald-500/30 animate-scale-in" (click)="$event.stopPropagation()">
                 <p class="section-title">Edit Subject</p>
                 <div class="flex items-center gap-2">
-                    <input [(ngModel)]="editSubjectName" (keydown.enter)="saveEditSubject($event, sub.id)"
-                        (keydown.escape)="cancelEditSubject($event)"
-                        class="input flex-1" placeholder="Subject name" />
+                    <input [(ngModel)]="editSubjectName"
+                    (input)="editSubjectName = toTitleCase(editSubjectName)"
+                    (keydown.enter)="saveEditSubject($event, sub.id)"
+                    (keydown.escape)="cancelEditSubject($event)"
+                    class="input flex-1" placeholder="Subject name" />
                     <input [(ngModel)]="editSubjectColor" type="color"
                         class="w-9 h-9 rounded-lg border border-white/[0.08] bg-zinc-900 cursor-pointer p-0.5 flex-shrink-0" />
                 </div>
@@ -249,6 +251,7 @@
             <p class="section-title">New Subject</p>
             <div class="flex items-center gap-3">
                 <input [(ngModel)]="newSubjectName" type="text" placeholder="e.g. Angular, DevOps, System Design"
+                    (input)="newSubjectName = toTitleCase(newSubjectName)"
                     (keydown.enter)="addSubject()" (keydown.escape)="showAddSubject.set(false)"
                     class="input flex-1" />
                 <div class="flex items-center gap-2 flex-shrink-0">

@@ -1,8 +1,9 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
-import { Component, input, output, signal, computed, effect } from '@angular/core';
+import { Component, input, output, signal, computed, effect, OnDestroy, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TopicWithProgress, Depth } from '../../core/models';
 import { PomodoroService } from '../../core/services/pomodoro.service';
+import Swal from 'sweetalert2';
 
 export interface ProgressChange {
     topicId: string;
@@ -41,7 +42,7 @@ import { expandCollapse } from '../../core/animations/app.animations';
     templateUrl: './topic-item.component.html',
     animations: [expandCollapse]
 })
-export class TopicItemComponent {
+export class TopicItemComponent implements OnDestroy {
     // ── Signal inputs ─────────────────────────────────
     topic = input.required<TopicWithProgress>();
     isOpen = input<boolean>(false);
@@ -65,6 +66,11 @@ export class TopicItemComponent {
 
     addingSubtopic = signal(false);
     newSubtopicTitle = '';
+
+    // Kebab menu
+    showMenu = signal(false);
+    private readonly menuClass = 'topic-kebab-menu';
+    private boundCloseMenu = (e: MouseEvent) => this.closeMenuOnOutsideClick(e);
 
     readonly depthConfig: Record<Depth, { label: string; classes: string }> = {
         shallow: { label: 'Shallow', classes: 'bg-zinc-800 text-zinc-400' },
@@ -102,6 +108,23 @@ export class TopicItemComponent {
                 this.notesDirty = false;
             }
         });
+        document.addEventListener('click', this.boundCloseMenu);
+    }
+
+    ngOnDestroy() {
+        document.removeEventListener('click', this.boundCloseMenu);
+    }
+
+    private closeMenuOnOutsideClick(e: MouseEvent) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.' + this.menuClass)) {
+            this.showMenu.set(false);
+        }
+    }
+
+    // ── Title Case helper ─────────────────────────────
+    toTitleCase(value: string): string {
+        return value.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.slice(1));
     }
 
     // ── Actions ───────────────────────────────────────
@@ -133,11 +156,17 @@ export class TopicItemComponent {
         }
     }
 
+    toggleMenu(event: Event) {
+        event.stopPropagation();
+        this.showMenu.update(v => !v);
+    }
+
     startEdit(event: Event) {
         event.stopPropagation();
         this.editTitle = this.topic().title;
         this.editDepth = this.topic().depth;
         this.editing.set(true);
+        this.showMenu.set(false);
     }
 
     cancelEdit() { this.editing.set(false); }
@@ -147,15 +176,33 @@ export class TopicItemComponent {
         if (!this.editTitle.trim()) return;
         this.topicEdited.emit({
             topicId: this.topic().id,
-            title: this.editTitle.trim(),
+            title: this.toTitleCase(this.editTitle.trim()),
             depth: this.editDepth
         });
         this.editing.set(false);
     }
 
-    onDelete(event: Event) {
+    async onDelete(event: Event) {
         event.stopPropagation();
-        this.topicDeleted.emit(this.topic().id);
+        this.showMenu.set(false);
+        const result = await Swal.fire({
+            title: 'Delete Topic?',
+            text: `"${this.topic().title}" will be permanently removed.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            background: '#18181b',
+            color: '#f4f4f5',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#3f3f46',
+            customClass: {
+                popup: 'swal-dark-popup'
+            }
+        });
+        if (result.isConfirmed) {
+            this.topicDeleted.emit(this.topic().id);
+        }
     }
 
     // ── Subtopic actions ──────────────────────────────
@@ -167,8 +214,21 @@ export class TopicItemComponent {
         });
     }
 
-    onSubtopicDelete(event: Event, subtopicId: string) {
+    async onSubtopicDelete(event: Event, subtopicId: string) {
         event.stopPropagation();
+        const result = await Swal.fire({
+            title: 'Delete Subtopic?',
+            text: 'This subtopic will be permanently removed.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            background: '#18181b',
+            color: '#f4f4f5',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#3f3f46'
+        });
+        if (!result.isConfirmed) return;
         this.subtopicDeleted.emit({
             subtopicId,
             topicId: this.topic().id
@@ -179,7 +239,7 @@ export class TopicItemComponent {
         if (!this.newSubtopicTitle.trim()) return;
         this.subtopicAdded.emit({
             topicId: this.topic().id,
-            title: this.newSubtopicTitle.trim()
+            title: this.toTitleCase(this.newSubtopicTitle.trim())
         });
         this.newSubtopicTitle = '';
         this.addingSubtopic.set(false);
