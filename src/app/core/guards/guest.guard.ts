@@ -8,10 +8,11 @@ export const guestGuard: CanActivateFn = async () => {
     const auth = inject(AuthService);
     const router = inject(Router);
 
-    const { data } = await supabase.auth.getSession();
+    // Use getUser instead of getSession to prevent race conditions on refresh
+    const { data } = await supabase.auth.getUser();
 
-    if (data.session) {
-        auth.currentUser.set(data.session.user);
+    if (data.user) {
+        auth.currentUser.set(data.user);
         return router.createUrlTree(['/dashboard']);
     }
 
