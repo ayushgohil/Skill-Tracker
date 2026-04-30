@@ -68,7 +68,8 @@ export class TopicItemComponent implements OnDestroy {
     newSubtopicTitle = '';
 
     // Kebab menu
-    showMenu = signal(false);
+    static openMenuId = signal<string | null>(null);
+    showMenu = computed(() => TopicItemComponent.openMenuId() === this.topic().id);
     private readonly menuClass = 'topic-kebab-menu';
     private boundCloseMenu = (e: MouseEvent) => this.closeMenuOnOutsideClick(e);
 
@@ -118,7 +119,9 @@ export class TopicItemComponent implements OnDestroy {
     private closeMenuOnOutsideClick(e: MouseEvent) {
         const target = e.target as HTMLElement;
         if (!target.closest('.' + this.menuClass)) {
-            this.showMenu.set(false);
+            if (TopicItemComponent.openMenuId() === this.topic().id) {
+                TopicItemComponent.openMenuId.set(null);
+            }
         }
     }
 
@@ -158,7 +161,11 @@ export class TopicItemComponent implements OnDestroy {
 
     toggleMenu(event: Event) {
         event.stopPropagation();
-        this.showMenu.update(v => !v);
+        if (TopicItemComponent.openMenuId() === this.topic().id) {
+            TopicItemComponent.openMenuId.set(null);
+        } else {
+            TopicItemComponent.openMenuId.set(this.topic().id);
+        }
     }
 
     startEdit(event: Event) {
@@ -166,7 +173,7 @@ export class TopicItemComponent implements OnDestroy {
         this.editTitle = this.topic().title;
         this.editDepth = this.topic().depth;
         this.editing.set(true);
-        this.showMenu.set(false);
+        TopicItemComponent.openMenuId.set(null);
     }
 
     cancelEdit() { this.editing.set(false); }
@@ -184,7 +191,7 @@ export class TopicItemComponent implements OnDestroy {
 
     async onDelete(event: Event) {
         event.stopPropagation();
-        this.showMenu.set(false);
+        TopicItemComponent.openMenuId.set(null);
         const result = await Swal.fire({
             title: 'Delete Topic?',
             text: `"${this.topic().title}" will be permanently removed.`,

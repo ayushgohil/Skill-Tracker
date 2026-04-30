@@ -1,6 +1,7 @@
 <!-- src/app/dashboard/topic-item/topic-item.component.html -->
-<div class="rounded-xl transition-all duration-200"
-    style="background: var(--surface); border: 1px solid var(--border);"
+<div class="rounded-xl transition-all duration-200 relative"
+    [class.z-50]="showMenu()"
+    style="background: var(--surface-0); border: 1px solid var(--border);"
     [style.border-color]="isTopicChecked() ? 'var(--accent-glow)' : 'var(--border)'">
 
     <!-- ── Inline Edit Mode ─────────────────────── -->
@@ -103,6 +104,7 @@
             @if (showMenu()) {
             <!-- Dropdown — z-[100] so it renders above every sibling card -->
             <div class="absolute right-0 top-full mt-1 w-36 z-[100] rounded-xl shadow-2xl bg-white border border-zinc-200"
+                style="background-color: #ffffff !important;"
                 (click)="$event.stopPropagation()">
 
                 <!-- Edit -->
@@ -135,7 +137,8 @@
     </div>
 
     <!-- ── Expanded Panel ───────────────────────── -->
-    <div [@expandCollapse]="isOpen() ? 'expanded' : 'collapsed'" style="overflow: hidden;">
+    @if (isOpen()) {
+    <div style="overflow: hidden;">
         <div class="px-4 pb-4 border-t border-zinc-200 pt-3" (click)="$event.stopPropagation()">
 
             <!-- Notes -->
@@ -213,6 +216,7 @@
             </div>
         </div>
     </div>
+    }
     }
 
 </div>
