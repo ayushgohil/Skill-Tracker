@@ -8,6 +8,11 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent)
     },
+    // OAuth callback — must be BEFORE the guarded 'auth' route so guestGuard doesn't interfere
+    {
+        path: 'auth/callback',
+        loadComponent: () => import('./auth/callback/callback.component').then(m => m.CallbackComponent)
+    },
     {
         path: 'auth',
         canActivate: [guestGuard],
