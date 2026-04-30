@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/assets/images/banner.png" alt="Skill Tracker Banner" width="100%">
+<!-- <img src="public/assets/images/banner.png" alt="Skill Tracker Banner" width="100%"> -->
 
 # 🚀 Skill Tracker
 
