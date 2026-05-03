@@ -177,8 +177,12 @@ export class DashboardComponent implements OnInit {
     }
 
     // ── Navigate ──────────────────────────────────────
-    openSubject(id: string) {
-        this.router.navigate(['/subjects', id]);
+    openSubject(id: string, searchTopic?: string) {
+        if (searchTopic) {
+            this.router.navigate(['/subjects', id], { queryParams: { search: searchTopic } });
+        } else {
+            this.router.navigate(['/subjects', id]);
+        }
     }
 
     goToWeeklyReview() {

@@ -113,7 +113,21 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             this.router.navigate(['/dashboard']);
             return;
         }
+
+        const searchParam = this.route.snapshot.queryParamMap.get('search');
+        if (searchParam) {
+            this.searchQuery.set(searchParam);
+        }
+
         await this.load();
+        
+        if (searchParam) {
+            const matchingTopic = this.topics().find(t => t.title.toLowerCase() === searchParam.toLowerCase());
+            if (matchingTopic) {
+                this.expandedTopicId.set(matchingTopic.id);
+            }
+        }
+
         document.addEventListener('click', this.clickOutsideHandler);
     }
 

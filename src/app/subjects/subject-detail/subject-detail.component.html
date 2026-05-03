@@ -86,7 +86,7 @@
         <!-- Topics Overview -->
         <div class="space-y-3" [@staggerList]="filteredTopics().length">
             @for (topic of filteredTopics(); track topic.id) {
-            <div class="animate-slide-up relative" [style.z-index]="100 - $index">
+            <div class="animate-slide-up relative" [style.z-index]="40 - $index">
                 <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
                     (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
                     (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
@@ -136,7 +136,7 @@
     </main>
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-6 py-3.5 flex items-center justify-between gap-10 shadow-2xl z-50 max-w-sm w-[90%]">
+    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-6 py-3.5 flex items-center justify-between gap-10 shadow-2xl z-[60] max-w-sm w-[90%]">
         <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
             <span class="text-[9px] font-bold">Home</span>
