@@ -216,14 +216,15 @@
 }
 
 /* ── Responsive ──────────────────────────────── */
-@media (max-height: 500px) and (orientation: landscape) {
-    .flip-card { --size: clamp(60px, 13vh, 110px); }
-    .fs-header { top: 0.4rem; left: 0.75rem; right: 0.75rem; }
-    .clock-wrapper { gap: 0.5rem; }
+@media (max-height: 600px) and (orientation: landscape) {
+    .flip-card { --size: clamp(80px, 45vh, 200px); }
+    .fs-header { top: 1rem; left: 1rem; right: 1rem; }
+    .clock-wrapper { gap: 1rem; }
 }
 
-@media (orientation: portrait) and (max-width: 390px) {
-    .flip-card { --size: clamp(72px, 15vmin, 120px); }
+@media (orientation: portrait) and (max-width: 500px) {
+    .flip-card { --size: clamp(72px, 22vw, 140px); }
+    .clock-colon { font-size: clamp(2rem, 10vw, 4rem); }
 }
 
 .landscape-warning { display: none; }
