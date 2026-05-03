@@ -28,6 +28,10 @@ export class ProfileComponent implements OnInit {
     totalTopics = signal(0);
     totalCompleted = signal(0);
     totalSubjects = signal(0);
+    showDeleteModal = signal(false);
+    deleteConfirmationEmail = '';
+    isDeleting = signal(false);
+    deletionProgress = signal<{ table: string, label: string, status: 'pending' | 'deleting' | 'done' | 'error' }[]>([]);
 
     percent = computed(() =>
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
@@ -87,4 +91,63 @@ export class ProfileComponent implements OnInit {
     }
 
     logout() { this.auth.logout(); }
+
+    startDeleteAccount() {
+        this.deleteConfirmationEmail = '';
+        this.deletionProgress.set([
+            { table: 'activity_logs', label: 'Activity Logs', status: 'pending' },
+            { table: 'weekly_reviews', label: 'Weekly Reviews', status: 'pending' },
+            { table: 'weekly_goals', label: 'Weekly Goals', status: 'pending' },
+            { table: 'user_progress', label: 'User Progress', status: 'pending' },
+            { table: 'subtopics', label: 'Subtopics', status: 'pending' },
+            { table: 'topics', label: 'Topics', status: 'pending' },
+            { table: 'subjects', label: 'Subjects', status: 'pending' },
+            { table: 'profiles', label: 'Profile Data', status: 'pending' }
+        ]);
+        this.showDeleteModal.set(true);
+    }
+
+    async confirmDeleteAccount() {
+        if (this.deleteConfirmationEmail !== this.userEmail() || this.isDeleting()) return;
+        
+        this.isDeleting.set(true);
+        const steps = this.deletionProgress();
+        let currentStep = 0;
+
+        // Simulate progress for UI feedback since edge function handles it in one go
+        const progressInterval = setInterval(() => {
+            if (currentStep < steps.length - 1) {
+                this.deletionProgress.update(prev => {
+                    const arr = [...prev];
+                    if (currentStep > 0) arr[currentStep - 1].status = 'done';
+                    arr[currentStep].status = 'deleting';
+                    return arr;
+                });
+                currentStep++;
+            }
+        }, 400);
+
+        try {
+            await this.profileService.deleteAccount();
+            
+            clearInterval(progressInterval);
+            
+            // Mark all as done
+            this.deletionProgress.update(prev => prev.map(s => ({ ...s, status: 'done' })));
+            
+            this.toast.success('Account data deleted completely.');
+            setTimeout(() => this.logout(), 1500);
+        } catch (err: any) {
+            clearInterval(progressInterval);
+            console.error(`Failed to delete account:`, err);
+            
+            this.deletionProgress.update(prev => {
+                const arr = [...prev];
+                arr[currentStep].status = 'error';
+                return arr;
+            });
+            this.toast.error(err.message || 'Error deleting account.');
+            this.isDeleting.set(false);
+        }
+    }
 }

@@ -5,11 +5,11 @@ export type TimerState = 'idle' | 'running' | 'paused' | 'break';
 
 @Injectable({ providedIn: 'root' })
 export class PomodoroService {
-    
+
     // Config
     private readonly FOCUS_MINUTES = 25;
     private readonly BREAK_MINUTES = 5;
-    
+
     // State
     state = signal<TimerState>('idle');
     timeRemaining = signal<number>(this.FOCUS_MINUTES * 60);
@@ -18,9 +18,10 @@ export class PomodoroService {
     isVisible = signal<boolean>(false);
     isFullScreen = signal<boolean>(false);
     isBreakWaiting = signal<boolean>(false);
-    
+
     private isRunning = signal<boolean>(false);
     private timerInterval: any = null;
+    private targetEndTime: number = 0;
 
     // Computed formatting
     formattedTime = computed(() => {
@@ -39,10 +40,11 @@ export class PomodoroService {
         }
 
         this.stop(); // Reset any existing session
-        
+
         this.activeTopicId.set(topicId);
         this.activeTopicTitle.set(title);
         this.timeRemaining.set(this.FOCUS_MINUTES * 60);
+        this.targetEndTime = Date.now() + (this.FOCUS_MINUTES * 60 * 1000);
         this.state.set('running');
         this.isVisible.set(true);
         this.isFullScreen.set(true);
@@ -54,6 +56,7 @@ export class PomodoroService {
         this.isBreakWaiting.set(false);
         this.state.set('break');
         this.timeRemaining.set(this.BREAK_MINUTES * 60);
+        this.targetEndTime = Date.now() + (this.BREAK_MINUTES * 60 * 1000);
         this.startTick();
     }
 
@@ -66,6 +69,7 @@ export class PomodoroService {
                 }
                 this.isRunning.set(false);
             } else {
+                this.targetEndTime = Date.now() + (this.timeRemaining() * 1000);
                 this.startTick();
             }
         }
@@ -80,6 +84,7 @@ export class PomodoroService {
             this.timerInterval = null;
         }
         this.isRunning.set(false);
+        this.targetEndTime = 0;
         this.state.set('idle');
         this.activeTopicId.set(null);
         this.activeTopicTitle.set(null);
@@ -111,9 +116,11 @@ export class PomodoroService {
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.isRunning.set(true);
         this.timerInterval = setInterval(() => {
-            if (this.timeRemaining() > 0) {
-                this.timeRemaining.update(t => t - 1);
+            const remaining = Math.round((this.targetEndTime - Date.now()) / 1000);
+            if (remaining > 0) {
+                this.timeRemaining.set(remaining);
             } else {
+                this.timeRemaining.set(0);
                 this.handleTimerComplete();
             }
         }, 1000);
@@ -125,7 +132,9 @@ export class PomodoroService {
             this.timerInterval = null;
         }
         this.isRunning.set(false);
-        
+
+        this.playAlarmSound();
+
         // Simple notification if browser supports it
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
             new Notification('Session Complete!', {
@@ -146,6 +155,16 @@ export class PomodoroService {
     requestNotificationPermission() {
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
             Notification.requestPermission();
+        }
+    }
+
+    private playAlarmSound() {
+        if (typeof window !== 'undefined') {
+            const audio = new Audio('/assets/alarm.mp3');
+            // Using .play() returns a Promise. Catch any errors (e.g. browser blocks autoplay)
+            audio.play().catch(error => {
+                console.warn('Audio playback prevented by browser:', error);
+            });
         }
     }
 }

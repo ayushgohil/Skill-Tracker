@@ -142,8 +142,93 @@
             </div>
         </div>
 
+        <!-- ── Danger Zone ────────────────────── -->
+        <div class="bg-red-50 border border-red-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up mt-4">
+            <h3 class="text-sm font-black text-red-600 mb-2">Danger Zone</h3>
+            <p class="text-red-500 text-xs font-medium mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+            <button (click)="startDeleteAccount()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all min-h-[48px] touch-manipulation">
+                Delete My Account
+            </button>
+        </div>
+
         }
     </main>
+
+    <!-- ── Delete Account Modal ────────────────────── -->
+    @if (showDeleteModal()) {
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in" (click)="!isDeleting() && showDeleteModal.set(false)">
+        <div class="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in" (click)="$event.stopPropagation()">
+            
+            <div class="flex items-center gap-3 mb-4 text-red-600">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <h2 class="text-xl font-black">Are you sure?</h2>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-sm text-[#434654] font-medium">
+                    This action <span class="font-bold text-red-600">cannot</span> be undone. This will permanently delete your profile and wipe out all of your progress, including:
+                </p>
+                <ul class="text-xs text-[#737686] font-bold list-disc pl-5 space-y-1">
+                    <li>All {{ totalSubjects() }} subjects</li>
+                    <li>All {{ totalTopics() }} topics and subtopics</li>
+                    <li>Your learning progress and statistics</li>
+                    <li>Your weekly goals and reviews</li>
+                </ul>
+
+                @if (!isDeleting() && deletionProgress()[0].status === 'pending') {
+                    <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-200 mt-4">
+                        <label class="block text-xs font-bold text-[#737686] mb-2">Please type <span class="font-black text-[#131B2E] select-all">{{ userEmail() }}</span> to confirm.</label>
+                        <input [(ngModel)]="deleteConfirmationEmail" type="text" class="w-full h-11 rounded-lg border border-zinc-300 px-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-200 outline-none transition-all" />
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button (click)="showDeleteModal.set(false)" class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-[#434654] font-bold py-3.5 rounded-xl transition-all">
+                            Cancel
+                        </button>
+                        <button (click)="confirmDeleteAccount()" [disabled]="deleteConfirmationEmail !== userEmail()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md">
+                            I understand, delete
+                        </button>
+                    </div>
+                } @else {
+                    <!-- Progress UI -->
+                    <div class="mt-6 space-y-3">
+                        <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Deletion Progress</h4>
+                        @for (step of deletionProgress(); track step.table) {
+                            <div class="flex items-center justify-between text-sm py-1">
+                                <span class="font-bold" 
+                                    [class.text-zinc-400]="step.status === 'pending'"
+                                    [class.text-blue-600]="step.status === 'deleting'"
+                                    [class.text-emerald-500]="step.status === 'done'"
+                                    [class.text-red-500]="step.status === 'error'">
+                                    {{ step.label }}
+                                </span>
+                                
+                                @if (step.status === 'pending') {
+                                    <span class="w-5 h-5 border-2 border-zinc-200 rounded-full"></span>
+                                } @else if (step.status === 'deleting') {
+                                    <svg class="w-5 h-5 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                } @else if (step.status === 'done') {
+                                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                } @else if (step.status === 'error') {
+                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    }
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
     <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-50 w-[92%] max-w-sm">
