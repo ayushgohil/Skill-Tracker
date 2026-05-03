@@ -6,21 +6,36 @@
     <div class="fullscreen-overlay" [class.glow-emerald]="pomodoroService.state() === 'running'" [class.glow-blue]="pomodoroService.state() === 'break'" [class.glow-amber]="pomodoroService.isPaused()">
         
         <!-- Header Controls -->
-        <div class="absolute top-8 left-8 right-8 flex items-center justify-between">
-            <div class="flex flex-col">
+        <div class="absolute top-8 left-8 right-8 flex items-center justify-between pointer-events-none">
+            <div class="flex flex-col pointer-events-auto">
                 <span class="text-zinc-500 uppercase tracking-widest text-xs font-bold mb-1">Focusing on</span>
                 <span class="text-2xl font-medium">{{ pomodoroService.activeTopicTitle() }}</span>
             </div>
             
-            <button (click)="toggleFullScreen()" class="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
+            <div class="flex items-center gap-4 pointer-events-auto">
+                @if (!pomodoroService.isBreakWaiting()) {
+                    <button (click)="toggle()" class="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white">
+                        @if (pomodoroService.isPaused()) {
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        } @else {
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+                        }
+                    </button>
+                    
+                    <button (click)="stop()" class="p-3 rounded-full bg-white/5 hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
+                }
 
+                <button (click)="toggleFullScreen()" class="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white" title="Exit Full Screen">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
         <!-- Flip Clock -->
-        <div class="flex flex-col items-center gap-12">
+        <div class="flex flex-col items-center gap-12 mt-8">
             <div class="flip-clock">
                 <!-- Minutes -->
                 <div class="flip-unit">
@@ -33,7 +48,7 @@
                 </div>
                 
                 <!-- Separator -->
-                <div class="text-7xl font-bold text-zinc-700">:</div>
+                <div class="text-7xl font-bold text-zinc-700 animate-pulse">:</div>
 
                 <!-- Seconds -->
                 <div class="flip-unit">
@@ -63,29 +78,6 @@
                 }
             </div>
         </div>
-
-        <!-- Footer Controls -->
-        @if (!pomodoroService.isBreakWaiting()) {
-        <div class="absolute bottom-12 flex items-center gap-6">
-            <button (click)="toggle()" class="w-20 h-20 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90"
-                [class.bg-emerald-500]="pomodoroService.isPaused() && pomodoroService.state() === 'running'"
-                [class.bg-blue-500]="pomodoroService.isPaused() && pomodoroService.state() === 'break'"
-                [class.bg-white/10]="!pomodoroService.isPaused()"
-                [class.text-white]="true">
-                @if (pomodoroService.isPaused()) {
-                    <svg @scaleInOut class="w-10 h-10 translate-x-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                } @else {
-                    <svg @scaleInOut class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
-                }
-            </button>
-            
-            <button (click)="stop()" class="w-16 h-16 rounded-full bg-white/5 hover:bg-red-500/20 text-zinc-500 hover:text-red-400 flex items-center justify-center transition-all border border-white/5">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-            </button>
-        </div>
-        }
-
-
     </div>
     }
 

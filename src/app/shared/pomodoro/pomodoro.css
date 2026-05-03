@@ -1,10 +1,10 @@
 /* src/app/shared/pomodoro/pomodoro.css */
 :host {
     display: block;
-    --card-width: 140px;
-    --card-height: 200px;
-    --card-font-size: 150px;
-    --clock-gap: 1.5rem;
+    --card-width: 200px;
+    --card-height: 300px;
+    --card-font-size: 240px;
+    --clock-gap: 3rem;
 }
 
 .flip-clock {
@@ -16,21 +16,21 @@
 
 .flip-unit {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .flip-card {
     position: relative;
     width: var(--card-width);
     height: var(--card-height);
-    background: #1a1a1a;
-    border-radius: 16px;
+    background: #121212;
+    border-radius: 24px;
     font-size: var(--card-font-size);
     font-weight: 900;
     color: #ffffff;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
     font-family: 'Inter', sans-serif;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
 .flip-card::before {
@@ -39,10 +39,10 @@
     top: 50%;
     left: 0;
     width: 100%;
-    height: 2px;
-    background: rgba(0, 0, 0, 0.6);
+    height: 3px;
+    background: rgba(0, 0, 0, 0.8);
     z-index: 10;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
     transform: translateY(-50%);
 }
 
@@ -59,8 +59,8 @@
 .flip-card-top {
     top: 0;
     align-items: flex-start;
-    border-radius: 16px 16px 0 0;
-    background: linear-gradient(180deg, #262626 0%, #1a1a1a 100%);
+    border-radius: 24px 24px 0 0;
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
 }
 
 .flip-card-top span {
@@ -70,8 +70,8 @@
 .flip-card-bottom {
     bottom: 0;
     align-items: flex-end;
-    border-radius: 0 0 16px 16px;
-    background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%);
+    border-radius: 0 0 24px 24px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
 }
 
 .flip-card-bottom span {
@@ -98,35 +98,34 @@
 /* Landscape orientation on small screens */
 @media (max-height: 500px) {
     :host {
-        --card-width: 18vh;
-        --card-height: 26vh;
-        --card-font-size: 20vh;
-        --clock-gap: 1rem;
+        --card-width: 22vh;
+        --card-height: 35vh;
+        --card-font-size: 28vh;
+        --clock-gap: 1.5rem;
     }
     
     .flip-card {
-        border-radius: 8px;
+        border-radius: 12px;
     }
 
     .fullscreen-overlay {
-        padding: 1rem;
+        padding: 0.5rem;
     }
 
-    .absolute.top-8 { top: 1rem !important; left: 1.5rem !important; right: 1.5rem !important; }
-    .absolute.bottom-12 { bottom: 1.5rem !important; }
+    .absolute.top-8 { top: 0.75rem !important; left: 1.5rem !important; right: 1.5rem !important; }
 
-    .text-2xl { font-size: 1.25rem !important; }
-    .text-7xl { font-size: 3rem !important; }
-    .flip-unit { gap: 0.25rem; }
-    .flex.flex-col.items-center.gap-12 { gap: 1.5rem !important; }
+    .text-2xl { font-size: 1.1rem !important; }
+    .text-7xl { font-size: 4rem !important; }
+    .flip-unit { gap: 0.3rem; }
+    .flex.flex-col.items-center.gap-12 { gap: 1rem !important; margin-top: 2rem !important; }
 }
 
-@media (max-width: 600px) and (min-height: 501px) {
+@media (max-width: 1000px) and (min-height: 501px) {
     :host {
-        --card-width: 20vw;
+        --card-width: 18vw;
         --card-height: 28vw;
         --card-font-size: 22vw;
-        --clock-gap: 0.8rem;
+        --clock-gap: 2rem;
     }
 }
 
