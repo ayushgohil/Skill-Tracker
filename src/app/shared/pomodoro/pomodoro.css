@@ -59,7 +59,7 @@
    with a decorative divider line. Clean, reliable.
 ─────────────────────────────────────────────── */
 .flip-card {
-    --size: clamp(80px, 16vmin, 200px);
+    --size: clamp(100px, 25vw, 320px);
 
     position: relative;
     width:  calc(var(--size) * 0.75);
@@ -128,7 +128,7 @@
 
 /* ── Colon separator ─────────────────────────── */
 .clock-colon {
-    font-size: clamp(2rem, 8vmin, 6rem);
+    font-size: clamp(3rem, 12vw, 8rem);
     font-weight: 900;
     color: #333333;
     line-height: 1;
