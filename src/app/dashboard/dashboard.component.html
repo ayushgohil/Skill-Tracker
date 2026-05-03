@@ -1,318 +1,278 @@
 <!-- src/app/dashboard/dashboard.component.html -->
-<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
+<div class="min-h-screen bg-[#f3f4f9] text-[#1a1b2b] pb-40 safe-top">
 
-    <!-- ── Header Area ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-10 text-white rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
-        <!-- Absolute decorative blur -->
-        <div class="absolute top-[-50%] right-[-20%] w-72 h-72 bg-white/10 blur-3xl rounded-full"></div>
-        
-        <div class="max-w-5xl mx-auto flex flex-col gap-6 relative z-10">
-            <!-- Top Row: Greeting & Profile -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-white/70 text-xs font-bold uppercase tracking-widest">Learning Dashboard</span>
-                    <h1 class="text-2xl font-black mt-1 tracking-tight">Nextlyr Skill Tracker</h1>
-                </div>
-                <a routerLink="/profile" class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all">
-                    {{ userInitial() }}
-                </a>
+    <!-- ── Modern Header ────────────────────────────── -->
+    <header class="px-5 pt-8 pb-6 animate-fade-in">
+        <div class="max-w-5xl mx-auto flex items-start justify-between">
+            <div>
+                <p class="text-[#6e707a] text-sm font-medium">Good morning,</p>
+                <h1 class="text-3xl font-black mt-0.5 tracking-tight">{{ userFirstName() }}!</h1>
             </div>
-
-            <!-- Metrics Overview Cards -->
-            <div class="grid grid-cols-3 gap-3 mt-2">
-                <!-- Mastery Circle Card -->
-                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center text-center gap-2 shadow-sm">
-                    <div class="relative flex items-center justify-center w-14 h-14">
-                        <svg class="w-full h-full transform -rotate-90">
-                            <circle class="text-white/20" stroke-width="4" stroke="currentColor" fill="transparent" r="22" cx="28" cy="28"/>
-                            <circle class="text-white" stroke-width="4" [style.stroke-dasharray]="138.2" [style.stroke-dashoffset]="138.2 - (138.2 * overallPercent() / 100)" stroke-linecap="round" stroke="currentColor" fill="transparent" r="22" cx="28" cy="28"/>
-                        </svg>
-                        <span class="absolute text-xs font-black">{{ overallPercent() }}%</span>
-                    </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-white/80">Mastery</span>
-                </div>
-
-                <!-- Streak Card -->
-                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-1 shadow-sm">
-                    <span class="text-2xl font-black">🔥 {{ currentStreak() }}</span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-white/80">Day Streak</span>
-                </div>
-
-                <!-- XP Card -->
-                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-1 shadow-sm">
-                    <span class="text-2xl font-black">✨ {{ totalCompleted() * 100 }}</span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-white/80">Total XP</span>
-                </div>
+            <div class="flex items-center gap-3">
+                <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-sm relative">
+                    <svg class="w-5 h-5 text-[#1a1b2b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span class="absolute top-3 right-3.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-sm">
+                    <svg class="w-5 h-5 text-[#1a1b2b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- ── Main Learning Path ──────────────────────── -->
-    <main class="max-w-5xl mx-auto px-5 py-8">
-        
-        <!-- Weekly Review Ready Block -->
-        @if (reviewDue() && !loading()) {
-        <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-6 animate-slide-up flex items-center justify-between gap-3 shadow-sm">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl">⭐</span>
-                <div>
-                    <div class="text-[#131B2E] text-sm font-bold">Weekly Focus Ready</div>
-                    <div class="text-zinc-500 text-xs">Pick topics to focus on this week</div>
-                </div>
-            </div>
-            <button (click)="goToWeeklyReview()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-all whitespace-nowrap">
-                Start Review
-            </button>
+    <!-- ── Horizontal Tabs (Visual only) ───────────── -->
+    <div class="px-6 mb-8 overflow-x-auto no-scrollbar">
+        <div class="max-w-5xl mx-auto flex items-center gap-3">
+            <button class="px-6 py-2.5 rounded-full bg-white text-sm font-bold shadow-sm whitespace-nowrap">Forum</button>
+            <button (click)="showAddSubject.set(true)" class="px-6 py-2.5 rounded-full bg-white text-sm font-bold shadow-sm whitespace-nowrap">Add. classes</button>
+            <button class="px-6 py-2.5 rounded-full bg-[#7d5cf6] text-white text-sm font-bold shadow-md whitespace-nowrap">Lessons</button>
         </div>
-        }
+    </div>
 
-        <!-- This Week's Focus List -->
-        @if (starredTopics().length > 0 && !loading()) {
-        <div class="bg-white border border-zinc-100 rounded-2xl p-5 mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-slide-up">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-blue-600 font-bold text-sm">★ Current Focus Topics</span>
-                </div>
-                <button (click)="goToWeeklyReview()" class="text-blue-600 hover:underline text-xs font-bold">Manage</button>
+    <!-- ── Main Learning Path ──────────────────────── -->
+    <main class="max-w-5xl mx-auto px-6">
+        
+        <!-- Weekly Metrics Row (Compact) -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-[24px] p-4 shadow-sm flex flex-col items-center gap-1 border border-white">
+                <span class="text-lg font-black text-[#7d5cf6]">{{ overallPercent() }}%</span>
+                <span class="text-[10px] font-bold text-[#a0a2ad] uppercase">Mastery</span>
             </div>
-            <div class="flex flex-wrap gap-2">
-                @for (topic of starredTopics(); track topic.id) {
-                <div (click)="openSubject(topic.subject_id)" class="flex items-center gap-2 px-3.5 py-2 rounded-xl cursor-pointer transition-all bg-[#F4F5FC] border border-[#E4E6F5] hover:border-blue-200">
-                    <div class="w-2 h-2 rounded-full flex-shrink-0" [style.background-color]="topic.subject_color"></div>
-                    <span class="text-xs font-semibold text-[#434654] truncate max-w-[250px]">{{ topic.title }}</span>
-                </div>
-                }
+            <div class="bg-white rounded-[24px] p-4 shadow-sm flex flex-col items-center gap-1 border border-white">
+                <span class="text-lg font-black text-orange-500">🔥 {{ currentStreak() }}</span>
+                <span class="text-[10px] font-bold text-[#a0a2ad] uppercase">Streak</span>
+            </div>
+            <div class="bg-white rounded-[24px] p-4 shadow-sm flex flex-col items-center gap-1 border border-white">
+                <span class="text-lg font-black text-blue-500">✨ {{ totalCompleted() * 100 }}</span>
+                <span class="text-[10px] font-bold text-[#a0a2ad] uppercase">XP</span>
             </div>
         </div>
-        }
 
         <!-- Section Header -->
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-base font-black text-[#131B2E]">Learning Paths</h2>
-            <button (click)="showAddSubject.set(true)" class="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline">
-                + Add Subject
-            </button>
-        </div>
-
-        <!-- ── Subject Loader Skeletons ────────────────── -->
-        @if (loading()) {
-        <div class="grid grid-cols-1 gap-4">
-            @for (_ of [1,2,3]; track $index) {
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 animate-pulse">
-                <div class="h-4 bg-zinc-200 rounded w-1/3 mb-3"></div>
-                <div class="h-2 bg-zinc-100 rounded w-full mb-2"></div>
-                <div class="h-3 bg-zinc-50 rounded w-1/4"></div>
-            </div>
-            }
-        </div>
-
-        } @else if (subjects().length === 0 && !showAddSubject()) {
-        <!-- Empty State -->
-        <div class="text-center py-16 bg-white border border-dashed border-zinc-200 rounded-3xl animate-fade-in">
-            <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-            </div>
-            <h3 class="text-[#131B2E] font-bold text-lg mb-1">Create your first Subject</h3>
-            <p class="text-zinc-400 text-xs max-w-xs mx-auto leading-relaxed mb-6">Add topics to break down skills and master content cleanly.</p>
-            <button (click)="showAddSubject.set(true)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-full shadow-md">
-                Add New Subject
-            </button>
-        </div>
-
-        } @else {
-        <!-- Subject List Items -->
-        <div class="space-y-3" [@staggerList]="subjects().length">
-            @for (sub of subjects(); track sub.id) {
-
-                @if (editingSubjectId() === sub.id) {
-                <!-- Edit Mode -->
-                <div class="bg-white border border-blue-100 rounded-2xl p-5 space-y-3 shadow-md animate-scale-in">
-                    <h4 class="text-xs font-bold text-[#737686]">Edit Subject</h4>
-                    <div class="flex items-center gap-3">
-                        <input [(ngModel)]="editSubjectName" (input)="editSubjectName = toTitleCase(editSubjectName)" class="w-full h-12 rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" placeholder="Subject name" />
-                        <input [(ngModel)]="editSubjectColor" type="color" class="w-12 h-12 rounded-xl border border-zinc-200 p-1 bg-white cursor-pointer flex-shrink-0" />
-                    </div>
-                    <div class="flex gap-2">
-                        <button (click)="saveEditSubject($event, sub.id)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">Save Changes</button>
-                        <button (click)="cancelEditSubject($event)" class="bg-zinc-100 hover:bg-zinc-200 text-[#434654] text-xs font-bold px-4 py-2.5 rounded-xl">Cancel</button>
-                    </div>
+        <!-- Section Header -->
+        <div class="flex items-center justify-between mb-5 px-1">
+            <h2 class="text-xl font-black tracking-tight">Your Subjects</h2>
+            <button (click)="viewMode.set(viewMode() === 'grid' ? 'list' : 'grid')" 
+                    class="h-10 px-5 rounded-2xl bg-white shadow-sm border border-gray-50 flex items-center gap-2.5 hover:shadow-md hover:border-[#7d5cf6]/20 transition-all active:scale-95 group">
+                <div class="w-6 h-6 rounded-lg bg-[#7d5cf6]/5 flex items-center justify-center group-hover:bg-[#7d5cf6]/10 transition-colors">
+                    @if (viewMode() === 'grid') {
+                        <svg class="w-3.5 h-3.5 text-[#7d5cf6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    } @else {
+                        <svg class="w-3.5 h-3.5 text-[#7d5cf6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zm0 9h7v7h-7v-7zm-9 0h7v7H4v-7z"/></svg>
+                    }
                 </div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-[#1a1b2b]">
+                    {{ viewMode() === 'grid' ? 'View All' : 'Grid View' }}
+                </span>
+            </button>
+        </div>
 
-                } @else {
-                <!-- Display Mode -->
-                <div (click)="openSubject(sub.id)" class="bg-white border border-zinc-100 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between gap-4 cursor-pointer hover:border-blue-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all animate-scale-in">
-                    <div class="flex items-center gap-4 min-w-0 flex-1">
-                        <!-- Color Indicator -->
-                        <div class="w-4 h-12 rounded-full flex-shrink-0" [style.background-color]="sub.color"></div>
-                        
-                        <!-- Name + Progress -->
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-[#131B2E] font-bold text-base truncate">{{ sub.name }}</h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <div class="w-full bg-zinc-100 rounded-full h-1.5">
-                                    <div class="h-1.5 rounded-full" [style.width.%]="sub.percent" [style.background-color]="sub.color"></div>
+        <!-- ── Subject Display Mode ───────────────────── -->
+        @if (loading()) {
+            <div class="grid grid-cols-2 gap-4">
+                @for (_ of [1,2,3,4]; track $index) {
+                    <div class="aspect-[4/5] bg-white rounded-[32px] shimmer"></div>
+                }
+            </div>
+        } @else if (subjects().length === 0 && !showAddSubject()) {
+            <div class="text-center py-16 bg-white rounded-[32px] border-2 border-dashed border-gray-200 animate-fade-in">
+                <div class="w-16 h-16 rounded-full bg-[#f3f4f9] flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-[#7d5cf6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-lg">Empty Path</h3>
+                <p class="text-gray-400 text-sm mb-6">Add a subject to start your journey.</p>
+                <button (click)="showAddSubject.set(true)" class="btn-primary">Add Subject</button>
+            </div>
+        } @else {
+            
+            @if (viewMode() === 'grid') {
+                <!-- Grid View -->
+                <div class="grid grid-cols-2 gap-4" [@staggerList]="subjects().length">
+                    @for (sub of subjects(); track sub.id) {
+                        <div (click)="openSubject(sub.id)" class="puzzle-card aspect-[4/5] p-5 flex flex-col justify-between cursor-pointer group shadow-lg" [style.background-color]="sub.color">
+                            <!-- Top Icon Badge -->
+                            <div class="icon-badge">
+                                @switch (sub.id.length % 8) {
+                                    @case (0) { <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg> }
+                                    @case (1) { <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> }
+                                    @case (2) { <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg> }
+                                    @default { <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> }
+                                }
+                            </div>
+                            <!-- Info -->
+                            <div class="text-white relative z-10">
+                                <h3 class="text-xl font-black leading-tight mb-1">{{ sub.name }}</h3>
+                                <div class="flex flex-col gap-2">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar-fill" [style.width.%]="sub.percent"></div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-black uppercase opacity-80">{{ sub.completedCount }}/{{ sub.totalCount }} Topics</span>
+                                        <span class="text-[10px] font-black uppercase">{{ sub.percent }}%</span>
+                                    </div>
                                 </div>
-                                <span class="text-xs font-bold text-[#737686]">{{ sub.percent }}%</span>
+                            </div>
+                            <!-- Action Buttons -->
+                            <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button (click)="startEditSubject($event, sub)" class="p-2 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-md">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center gap-3">
-                        <div class="text-right flex-shrink-0">
-                            <span class="text-xs font-bold text-[#737686]">{{ sub.completedCount }}/{{ sub.totalCount }} topics</span>
-                        </div>
-                        
-                        <button (click)="startEditSubject($event, sub)" class="w-8 h-8 rounded-xl hover:bg-[#F4F5FC] text-zinc-400 hover:text-blue-600 transition-all flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        </button>
-                        
-                        <button (click)="deleteSubject($event, sub.id, sub.name)" class="w-8 h-8 rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-all flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    </div>
+                    }
                 </div>
-                }
+            } @else {
+                <!-- List View -->
+                <div class="space-y-4" [@staggerList]="subjects().length">
+                    @for (sub of subjects(); track sub.id) {
+                        <div (click)="openSubject(sub.id)" class="bg-white rounded-[32px] p-5 flex items-center gap-5 cursor-pointer group shadow-sm border border-white hover:shadow-md hover:translate-x-1 transition-all">
+                            <!-- Color Bar -->
+                            <div class="w-1.5 h-12 rounded-full" [style.background-color]="sub.color"></div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-lg font-black text-[#1a1b2b] truncate leading-tight">{{ sub.name }}</h3>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <div class="w-32 h-1.5 bg-[#f3f4f9] rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-1000" [style.width.%]="sub.percent" [style.background-color]="sub.color"></div>
+                                    </div>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">{{ sub.percent }}%</span>
+                                </div>
+                            </div>
 
+                            <!-- Right Info -->
+                            <div class="text-right flex flex-col items-end gap-1">
+                                <span class="text-[10px] font-black text-[#1a1b2b]">{{ sub.completedCount }}/{{ sub.totalCount }}</span>
+                                <span class="text-[8px] font-black text-gray-300 uppercase tracking-tighter">Topics Done</span>
+                            </div>
+
+                            <!-- Actions -->
+                            <button (click)="startEditSubject($event, sub)" class="w-10 h-10 rounded-full bg-[#f3f4f9] flex items-center justify-center text-gray-300 hover:text-[#7d5cf6] hover:bg-[#7d5cf6]/5 transition-all">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                        </div>
+                    }
+                    
+                    <!-- Quick Add Button in List View -->
+                    <button (click)="showAddSubject.set(true)" class="w-full py-6 rounded-[32px] border-4 border-dashed border-white bg-white/40 hover:bg-white text-[#7d5cf6] text-sm font-black transition-all flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Add Another Subject
+                    </button>
+                </div>
             }
-        </div>
         }
-
-
 
     </main>
 
-    <!-- ── Floating Dark Bottom Nav ────────────────── -->
-    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-6 py-3.5 flex items-center justify-between gap-10 shadow-2xl z-50 max-w-sm w-[90%]">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-cyan-400">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
-            <span class="text-[9px] font-bold">Home</span>
-        </a>
-        <button (click)="goToWeeklyReview()" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[9px] font-bold">Weekly</span>
-        </button>
-        <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span class="text-[9px] font-bold">Profile</span>
-        </a>
+    <!-- ── Floating Capsule Nav ────────────────────── -->
+    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[200]">
+        <div class="capsule-nav flex items-center justify-between">
+            <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Home</span>
+            </a>
+            <button (click)="goToWeeklyReview()" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Weekly</span>
+            </button>
+            <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Profile</span>
+            </a>
+        </div>
     </nav>
 
-        <!-- Bottom Sheet Backdrop Overlay -->
-        @if (showAddSubject()) {
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-end justify-center animate-fade-in" (click)="showAddSubject.set(false)">
-            <!-- The Sheet -->
-            <div class="w-full max-w-md bg-[#FAF8FF] rounded-t-[32px] p-6 shadow-2xl animate-slide-up flex flex-col gap-5 max-h-[90vh] overflow-y-auto relative" (click)="$event.stopPropagation()">
+    <!-- ── Bottom Sheet Edit Subject ───────────────── -->
+    @if (editingSubjectId()) {
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-md z-[400] flex items-end justify-center animate-fade-in" (click)="cancelEditSubject()">
+            <div class="w-full max-w-lg bg-white rounded-t-[40px] p-8 pb-12 shadow-2xl animate-slide-up relative" (click)="$event.stopPropagation()">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8"></div>
                 
-                <!-- Top Drag Handle -->
-                <div class="w-12 h-1 bg-zinc-300 rounded-full mx-auto mt-[-8px] mb-2 flex-shrink-0"></div>
-
-                <!-- Title Row -->
-                <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-black text-[#131B2E] tracking-tight">New Subject</h2>
-                    <button (click)="showAddSubject.set(false)" class="w-9 h-9 rounded-full bg-[#E4E6F5] text-[#737686] hover:text-[#131B2E] hover:bg-zinc-200 flex items-center justify-center transition-colors">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black">Edit Subject</h2>
+                    <button (click)="deleteSubject($event, editingSubjectId()!, editSubjectName)" class="text-red-500 text-xs font-black uppercase tracking-widest px-4 py-2 bg-red-50 rounded-xl hover:bg-red-500 hover:text-white transition-all">Delete</button>
                 </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Subject Title</label>
+                        <input [(ngModel)]="editSubjectName" (input)="editSubjectName = toTitleCase(editSubjectName)" 
+                               class="w-full h-14 rounded-2xl bg-[#f3f4f9] border-none px-5 text-lg font-bold outline-none focus:ring-2 focus:ring-[#7d5cf6]/20 transition-all" 
+                               placeholder="e.g. Modern Physics" />
+                    </div>
 
-                <!-- Subject Name -->
-                <div class="space-y-2">
-                    <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Subject Name</span>
-                    <input [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)" (keydown.enter)="addSubject()" 
-                        class="w-full h-14 rounded-2xl bg-[#F4F5FC] border border-[#E4E6F5] px-4 text-base font-bold outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-[#131B2E] placeholder-zinc-400" 
-                        placeholder="e.g. Master React Native" />
-                </div>
-
-                <!-- Visual Identity Icons -->
-                <div class="space-y-2">
-                    <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Visual Identity</span>
-                    <div class="grid grid-cols-4 gap-3">
-                        @for (icon of icons; track icon) {
-                        <button (click)="selectedIcon.set(icon)" 
-                            class="h-16 rounded-2xl flex items-center justify-center transition-all shadow-sm"
-                            [class.bg-blue-600]="selectedIcon() === icon"
-                            [class.text-white]="selectedIcon() === icon"
-                            [class.bg-indigo-50]="selectedIcon() !== icon"
-                            [class.text-indigo-600]="selectedIcon() !== icon"
-                            [class.hover:bg-indigo-100]="selectedIcon() !== icon">
-                            
-                            @switch (icon) {
-                                @case ('code') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
-                                    </svg>
-                                }
-                                @case ('palette') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.006-.616A16.075 16.075 0 0019.5 8.375a3.375 3.375 0 00-3.375-3.375 16.114 16.114 0 00-8.15 2.237m-.005 0A15.998 15.998 0 004.03 14.28m15.47-5.905a1.5 1.5 0 11-3.001-.004 1.5 1.5 0 013.001.004zm-3.496 5.992a1.5 1.5 0 11-3.002-.003 1.5 1.5 0 013.002.003z"/>
-                                    </svg>
-                                }
-                                @case ('terminal') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0022.5 18V6a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25z"/>
-                                    </svg>
-                                }
-                                @case ('fitness') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0V9.75m0 2.25m15-2.25V9.75m0 2.25v2.25m-11.25-2.25h7.5m-9 0v-3.75m0 3.75v3.75m10.5-7.5v7.5"/>
-                                    </svg>
-                                }
-                                @case ('language') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 5.418A9.004 9.004 0 0012 3m8.716 11.253a9.004 9.004 0 01-17.432 0"/>
-                                    </svg>
-                                }
-                                @case ('architecture') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-                                    </svg>
-                                }
-                                @case ('science') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.75H14.25M12 3.75v11.25M3.75 20.25h16.5m-2.25-7.5h-10.5M7.5 20.25h9m-9 0L12 11.25m0 0L16.5 20.25"/>
-                                    </svg>
-                                }
-                                @case ('music') {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3v12m-10.5-9v12m0-12a3 3 0 100 6 3 3 0 000-6zm10.5-3a3 3 0 100 6 3 3 0 000-6z"/>
-                                    </svg>
-                                }
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 px-1">Update Theme</label>
+                        <div class="flex flex-wrap gap-4">
+                            @for (color of colors; track color) {
+                                <button (click)="editSubjectColor = color" 
+                                        class="w-12 h-12 rounded-2xl transition-all flex items-center justify-center border-4"
+                                        [style.background-color]="color"
+                                        [style.border-color]="editSubjectColor === color ? 'white' : 'transparent'"
+                                        [class.shadow-xl]="editSubjectColor === color"
+                                        [class.scale-110]="editSubjectColor === color">
+                                </button>
                             }
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button (click)="cancelEditSubject()" class="flex-1 h-16 bg-gray-50 text-gray-400 font-black rounded-3xl text-lg hover:bg-gray-100 transition-all">Cancel</button>
+                        <button (click)="saveEditSubject($event, editingSubjectId()!)" [disabled]="!editSubjectName.trim()" 
+                                class="flex-[2] h-16 bg-[#7d5cf6] text-white font-black rounded-3xl text-lg shadow-xl hover:shadow-2xl transition-all disabled:opacity-50">
+                            Save Changes
                         </button>
-                        }
                     </div>
                 </div>
-
-                <!-- Accent Color Circles -->
-                <div class="space-y-3">
-                    <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Accent Color</span>
-                    <div class="flex flex-wrap items-center gap-6 py-2">
-                        @for (color of colors; track color) {
-                        <button (click)="newSubjectColor = color" 
-                            class="w-10 h-10 rounded-full transition-all flex items-center justify-center relative"
-                            [style.background-color]="color">
-                            @if (newSubjectColor === color) {
-                            <div class="absolute w-14 h-14 rounded-full border-2 flex-shrink-0 pointer-events-none" [style.border-color]="color"></div>
-                            }
-                        </button>
-                        }
-                    </div>
-                </div>
-
-                <!-- CTA Button (Gradient: Teal to Blue) -->
-                <button (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()" 
-                    class="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black rounded-2xl py-4 text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-                    <span>Create Subject</span>
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </button>
-                
             </div>
         </div>
-        }
-</div>
+    }
 
-<app-toast />
+    <!-- ── Bottom Sheet Add Subject ───────────────── -->
+    @if (showAddSubject()) {
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-md z-[400] flex items-end justify-center animate-fade-in" (click)="showAddSubject.set(false)">
+            <div class="w-full max-w-lg bg-white rounded-t-[40px] p-8 pb-12 shadow-2xl animate-slide-up relative" (click)="$event.stopPropagation()">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8"></div>
+                
+                <h2 class="text-2xl font-black mb-6">Create New Subject</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Subject Title</label>
+                        <input [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)" 
+                               class="w-full h-14 rounded-2xl bg-[#f3f4f9] border-none px-5 text-lg font-bold outline-none focus:ring-2 focus:ring-[#7d5cf6]/20 transition-all" 
+                               placeholder="e.g. Modern Physics" />
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 px-1">Choose Theme</label>
+                        <div class="flex flex-wrap gap-4">
+                            @for (color of colors; track color) {
+                                <button (click)="newSubjectColor = color" 
+                                        class="w-12 h-12 rounded-2xl transition-all flex items-center justify-center border-4"
+                                        [style.background-color]="color"
+                                        [style.border-color]="newSubjectColor === color ? 'white' : 'transparent'"
+                                        [class.shadow-xl]="newSubjectColor === color"
+                                        [class.scale-110]="newSubjectColor === color">
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <button (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()" 
+                            class="w-full h-16 bg-[#7d5cf6] text-white font-black rounded-3xl text-lg shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 mt-4">
+                        {{ savingSubject() ? 'Creating...' : 'Launch Subject' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 <app-toast />

@@ -1,116 +1,86 @@
 <!-- src/app/auth/login/login.component.html -->
-<div class="flex items-center justify-center min-h-screen px-4 relative overflow-hidden text-zinc-100 font-sans selection:bg-[#00C8E8]/30 selection:text-white"
-     style="background: linear-gradient(165deg, #03001e 0%, #7303c0 50%, #ec38bc 100%);">
+<div class="flex items-center justify-center min-h-screen bg-[#f3f4f9] px-6 text-[#1a1b2b]">
 
-    <!-- Ultra-Premium Backdrop Canvas -->
-    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#00C8E8]/40 rounded-full blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
-        <div class="absolute top-1/3 -left-60 w-[600px] h-[600px] bg-[#7303c0]/50 rounded-full blur-[160px] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
-        <div class="absolute -bottom-40 right-1/4 w-[450px] h-[450px] bg-[#ec38bc]/30 rounded-full blur-[120px] animate-pulse" style="animation-duration: 10s; animation-delay: 4s;"></div>
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+    <!-- Decorative Elements -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-[#7d5cf6]/5 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#4cd9ff]/5 rounded-full blur-[100px]"></div>
     </div>
 
-    <div class="w-full max-w-sm relative z-10">
+    <div class="w-full max-w-md relative z-10">
 
-        <!-- Branding Header -->
-        <div class="flex items-center justify-center mb-8 animate-fade-in">
-            <img src="assets/nextlyr-logo.png" onerror="this.src='nextlyr-logo.png'" alt="Nextlyr Logo" class="w-48 h-auto max-h-16 object-contain" />
+        <!-- Branding -->
+        <div class="flex flex-col items-center mb-10 animate-fade-in">
+            <div class="w-14 h-14 bg-[#7d5cf6] rounded-2xl flex items-center justify-center shadow-xl mb-4">
+                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-black tracking-tight">Welcome Back</h1>
         </div>
 
-        <!-- Interactive Glass Container -->
-        <div class="bg-zinc-950/40 border border-white/10 rounded-[32px] p-7 shadow-2xl animate-scale-in backdrop-blur-2xl">
-            <h2 class="text-white font-extrabold text-xl mb-6 tracking-wide">Welcome back</h2>
-
-            <!-- Alert Messages -->
+        <!-- Form Card -->
+        <div class="bg-white rounded-[40px] p-8 shadow-2xl border border-white animate-bounce-in">
+            
             @if (error()) {
-            <div class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-2xl px-4 py-3 mb-5 font-bold animate-slide-up">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                {{ error() }}
-            </div>
+                <div class="bg-red-50 text-red-500 text-xs font-black uppercase tracking-widest p-4 rounded-2xl mb-6 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    {{ error() }}
+                </div>
             }
 
-            <!-- Google Auth Trigger -->
-            <button (click)="loginWithGoogle()" [disabled]="googleLoading() || loading()"
-                class="w-full h-12 flex items-center justify-center gap-3 rounded-2xl px-4 text-sm font-bold text-white border border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all mb-5">
-                @if (googleLoading()) {
-                <svg class="w-4 h-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                </svg>
-                Connecting...
-                } @else {
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-                }
-            </button>
-
-            <!-- Decorative Splitter -->
-            <div class="flex items-center gap-3 mb-5">
-                <div class="flex-1 h-px bg-white/10"></div>
-                <span class="text-zinc-400 text-xs font-bold uppercase tracking-wide">or sign in with email</span>
-                <div class="flex-1 h-px bg-white/10"></div>
-            </div>
-
-            <!-- Credentials Block -->
-            <div class="space-y-4">
+            <div class="space-y-6">
                 <div>
-                    <label class="text-zinc-300 text-xs font-bold uppercase tracking-wide block mb-1.5">Email</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Email Address</label>
                     <input [(ngModel)]="email" type="email" placeholder="you@example.com" 
-                           class="w-full h-12 px-4 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium outline-none focus:border-[#00C8E8] focus:bg-white/10 transition-all" />
+                           class="w-full h-14 px-5 rounded-2xl bg-[#f3f4f9] text-sm font-bold outline-none focus:ring-2 focus:ring-[#7d5cf6]/20 transition-all" />
                 </div>
 
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="text-zinc-300 text-xs font-bold uppercase tracking-wide">Password</label>
-                        <a routerLink="/auth/forgot-password"
-                            class="text-[#00C8E8] text-xs hover:underline font-bold transition-all">
-                            Forgot password?
-                        </a>
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Password</label>
+                        <a routerLink="/auth/forgot-password" class="text-[#7d5cf6] text-[10px] font-black uppercase tracking-widest hover:underline">Forgot?</a>
                     </div>
                     <div class="relative">
-                        <input [(ngModel)]="password"
-                            [type]="showPassword() ? 'text' : 'password'"
-                            placeholder="••••••••"
-                            (keydown.enter)="submit()"
-                            class="w-full h-12 px-4 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium outline-none focus:border-[#00C8E8] focus:bg-white/10 transition-all pr-10" />
-                        
-                        <button type="button" (click)="showPassword.update(v => !v)"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
-                            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                        <input [(ngModel)]="password" [type]="showPassword() ? 'text' : 'password'" placeholder="••••••••" (keydown.enter)="submit()"
+                               class="w-full h-14 px-5 pr-12 rounded-2xl bg-[#f3f4f9] text-sm font-bold outline-none focus:ring-2 focus:ring-[#7d5cf6]/20 transition-all" />
+                        <button (click)="showPassword.update(v => !v)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#7d5cf6]">
                             @if (showPassword()) {
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                            </svg>
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                             } @else {
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             }
                         </button>
                     </div>
                 </div>
 
                 <button (click)="submit()" [disabled]="loading() || googleLoading()" 
-                        class="w-full h-12 bg-white hover:bg-zinc-100 text-[#03001e] text-sm font-bold rounded-2xl transition-all flex items-center justify-center shadow-xl mt-2 active:scale-[0.98] disabled:opacity-50">
-                    {{ loading() ? 'Signing in...' : 'Sign in' }}
+                        class="w-full h-16 bg-[#7d5cf6] text-white font-black rounded-3xl text-lg shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 mt-2">
+                    {{ loading() ? 'Signing in...' : 'Sign In' }}
+                </button>
+
+                <div class="relative flex items-center py-2">
+                    <div class="flex-1 h-px bg-gray-100"></div>
+                    <span class="px-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">Social Connect</span>
+                    <div class="flex-1 h-px bg-gray-100"></div>
+                </div>
+
+                <button (click)="loginWithGoogle()" [disabled]="googleLoading() || loading()"
+                        class="w-full h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center gap-3 text-sm font-bold shadow-sm hover:bg-gray-50 transition-all">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Google Account
                 </button>
             </div>
-
-            <!-- Alternate Gate -->
-            <p class="text-zinc-400 text-sm text-center mt-6 font-medium">
-                Don't have an account?
-                <a routerLink="/auth/register" class="text-[#00C8E8] hover:underline font-bold transition-colors ml-1">
-                    Sign up
-                </a>
-            </p>
         </div>
+
+        <p class="text-center mt-10 text-sm font-medium text-gray-400">
+            New to SkillTracker? 
+            <a routerLink="/auth/register" class="text-[#7d5cf6] font-black hover:underline ml-1">Create Account</a>
+        </p>
     </div>
 </div>

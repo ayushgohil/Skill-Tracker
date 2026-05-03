@@ -1,9 +1,10 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
-import { Component, input, output, signal, computed, effect, OnDestroy, HostListener } from '@angular/core';
+import { Component, input, output, signal, computed, effect, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TopicWithProgress, Depth } from '../../core/models';
 import { PomodoroService } from '../../core/services/pomodoro.service';
 import Swal from 'sweetalert2';
+import { expandCollapse } from '../../core/animations/app.animations';
 
 export interface ProgressChange {
     topicId: string;
@@ -32,8 +33,6 @@ export interface SubtopicDeleteEvent {
     subtopicId: string;
     topicId: string;
 }
-
-import { expandCollapse } from '../../core/animations/app.animations';
 
 @Component({
     selector: 'app-topic-item',
@@ -74,9 +73,9 @@ export class TopicItemComponent implements OnDestroy {
     private boundCloseMenu = (e: MouseEvent) => this.closeMenuOnOutsideClick(e);
 
     readonly depthConfig: Record<Depth, { label: string; classes: string }> = {
-        shallow: { label: 'Shallow', classes: 'bg-zinc-800 text-zinc-400' },
-        medium: { label: 'Medium', classes: 'bg-amber-500/20 text-amber-400' },
-        deep: { label: 'Deep', classes: 'bg-red-500/20 text-red-400' }
+        shallow: { label: 'Shallow', classes: 'bg-sky-50 text-sky-600 border-sky-100' },
+        medium: { label: 'Medium', classes: 'bg-amber-50 text-amber-600 border-amber-100' },
+        deep: { label: 'Deep', classes: 'bg-rose-50 text-rose-600 border-rose-100' }
     };
 
     // ── Computed (fully reactive via signal inputs) ───
@@ -199,12 +198,14 @@ export class TopicItemComponent implements OnDestroy {
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it',
             cancelButtonText: 'Cancel',
-            background: '#18181b',
-            color: '#f4f4f5',
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#3f3f46',
+            background: '#ffffff',
+            color: '#1a1b2b',
+            confirmButtonColor: '#ff6b6b',
+            cancelButtonColor: '#f3f4f9',
             customClass: {
-                popup: 'swal-dark-popup'
+                popup: 'rounded-[32px] border-none shadow-2xl',
+                confirmButton: 'rounded-xl font-black px-6 py-3',
+                cancelButton: 'rounded-xl font-black px-6 py-3 text-gray-500'
             }
         });
         if (result.isConfirmed) {
@@ -230,10 +231,15 @@ export class TopicItemComponent implements OnDestroy {
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it',
             cancelButtonText: 'Cancel',
-            background: '#18181b',
-            color: '#f4f4f5',
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#3f3f46'
+            background: '#ffffff',
+            color: '#1a1b2b',
+            confirmButtonColor: '#ff6b6b',
+            cancelButtonColor: '#f3f4f9',
+            customClass: {
+                popup: 'rounded-[32px] border-none shadow-2xl',
+                confirmButton: 'rounded-xl font-black px-6 py-3',
+                cancelButton: 'rounded-xl font-black px-6 py-3 text-gray-500'
+            }
         });
         if (!result.isConfirmed) return;
         this.subtopicDeleted.emit({

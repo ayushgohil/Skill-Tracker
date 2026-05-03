@@ -29,9 +29,9 @@ export class WeeklyComponent implements OnInit {
     MAX_STARS = 3;
 
     readonly depthConfig: Record<Depth, { label: string; classes: string }> = {
-        shallow: { label: 'Shallow', classes: 'bg-zinc-800 text-zinc-400' },
-        medium: { label: 'Medium', classes: 'bg-amber-500/20 text-amber-400' },
-        deep: { label: 'Deep', classes: 'bg-red-500/20 text-red-400' }
+        shallow: { label: 'Shallow', classes: 'bg-gray-100 text-gray-500' },
+        medium: { label: 'Medium', classes: 'bg-amber-50 text-amber-600' },
+        deep: { label: 'Deep', classes: 'bg-red-50 text-red-600' }
     };
 
     // ── Computed ───────────────────────────────────────

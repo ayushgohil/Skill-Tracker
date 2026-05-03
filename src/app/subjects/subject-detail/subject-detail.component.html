@@ -1,154 +1,153 @@
 <!-- src/app/subjects/subject-detail/subject-detail.component.html -->
-<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
+<div class="min-h-screen bg-[#f3f4f9] text-[#1a1b2b] pb-40 safe-top">
 
-    <!-- ── Header Area ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-8 text-white rounded-b-[32px] shadow-lg animate-fade-in relative">
-        <div class="max-w-3xl mx-auto flex flex-col gap-4 relative z-10">
-            <!-- Back & Title row -->
-            <div class="flex items-center justify-between">
-                <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white text-sm font-bold group">
-                    <svg class="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <!-- ── Modern Header ────────────────────────────── -->
+    <header class="px-5 pt-8 pb-6 animate-fade-in">
+        <div class="max-w-3xl mx-auto">
+            <!-- Back Row -->
+            <div class="flex items-center justify-between mb-8">
+                <button (click)="goBack()" class="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-sm text-[#1a1b2b] hover:bg-gray-50 transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
-                    <span>Back</span>
                 </button>
-
                 @if (subject(); as sub) {
-                <div class="flex items-center gap-2 text-xs font-bold bg-white/15 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
-                    <span class="text-white">{{ percent() }}% Mastered</span>
-                </div>
+                    <div class="px-5 py-2 rounded-full bg-white text-[#7d5cf6] text-[10px] font-black uppercase tracking-widest shadow-sm border border-white">
+                        {{ percent() }}% Mastered
+                    </div>
                 }
             </div>
 
-            <!-- Subject Title Block -->
+            <!-- Title Row -->
             @if (subject(); as sub) {
-            <div class="flex items-center gap-3 mt-1">
-                <div class="w-4 h-4 rounded-full flex-shrink-0 border-2 border-white" [style.background-color]="sub.color"></div>
-                <h1 class="text-2xl font-black tracking-tight truncate flex-1">{{ sub.name }}</h1>
+            <div class="flex items-center gap-5">
+                <div class="w-2.5 h-12 rounded-full shadow-lg" [style.background-color]="sub.color"></div>
+                <h1 class="text-4xl font-black tracking-tighter">{{ sub.name }}</h1>
             </div>
             }
         </div>
     </header>
 
     <!-- ── Main Content ───────────────────────────── -->
-    <main class="max-w-3xl mx-auto px-5 py-8">
+    <main class="max-w-3xl mx-auto px-6 py-4">
 
         @if (loading()) {
-        <!-- Loading state -->
-        <div class="space-y-3">
-            @for (_ of [1,2,3]; track $index) {
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 animate-pulse flex items-center gap-3">
-                <div class="w-5 h-5 bg-zinc-200 rounded-md"></div>
-                <div class="h-4 bg-zinc-100 rounded w-1/2"></div>
+            <div class="space-y-4">
+                @for (_ of [1,2,3,4]; track $index) {
+                    <div class="h-16 bg-white rounded-[32px] shimmer opacity-60"></div>
+                }
             </div>
-            }
-        </div>
-
         } @else if (subject(); as sub) {
 
-        <!-- Search & Sort Panel -->
-        <div class="flex items-center gap-3 mb-6 relative z-[200]">
-            <div class="relative flex-1">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text" placeholder="Search topics..." class="w-full h-12 pl-11 pr-4 rounded-xl bg-white border border-zinc-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" />
-                @if (isSearching()) {
-                <button (click)="searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                }
-            </div>
+            <!-- Search & Sort Panel -->
+            <div class="flex items-center gap-3 mb-10">
+                <div class="relative flex-1">
+                    <svg class="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a0a2ad]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text" placeholder="Search topics..." 
+                           class="w-full h-16 pl-14 pr-6 rounded-[32px] bg-white border-none text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#7d5cf6]/5 transition-all" />
+                </div>
 
-            <!-- Sort Menu -->
-            <div class="relative sort-menu-container">
-                <button (click)="showSortMenu.update(v => !v)" class="h-12 px-4 rounded-xl bg-white border border-zinc-200 flex items-center gap-2 text-zinc-600 hover:text-blue-600 font-bold text-xs transition-all">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/></svg>
-                    <span>{{ sortLabels[sortOption()] }}</span>
-                </button>
-
-                @if (showSortMenu()) {
-                <div class="absolute right-0 top-full mt-2 w-48 bg-white border border-zinc-100 rounded-2xl shadow-xl z-30 py-1.5 overflow-hidden animate-scale-in"
-                    style="background-color: #ffffff !important;">
-                    @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
-                    <button (click)="setSort(entry[0])" class="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center justify-between hover:bg-[#F4F5FC]" [class.text-blue-600]="sortOption() === entry[0]" [class.text-[#434654]]="sortOption() !== entry[0]">
-                        {{ entry[1] }}
-                        @if (sortOption() === entry[0]) {
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                        }
+                <!-- Sort Menu -->
+                <div class="relative">
+                    <button (click)="showSortMenu.update(v => !v)" 
+                            class="w-16 h-16 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-[#1a1b2b] hover:text-[#7d5cf6] transition-all">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/>
+                        </svg>
                     </button>
+
+                    @if (showSortMenu()) {
+                        <div class="absolute right-0 top-full mt-3 w-56 bg-white rounded-[32px] shadow-2xl z-[110] py-3 border border-gray-50 animate-bounce-in overflow-hidden">
+                            @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
+                                <button (click)="setSort(entry[0])" 
+                                        class="w-full text-left px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-between hover:bg-[#f3f4f9]" 
+                                        [class.text-[#7d5cf6]]="sortOption() === entry[0]">
+                                    {{ entry[1] }}
+                                    @if (sortOption() === entry[0]) {
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                    }
+                                </button>
+                            }
+                        </div>
                     }
                 </div>
+            </div>
+
+            <!-- Topics List -->
+            <div class="space-y-4" [@staggerList]="filteredTopics().length">
+                @for (topic of filteredTopics(); track topic.id) {
+                    <div class="animate-slide-up relative" [style.z-index]="100 - $index">
+                        <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
+                            (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
+                            (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
+                            (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
+                            (subtopicDeleted)="onSubtopicDeleted($event)" />
+                    </div>
+                }
+
+                @if (filteredTopics().length === 0 && !isSearching()) {
+                    <div class="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-gray-100">
+                        <p class="text-gray-400 text-xs font-black uppercase tracking-widest">No topics in this subject yet</p>
+                    </div>
                 }
             </div>
-        </div>
 
-        <!-- Topics Overview -->
-        <div class="space-y-3" [@staggerList]="filteredTopics().length">
-            @for (topic of filteredTopics(); track topic.id) {
-            <div class="animate-slide-up relative" [style.z-index]="100 - $index">
-                <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
-                    (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
-                    (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
-                    (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
-                    (subtopicDeleted)="onSubtopicDeleted($event)" />
-            </div>
-            }
-
-            <!-- Empty state -->
-            @if (filteredTopics().length === 0 && !isSearching()) {
-            <div class="text-center py-16 bg-white border border-dashed border-zinc-200 rounded-3xl animate-fade-in">
-                <p class="text-zinc-400 text-xs">No topics yet — add something to learn below!</p>
-            </div>
-            }
-        </div>
-
-        <!-- Add Topic -->
-        @if (!isSearching()) {
-        <div class="mt-4">
-            @if (showAddTopic()) {
-            <div class="bg-white border border-blue-100 rounded-2xl p-5 space-y-3 shadow-lg animate-slide-up">
-                <h4 class="text-xs font-bold text-[#737686] uppercase tracking-wider">New Topic</h4>
-                <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic Title" (input)="newTopicTitle = toTitleCase(newTopicTitle)" (keydown.enter)="addTopic()" class="w-full h-12 px-4 rounded-xl bg-white border border-zinc-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" />
-                
-                <div class="flex items-center gap-3">
-                    <select [(ngModel)]="newTopicDepth" class="h-12 px-4 rounded-xl border border-zinc-200 bg-white text-sm outline-none focus:border-blue-400 flex-1">
-                        <option value="shallow">Shallow (Overview)</option>
-                        <option value="medium">Medium (Core Competency)</option>
-                        <option value="deep">Deep (Expertise)</option>
-                    </select>
-                    
-                    <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-3.5 rounded-xl disabled:opacity-50 flex-shrink-0">
-                        {{ savingTopic() ? 'Adding...' : 'Add Topic' }}
-                    </button>
+            <!-- Add Topic -->
+            @if (!isSearching()) {
+                <div class="mt-8">
+                    @if (showAddTopic()) {
+                        <div class="bg-white rounded-[40px] p-8 space-y-6 shadow-2xl border border-white animate-bounce-in">
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">New Milestone</h4>
+                            <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic Title" 
+                                   (input)="newTopicTitle = toTitleCase(newTopicTitle)" (keydown.enter)="addTopic()" 
+                                   class="w-full h-16 px-6 rounded-3xl bg-[#f3f4f9] text-base font-bold outline-none border-2 border-transparent focus:border-[#7d5cf6]/10" />
+                            
+                            <div class="flex items-center gap-4">
+                                <select [(ngModel)]="newTopicDepth" 
+                                        class="h-16 px-6 rounded-3xl bg-[#f3f4f9] text-sm font-bold outline-none flex-1 appearance-none border-2 border-transparent focus:border-[#7d5cf6]/10">
+                                    <option value="shallow">Shallow (Overview)</option>
+                                    <option value="medium">Medium (Core)</option>
+                                    <option value="deep">Deep (Expert)</option>
+                                </select>
+                                
+                                <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()" 
+                                        class="h-16 bg-[#7d5cf6] text-white text-sm font-black px-10 rounded-3xl disabled:opacity-50 flex-shrink-0 shadow-xl hover:shadow-2xl active:scale-95 transition-all">
+                                    {{ savingTopic() ? '...' : 'Add Topic' }}
+                                </button>
+                            </div>
+                            <button (click)="showAddTopic.set(false)" class="w-full text-center text-xs font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 pt-2">Cancel</button>
+                        </div>
+                    } @else {
+                        <button (click)="showAddTopic.set(true)" 
+                                class="w-full border-4 border-dashed border-white bg-white/40 hover:bg-white text-[#7d5cf6] text-sm font-black py-6 rounded-[32px] transition-all flex items-center justify-center gap-3">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            Add New Topic
+                        </button>
+                    }
                 </div>
-                <button (click)="showAddTopic.set(false)" class="w-full text-center text-xs font-bold text-[#737686] hover:text-[#434654] py-1">Cancel</button>
-            </div>
-            } @else {
-            <button (click)="showAddTopic.set(true)" class="w-full border border-dashed border-zinc-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600 text-sm font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
-                + Add Topic
-            </button>
             }
-        </div>
-        }
 
         }
     </main>
 
-    <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-6 py-3.5 flex items-center justify-between gap-10 shadow-2xl z-50 max-w-sm w-[90%]">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
-            <span class="text-[9px] font-bold">Home</span>
-        </a>
-        <a routerLink="/weekly" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[9px] font-bold">Weekly</span>
-        </a>
-        <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span class="text-[9px] font-bold">Profile</span>
-        </a>
+    <!-- ── Floating Capsule Nav ────────────────────── -->
+    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[200]">
+        <div class="capsule-nav flex items-center justify-between">
+            <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Home</span>
+            </a>
+            <a routerLink="/weekly" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Weekly</span>
+            </a>
+            <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Profile</span>
+            </a>
+        </div>
     </nav>
 
 </div>

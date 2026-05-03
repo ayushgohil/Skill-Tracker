@@ -49,13 +49,14 @@ export class DashboardComponent implements OnInit {
 
     // Add subject
     showAddSubject = signal(false);
+    viewMode = signal<'grid' | 'list'>('grid');
     newSubjectName = '';
-    newSubjectColor = '#2563EB';
+    newSubjectColor = '#7d5cf6';
     savingSubject = signal(false);
     
     selectedIcon = signal('code');
     icons = ['code', 'palette', 'terminal', 'fitness', 'language', 'architecture', 'science', 'music'];
-    colors = ['#2563EB', '#0F766E', '#B91C1C', '#10B981', '#7C3AED', '#F59E0B'];
+    colors = ['#7d5cf6', '#ffb02e', '#ff6b6b', '#4cd964', '#4cd9ff', '#ff85a2'];
 
     // Edit subject
     editingSubjectId = signal<string | null>(null);
@@ -73,6 +74,12 @@ export class DashboardComponent implements OnInit {
         const name = this.profileService.userProfile()?.display_name;
         if (name && name.trim()) return name.trim()[0].toUpperCase();
         return this.userEmail()?.[0]?.toUpperCase() ?? '';
+    });
+
+    userFirstName = computed(() => {
+        const name = this.profileService.userProfile()?.display_name;
+        if (name && name.trim()) return name.trim().split(' ')[0];
+        return 'Learner';
     });
 
     constructor(
@@ -248,10 +255,14 @@ export class DashboardComponent implements OnInit {
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it',
             cancelButtonText: 'Cancel',
-            background: '#18181b',
-            color: '#f4f4f5',
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#3f3f46'
+            background: '#ffffff',
+            color: '#1a1b2b',
+            confirmButtonColor: '#7d5cf6',
+            cancelButtonColor: '#f3f4f9',
+            customClass: {
+                confirmButton: 'rounded-2xl font-black px-6 py-3',
+                cancelButton: 'rounded-2xl font-black px-6 py-3 text-gray-400'
+            }
         });
         if (!result.isConfirmed) return;
         this.subjects.update(subs => subs.filter(s => s.id !== id));

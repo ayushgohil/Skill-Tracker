@@ -1,163 +1,171 @@
 <!-- src/app/profile/profile.component.html -->
-<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
+<div class="min-h-screen bg-[#f3f4f9] text-[#1a1b2b] pb-40 safe-top">
 
-    <!-- ── Header Area ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-8 text-white rounded-b-[32px] shadow-lg animate-fade-in">
+    <!-- ── Modern Header Area ────────────────────────────── -->
+    <header class="px-5 pt-8 pb-6 animate-fade-in">
         <div class="max-w-3xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2 rounded-2xl">
-                <div class="w-5 h-5 bg-white rounded-md flex items-center justify-center">
-                    <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <span class="font-black tracking-tight text-sm">SkillTracker</span>
-            </div>
-            
-            <button (click)="logout()" class="text-white/80 hover:text-white font-bold text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all">
+            <h1 class="text-4xl font-black tracking-tighter">Profile</h1>
+            <button (click)="logout()" class="h-11 px-6 rounded-2xl bg-white text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-50 transition-all border border-white shadow-sm flex items-center gap-2 group">
+                <svg class="w-4 h-4 text-red-400 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 Sign Out
             </button>
         </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-5 py-8 space-y-6" [@staggerList]="loading() ? 1 : 2">
+    <main class="max-w-3xl mx-auto px-6 space-y-6" [@staggerList]="loading() ? 1 : 2">
 
         @if (loading()) {
-        <div class="bg-white rounded-3xl p-6 animate-pulse border border-zinc-100 flex items-center gap-4">
-            <div class="w-16 h-16 bg-zinc-200 rounded-2xl"></div>
-            <div class="flex-1 space-y-2">
-                <div class="h-4 bg-zinc-200 rounded w-1/3"></div>
-                <div class="h-3 bg-zinc-100 rounded w-1/2"></div>
+            <!-- Profile Hero Skeleton -->
+            <div class="h-48 bg-white rounded-[40px] shimmer shadow-sm border border-white"></div>
+            <!-- Stats Grid Skeleton -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="h-44 bg-white rounded-[36px] shimmer shadow-sm border border-white"></div>
+                <div class="h-44 bg-white rounded-[36px] shimmer shadow-sm border border-white"></div>
             </div>
-        </div>
-
+            <!-- Heatmap Skeleton -->
+            <div class="h-64 bg-white rounded-[40px] shimmer shadow-sm border border-white"></div>
+            <!-- Progress Skeleton -->
+            <div class="h-40 bg-white rounded-[40px] shimmer shadow-sm border border-white"></div>
         } @else {
 
-        <!-- ── Profile Hero ────────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[32px] p-6 shadow-xl animate-fade-in">
-            <div class="flex items-center gap-4 md:gap-6">
-                <!-- Avatar -->
-                <div class="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-black text-3xl shadow-md flex-shrink-0">
-                    {{ (profile()?.display_name || userEmail())[0]?.toUpperCase() }}
-                </div>
-
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                    @if (editingName()) {
-                    <div class="flex items-center gap-2 flex-wrap animate-slide-up">
-                        <input [(ngModel)]="displayName" (keydown.enter)="saveName()" (keydown.escape)="editingName.set(false)" class="w-44 h-10 px-3 rounded-xl bg-[#F4F5FC] border border-zinc-200 text-sm font-bold outline-none focus:border-blue-400" placeholder="Display name" />
-                        <button (click)="saveName()" [disabled]="saving()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold h-10 px-4 rounded-xl disabled:opacity-50 flex-shrink-0">
-                            {{ saving() ? '...' : 'Save' }}
-                        </button>
-                        <button (click)="editingName.set(false)" class="text-[#737686] hover:text-[#434654] text-xs font-bold px-2">Cancel</button>
+            <!-- ── Profile Hero ────────────────────────── -->
+            <div class="bg-white rounded-[40px] p-10 shadow-sm border border-white animate-fade-in group relative overflow-hidden">
+                <!-- Decorative Glow -->
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-[#7d5cf6]/5 rounded-full blur-3xl"></div>
+                
+                <div class="flex items-center gap-8 relative z-10">
+                    <!-- Avatar Capsule -->
+                    <div class="w-24 h-24 rounded-[36px] bg-gradient-to-br from-[#7d5cf6] to-[#a389ff] flex items-center justify-center text-white font-black text-4xl shadow-xl shadow-purple-100 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                        {{ (profile()?.display_name || userEmail())[0]?.toUpperCase() }}
                     </div>
-                    } @else {
-                    <div class="flex items-center gap-2 mb-1">
-                        <h1 class="text-xl font-black text-[#131B2E] truncate">
-                            {{ profile()?.display_name || 'Set Name' }}
-                        </h1>
-                        <button (click)="editingName.set(true)" class="text-[#737686] hover:text-blue-600 transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </button>
+
+                    <!-- Info Area -->
+                    <div class="flex-1 min-w-0">
+                        @if (editingName()) {
+                            <div class="space-y-3 animate-slide-up">
+                                <input [(ngModel)]="displayName" (keydown.enter)="saveName()" (keydown.escape)="editingName.set(false)" 
+                                       class="w-full h-14 px-6 rounded-2xl bg-[#f3f4f9] text-base font-bold outline-none border-2 border-transparent focus:border-[#7d5cf6]/20 transition-all" placeholder="Enter your name" />
+                                <div class="flex gap-2">
+                                    <button (click)="saveName()" [disabled]="saving()" class="flex-1 h-12 bg-[#7d5cf6] text-white text-xs font-black rounded-xl shadow-lg active:scale-95 transition-all">Save Changes</button>
+                                    <button (click)="editingName.set(false)" class="h-12 px-6 text-gray-400 text-xs font-black uppercase tracking-widest">Cancel</button>
+                                </div>
+                            </div>
+                        } @else {
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-3xl font-black tracking-tighter truncate leading-none">{{ profile()?.display_name || 'New Learner' }}</h2>
+                                <button (click)="editingName.set(true)" class="w-10 h-10 rounded-full bg-[#f3f4f9] flex items-center justify-center text-gray-300 hover:text-[#7d5cf6] hover:bg-[#7d5cf6]/5 transition-all">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 mt-2">
+                                <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                                <p class="text-gray-400 text-sm font-bold tracking-tight">{{ userEmail() }}</p>
+                            </div>
+                        }
                     </div>
-                    }
-                    <p class="text-[#737686] text-xs font-bold">{{ userEmail() }}</p>
-                    <p class="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-wider">Joined {{ memberSince() }}</p>
                 </div>
             </div>
-        </div>
 
-        <!-- ── Stats Grid ──────────────────────────── -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-slide-up">
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 text-center shadow-sm">
-                <span class="block text-2xl font-black text-[#131B2E]">{{ totalSubjects() }}</span>
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-wider">Subjects</span>
-            </div>
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 text-center shadow-sm">
-                <span class="block text-2xl font-black text-[#131B2E]">{{ totalTopics() }}</span>
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-wider">Topics</span>
-            </div>
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 text-center shadow-sm">
-                <span class="block text-2xl font-black text-emerald-500">{{ totalCompleted() }}</span>
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-wider">Completed</span>
-            </div>
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 text-center shadow-sm">
-                <span class="block text-2xl font-black text-blue-600">{{ percent() }}%</span>
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-wider">Mastery</span>
-            </div>
-        </div>
-
-        <!-- ── Activity Heatmap ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[32px] p-6 shadow-sm animate-slide-up">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h3 class="text-sm font-black text-[#131B2E]">Learning Activity</h3>
-                    <p class="text-[#737686] text-xs font-bold">Daily knowledge consistency</p>
-                </div>
-                <div class="flex items-center gap-3 text-[10px] text-zinc-400 font-bold">
-                    <div class="flex items-center gap-1">
-                        <div class="w-2.5 h-2.5 rounded-sm bg-[#F4F5FC] border border-zinc-200"></div>
-                        <div class="w-2.5 h-2.5 rounded-sm bg-blue-200"></div>
-                        <div class="w-2.5 h-2.5 rounded-sm bg-blue-400"></div>
-                        <div class="w-2.5 h-2.5 rounded-sm bg-blue-600"></div>
+            <!-- ── Stats Grid ──────────────────────────── -->
+            <div class="grid grid-cols-2 gap-4 animate-slide-up">
+                <div class="bg-white rounded-[36px] p-8 shadow-sm border border-white flex flex-col items-center text-center hover:shadow-md transition-all group/stat">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4 group-hover/stat:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-[#7d5cf6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                     </div>
-                    <span>More</span>
+                    <span class="text-4xl font-black text-[#1a1b2b] tracking-tighter">{{ totalSubjects() }}</span>
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Learning Paths</span>
+                </div>
+                <div class="bg-white rounded-[36px] p-8 shadow-sm border border-white flex flex-col items-center text-center hover:shadow-md transition-all group/stat">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-4 group-hover/stat:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <span class="text-4xl font-black text-[#1a1b2b] tracking-tighter">{{ percent() }}%</span>
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Skill Mastery</span>
                 </div>
             </div>
-            <app-activity-heatmap [joinYear]="joinYear()" />
-        </div>
 
-        <!-- ── Overall Progress ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[32px] p-6 shadow-sm animate-slide-up">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-black text-[#131B2E]">Overall Skill Mastery</span>
-                <span class="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-1 rounded-full font-black">{{ totalCompleted() }}/{{ totalTopics() }}</span>
+            <!-- ── Activity Heatmap ────────────────────── -->
+            <div class="bg-white rounded-[40px] p-10 shadow-sm border border-white animate-slide-up">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h3 class="text-xl font-black tracking-tight">Activity Stream</h3>
+                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Your learning consistency</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 p-2.5 bg-[#f3f4f9] rounded-2xl border border-white shadow-inner">
+                        <div class="w-3.5 h-3.5 rounded-md heat-0"></div>
+                        <div class="w-3.5 h-3.5 rounded-md heat-1"></div>
+                        <div class="w-3.5 h-3.5 rounded-md heat-2"></div>
+                        <div class="w-3.5 h-3.5 rounded-md heat-3"></div>
+                        <div class="w-3.5 h-3.5 rounded-md heat-4"></div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto no-scrollbar py-2">
+                    <app-activity-heatmap [joinYear]="joinYear()" />
+                </div>
             </div>
-            <div class="w-full bg-zinc-100 rounded-full h-3">
-                <div class="progress-fill bg-gradient-to-r from-cyan-500 to-blue-600 h-3 rounded-full" [style.width.%]="percent()"></div>
-            </div>
-        </div>
 
-        <!-- ── Account Settings ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[32px] p-6 shadow-sm animate-slide-up">
-            <h3 class="text-sm font-black text-[#131B2E] mb-4">Account Details</h3>
-            <div class="divide-y divide-zinc-100">
-                <div class="flex justify-between items-center py-3">
-                    <span class="text-[#737686] text-xs font-bold">Email Address</span>
-                    <span class="text-[#131B2E] text-sm font-medium">{{ userEmail() }}</span>
+            <!-- ── Mastery Overview ────────────────────── -->
+            <div class="bg-white rounded-[40px] p-10 shadow-sm border border-white animate-slide-up">
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-[#7d5cf6]/5 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-[#7d5cf6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                        <span class="text-xl font-black tracking-tight">Milestone Progress</span>
+                    </div>
+                    <span class="bg-[#7d5cf6]/5 text-[#7d5cf6] text-[10px] px-5 py-2 rounded-full font-black uppercase tracking-widest border border-[#7d5cf6]/10 shadow-sm">{{ totalCompleted() }}/{{ totalTopics() }} Topics</span>
                 </div>
-                <div class="flex justify-between items-center py-3">
-                    <span class="text-[#737686] text-xs font-bold">Account Created</span>
-                    <span class="text-[#131B2E] text-sm font-medium">{{ memberSince() }}</span>
+                <div class="w-full bg-[#f3f4f9] rounded-full h-5 overflow-hidden border-2 border-white shadow-inner relative">
+                    <div class="h-full bg-gradient-to-r from-[#7d5cf6] to-[#a389ff] rounded-full transition-all duration-1000 shadow-md shadow-purple-200" [style.width.%]="percent()"></div>
                 </div>
-                <div class="flex justify-between items-center py-3">
-                    <span class="text-[#737686] text-xs font-bold">Authentication</span>
-                    <button (click)="logout()" class="text-red-500 hover:text-red-600 text-xs font-bold">
-                        Sign Out
-                    </button>
+                <p class="text-[10px] text-gray-300 font-black uppercase tracking-[0.3em] mt-8 text-center">Fueling your career growth through persistent learning</p>
+            </div>
+
+            <!-- ── System Info ────────────────────── -->
+            <div class="bg-white rounded-[40px] p-10 shadow-sm border border-white animate-slide-up">
+                <h3 class="text-xl font-black tracking-tight mb-8">System Profile</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center bg-[#f3f4f9] p-6 rounded-[28px] border border-white shadow-sm group/row">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-300 group-hover/row:text-[#7d5cf6] transition-colors">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </div>
+                            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Enrollment Date</span>
+                        </div>
+                        <span class="text-sm font-black">{{ memberSince() }}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-[#f3f4f9] p-6 rounded-[28px] border border-white shadow-sm group/row">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-300 group-hover/row:text-[#7d5cf6] transition-colors">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Global ID</span>
+                        </div>
+                        <span class="text-sm font-black">{{ userEmail().split('@')[0] }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
         }
     </main>
 
-    <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-6 py-3.5 flex items-center justify-between gap-10 shadow-2xl z-50 max-w-sm w-[90%]">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
-            <span class="text-[9px] font-bold">Home</span>
-        </a>
-        <a routerLink="/weekly" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[9px] font-bold">Weekly</span>
-        </a>
-        <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span class="text-[9px] font-bold">Profile</span>
-        </a>
+    <!-- ── Floating Capsule Nav ────────────────────── -->
+    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[200]">
+        <div class="capsule-nav flex items-center justify-between">
+            <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Home</span>
+            </a>
+            <a routerLink="/weekly" class="flex flex-col items-center gap-1 text-white/50 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Weekly</span>
+            </a>
+            <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white transition-all">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Profile</span>
+            </a>
+        </div>
     </nav>
 
 </div>
-<app-toast />
+<app-toast />
