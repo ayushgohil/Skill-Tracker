@@ -26,3 +26,13 @@ export const expandCollapse = trigger('expandCollapse', [
   state('expanded', style({ height: '*' })),
   transition('expanded <=> collapsed', animate('300ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
 ]);
+
+export const scaleInOut = trigger('scaleInOut', [
+  transition(':enter', [
+    style({ opacity: 0, transform: 'scale(0.5)' }),
+    animate('200ms cubic-bezier(0.34, 1.56, 0.64, 1)', style({ opacity: 1, transform: 'scale(1)' }))
+  ]),
+  transition(':leave', [
+    animate('150ms ease-in', style({ opacity: 0, transform: 'scale(0.5)' }))
+  ])
+]);
