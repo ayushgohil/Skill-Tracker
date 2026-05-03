@@ -98,10 +98,10 @@
 /* Landscape orientation on small screens */
 @media (max-height: 500px) {
     :host {
-        --card-width: 22vh;
-        --card-height: 35vh;
-        --card-font-size: 28vh;
-        --clock-gap: 1.5rem;
+        --card-width: 20vh;
+        --card-height: 55vh;
+        --card-font-size: 45vh;
+        --clock-gap: 2rem;
     }
     
     .flip-card {
@@ -112,12 +112,13 @@
         padding: 0.5rem;
     }
 
-    .absolute.top-8 { top: 0.75rem !important; left: 1.5rem !important; right: 1.5rem !important; }
+    .absolute.top-8 { top: 0.5rem !important; left: 1.5rem !important; right: 1.5rem !important; }
 
-    .text-2xl { font-size: 1.1rem !important; }
-    .text-7xl { font-size: 4rem !important; }
-    .flip-unit { gap: 0.3rem; }
-    .flex.flex-col.items-center.gap-12 { gap: 1rem !important; margin-top: 2rem !important; }
+    .text-2xl { font-size: 1rem !important; }
+    .text-7xl { font-size: 5vh !important; }
+    .flip-unit { gap: 0.25rem; }
+    .flex.flex-col.items-center.gap-12 { gap: 0.5rem !important; margin-top: 1rem !important; }
+    .text-center { margin-top: 0.5rem; }
 }
 
 @media (max-width: 1000px) and (min-height: 501px) {
