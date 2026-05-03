@@ -1,9 +1,5 @@
 /* src/app/shared/pomodoro/pomodoro.css */
 
-/* ─────────────────────────────────────────────
-   CSS custom properties — driven by viewport
-   so every child scales automatically
-───────────────────────────────────────────── */
 :host {
     display: block;
 }
@@ -13,283 +9,221 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #000000;
+    background: #0a0a0a;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: white;
-    padding: 2rem;
     overflow: hidden;
 }
 
-/* ── Flip clock container ────────────────────── */
+/* ── Header ──────────────────────────────────── */
+.fs-header {
+    position: absolute;
+    top: clamp(1rem, 3vh, 2rem);
+    left: clamp(1rem, 3vw, 2rem);
+    right: clamp(1rem, 3vw, 2rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+}
+
+/* ── Clock wrapper ───────────────────────────── */
+.clock-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1rem, 3vh, 2rem);
+    width: 100%;
+    padding: 0 clamp(1rem, 4vw, 4rem);
+}
+
+/* ── Flip clock row ──────────────────────────── */
 .flip-clock {
     display: flex;
-    gap: clamp(0.75rem, 3vw, 2rem);
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    gap: clamp(0.4rem, 1.5vw, 1rem);
     width: 100%;
 }
 
 .flip-unit {
     display: flex;
-    gap: clamp(0.25rem, 1.5vw, 0.75rem);
+    gap: clamp(0.2rem, 0.8vw, 0.5rem);
 }
 
-/* ── Individual flip card ────────────────────── */
-/*
-    Width / height are driven by the smaller viewport dimension
-    so it looks great on both portrait phones and landscape tablets.
-    clamp(min, preferred, max) keeps it from being too tiny or too big.
-*/
+/* ── Single digit card — SIMPLE APPROACH ──────
+   No top/bottom halves. Just a centered digit
+   with a decorative divider line. Clean, reliable.
+─────────────────────────────────────────────── */
 .flip-card {
+    --size: clamp(80px, 16vmin, 200px);
+
     position: relative;
-    width:  clamp(72px,  20vmin, 160px);
-    height: clamp(100px, 28vmin, 220px);
-    background: #1a1a1a;
-    border-radius: clamp(10px, 2vmin, 18px);
-    font-size: clamp(70px, 19vmin, 155px);
+    width:  calc(var(--size) * 0.75);
+    height: var(--size);
+    background: #1c1c1c;
+    border-radius: calc(var(--size) * 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow:
+        0 2px 4px rgba(0,0,0,0.5),
+        0 12px 32px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* The digit */
+.flip-card-digit {
+    font-size: calc(var(--size) * 0.62);
     font-weight: 900;
     color: #ffffff;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    font-family: 'Inter', sans-serif;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    /* prevent any overflow clipping digits */
-    overflow: hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1;
+    user-select: none;
+    /* prevent any text overflow */
+    display: block;
+    text-align: center;
+    width: 100%;
 }
 
-/* Divider line in the middle of each card */
-.flip-card::before {
-    content: '';
+/* Horizontal divider line — decorative only */
+.flip-card-line {
     position: absolute;
     top: 50%;
     left: 0;
     width: 100%;
-    height: 2px;
+    height: 1.5px;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 10;
     transform: translateY(-50%);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    pointer-events: none;
 }
 
-/* ── Top / bottom halves ─────────────────────── */
-.flip-card-top,
-.flip-card-bottom {
+/* Top half shade */
+.flip-card::before {
+    content: '';
     position: absolute;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
+    top: 0; left: 0;
+    width: 100%; height: 50%;
+    background: rgba(255,255,255,0.03);
+    pointer-events: none;
+    z-index: 1;
 }
 
-.flip-card-top {
-    top: 0;
-    align-items: flex-start;
-    border-radius: clamp(10px, 2vmin, 18px) clamp(10px, 2vmin, 18px) 0 0;
-    background: linear-gradient(180deg, #282828 0%, #1e1e1e 100%);
-}
-
-/* The span sits at the vertical centre of the full card height
-   so the top-half clips it correctly */
-.flip-card-top span {
-    display: block;
-    line-height: clamp(100px, 28vmin, 220px);  /* = card height */
-    transform: translateY(0);
-}
-
-.flip-card-bottom {
-    bottom: 0;
-    align-items: flex-end;
-    border-radius: 0 0 clamp(10px, 2vmin, 18px) clamp(10px, 2vmin, 18px);
-    background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
-}
-
-.flip-card-bottom span {
-    display: block;
-    /* negative line-height trick: push text up so bottom half shows the lower portion */
-    line-height: clamp(100px, 28vmin, 220px);  /* = card height */
-    transform: translateY(50%);
+/* Bottom half shade */
+.flip-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 50%;
+    background: rgba(0,0,0,0.12);
+    pointer-events: none;
+    z-index: 1;
 }
 
 /* ── Colon separator ─────────────────────────── */
 .clock-colon {
-    font-size: clamp(3rem, 10vmin, 7rem);
-    font-weight: 700;
-    color: #3f3f3f;
+    font-size: clamp(2rem, 8vmin, 6rem);
+    font-weight: 900;
+    color: #333333;
     line-height: 1;
-    /* nudge it down slightly so it sits between the number midpoints */
-    margin-bottom: clamp(4px, 1vmin, 12px);
     user-select: none;
-}
-
-/* ── Clock + label wrapper ───────────────────── */
-.clock-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(1.5rem, 4vmin, 3rem);
-    width: 100%;
-    /* push the whole block toward the bottom half of the screen */
-    margin-top: auto;
-    padding-bottom: clamp(4rem, 12vh, 8rem);
-}
-
-/* ── Fullscreen header ───────────────────────── */
-.fs-header {
-    position: absolute;
-    top: clamp(1rem, 4vh, 2rem);
-    left: clamp(1rem, 4vw, 2rem);
-    right: clamp(1rem, 4vw, 2rem);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
-/* ── Fullscreen footer controls ──────────────── */
-.fs-footer {
-    position: absolute;
-    bottom: clamp(1.5rem, 5vh, 3rem);
-    display: flex;
-    align-items: center;
-    gap: clamp(1rem, 4vw, 1.5rem);
-}
-
-.fs-btn-primary {
-    width:  clamp(64px, 16vmin, 88px);
-    height: clamp(64px, 16vmin, 88px);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.15s ease;
-}
-
-.fs-btn-primary:hover  { transform: scale(1.08); }
-.fs-btn-primary:active { transform: scale(0.92); }
-
-.fs-btn-secondary {
-    width:  clamp(52px, 13vmin, 72px);
-    height: clamp(52px, 13vmin, 72px);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #71717a;
-    transition: background 0.2s, color 0.2s;
-}
-
-.fs-btn-secondary:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
+    margin-bottom: 0;
 }
 
 /* ── State label ─────────────────────────────── */
 .state-label {
-    font-size: clamp(0.65rem, 1.8vmin, 0.85rem);
-    letter-spacing: 0.25em;
+    font-size: clamp(0.6rem, 1.4vmin, 0.8rem);
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     font-weight: 700;
-    color: #52525b;
+    color: #444444;
+    user-select: none;
 }
 
-/* ── Break waiting panel ─────────────────────── */
+/* ── Control buttons ─────────────────────────── */
+.fs-btn-primary {
+    width:  clamp(44px, 9vmin, 68px);
+    height: clamp(44px, 9vmin, 68px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.fs-btn-primary:hover  { transform: scale(1.08); }
+.fs-btn-primary:active { transform: scale(0.92); }
+
+.fs-btn-secondary {
+    width:  clamp(38px, 7.5vmin, 56px);
+    height: clamp(38px, 7.5vmin, 56px);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.fs-btn-secondary:hover {
+    background: rgba(239,68,68,0.18);
+    color: #f87171;
+}
+
+/* ── Break waiting ───────────────────────────── */
 .break-waiting {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: clamp(1rem, 3vmin, 1.5rem);
     text-align: center;
-    padding: 0 1rem;
+    padding: 0 2rem;
 }
-
 .break-waiting-title {
     font-size: clamp(1.25rem, 4vmin, 2rem);
     font-weight: 300;
     color: #60a5fa;
 }
 
-/* ── Ambient glow states ─────────────────────── */
-.glow-emerald { box-shadow: 0 0 120px rgba(16,  185, 129, 0.12); }
-.glow-amber   { box-shadow: 0 0 120px rgba(245, 158,  11, 0.12); }
-.glow-blue    { box-shadow: 0 0 120px rgba(59,  130, 246, 0.12); }
-.glow-red     { box-shadow: 0 0 120px rgba(239,  68,  68, 0.12); }
+/* ── Ambient glow ────────────────────────────── */
+.glow-emerald { box-shadow: 0 0 160px rgba(16,185,129,0.1); }
+.glow-amber   { box-shadow: 0 0 160px rgba(245,158,11,0.1); }
+.glow-blue    { box-shadow: 0 0 160px rgba(59,130,246,0.1); }
 
-/* ── Glassmorphism floating widget ───────────── */
+/* ── Floating widget ─────────────────────────── */
 .glass-widget {
-    background: rgba(255, 255, 255, 0.90);
+    background: rgba(255,255,255,0.90);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(19, 27, 46, 0.08);
-    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(19,27,46,0.08);
+    box-shadow: 0 16px 40px -10px rgba(0,0,0,0.12);
     will-change: transform;
     transition:
-        transform  0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        transform  0.3s cubic-bezier(0.34,1.56,0.64,1),
         opacity    0.3s ease,
         box-shadow 0.3s ease;
 }
 
-/* ── Landscape on short screens (phones rotated) */
-@media (max-height: 480px) and (orientation: landscape) {
-    .fs-header {
-        top: 0.5rem;
-        left: 1rem;
-        right: 1rem;
-    }
-
-    .clock-wrapper {
-        padding-bottom: clamp(2rem, 8vh, 4rem);
-        gap: 1rem;
-    }
-
-    .fs-footer {
-        bottom: 0.75rem;
-    }
+/* ── Responsive ──────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    .flip-card { --size: clamp(60px, 13vh, 110px); }
+    .fs-header { top: 0.4rem; left: 0.75rem; right: 0.75rem; }
+    .clock-wrapper { gap: 0.5rem; }
 }
 
-/* ── Portrait phones: keep clock from overflowing */
-@media (orientation: portrait) and (max-width: 430px) {
-    .flip-clock {
-        gap: clamp(0.5rem, 2.5vw, 1rem);
-    }
-
-    .flip-unit {
-        gap: clamp(0.15rem, 1vw, 0.4rem);
-    }
+@media (orientation: portrait) and (max-width: 390px) {
+    .flip-card { --size: clamp(72px, 15vmin, 120px); }
 }
 
-/* ── Landscape warning for very short portrait ── */
-.landscape-warning {
-    display: none;
-}
-
-@media (orientation: portrait) and (max-height: 500px) {
-    .landscape-warning {
-        display: flex;
-        position: fixed;
-        inset: 0;
-        background: #000;
-        z-index: 10000;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        flex-direction: column;
-        padding: 20px;
-        color: white;
-    }
-}
-
-/* ── Flip animations ─────────────────────────── */
-@keyframes flip-top {
-    0%   { transform: rotateX(0); }
-    100% { transform: rotateX(-90deg); }
-}
-
-@keyframes flip-bottom {
-    0%   { transform: rotateX(90deg); }
-    100% { transform: rotateX(0); }
-}
+.landscape-warning { display: none; }
