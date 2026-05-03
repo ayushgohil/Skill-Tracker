@@ -3,11 +3,19 @@ import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { Subtopic } from '../models';
 import { ActivityService } from './activity.service';
+import { CacheService } from './cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class SubtopicsService {
 
+    constructor(private activityService: ActivityService, private cacheService: CacheService) {}
+
     async getSubtopicsForTopic(topicId: string): Promise<Subtopic[]> {
+        const cacheKey = `subtopics_for_topic_${topicId}`;
+        const cached = this.cacheService.get(cacheKey);
+        if (cached) return cached;
+
+        this.cacheService.incrementDbCall('getSubtopicsForTopic');
         const { data: { user } } = await supabase.auth.getUser();
         const { data, error } = await supabase
             .from('subtopics')
@@ -16,6 +24,8 @@ export class SubtopicsService {
             .eq('user_id', user!.id)
             .order('order', { ascending: true });
         if (error) throw error;
+
+        this.cacheService.set(cacheKey, data as Subtopic[]);
         return data as Subtopic[];
     }
 
@@ -43,40 +53,48 @@ export class SubtopicsService {
             .select()
             .single();
         if (error) throw error;
+        
+        this.cacheService.clear(); // Clear all cache to refresh subjects list and subtopics
         return data as Subtopic;
     }
 
-    constructor(private activityService: ActivityService) {}
-
     async toggleSubtopic(id: string, completed: boolean): Promise<void> {
+        this.cacheService.incrementDbCall('toggleSubtopic');
         const { error } = await supabase
             .from('subtopics')
             .update({ completed })
             .eq('id', id);
         if (error) throw error;
         
+        this.cacheService.clear();
+
         if (completed) {
             this.activityService.logActivity();
         }
     }
 
     async updateSubtopicNotes(id: string, notes: string): Promise<void> {
+        this.cacheService.incrementDbCall('updateSubtopicNotes');
         const { error } = await supabase
             .from('subtopics')
             .update({ notes })
             .eq('id', id);
         if (error) throw error;
+        this.cacheService.clear();
     }
 
     async deleteSubtopic(id: string): Promise<void> {
+        this.cacheService.incrementDbCall('deleteSubtopic');
         const { error } = await supabase
             .from('subtopics')
             .delete()
             .eq('id', id);
         if (error) throw error;
+        this.cacheService.clear();
     }
 
     async updateTopicProgress(topicId: string, completed: boolean): Promise<void> {
+        this.cacheService.incrementDbCall('updateTopicProgress');
         const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
             .from('user_progress')
@@ -87,5 +105,6 @@ export class SubtopicsService {
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id,topic_id' });
         if (error) throw error;
+        this.cacheService.clear();
     }
 }
