@@ -1,11 +1,15 @@
 /* src/app/shared/pomodoro/pomodoro.css */
 :host {
     display: block;
+    --card-width: 140px;
+    --card-height: 200px;
+    --card-font-size: 150px;
+    --clock-gap: 1.5rem;
 }
 
 .flip-clock {
     display: flex;
-    gap: 1.5rem;
+    gap: var(--clock-gap);
     justify-content: center;
     align-items: center;
 }
@@ -17,11 +21,11 @@
 
 .flip-card {
     position: relative;
-    width: 140px;
-    height: 200px;
+    width: var(--card-width);
+    height: var(--card-height);
     background: #1a1a1a;
     border-radius: 16px;
-    font-size: 150px;
+    font-size: var(--card-font-size);
     font-weight: 900;
     color: #ffffff;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
@@ -60,7 +64,7 @@
 }
 
 .flip-card-top span {
-    line-height: 200px;
+    line-height: var(--card-height);
 }
 
 .flip-card-bottom {
@@ -71,7 +75,7 @@
 }
 
 .flip-card-bottom span {
-    line-height: 200px;
+    line-height: var(--card-height);
 }
 
 .fullscreen-overlay {
@@ -89,6 +93,41 @@
 
 .landscape-warning {
     display: none;
+}
+
+/* Landscape orientation on small screens */
+@media (max-height: 500px) {
+    :host {
+        --card-width: 18vh;
+        --card-height: 26vh;
+        --card-font-size: 20vh;
+        --clock-gap: 1rem;
+    }
+    
+    .flip-card {
+        border-radius: 8px;
+    }
+
+    .fullscreen-overlay {
+        padding: 1rem;
+    }
+
+    .absolute.top-8 { top: 1rem !important; left: 1.5rem !important; right: 1.5rem !important; }
+    .absolute.bottom-12 { bottom: 1.5rem !important; }
+
+    .text-2xl { font-size: 1.25rem !important; }
+    .text-7xl { font-size: 3rem !important; }
+    .flip-unit { gap: 0.25rem; }
+    .flex.flex-col.items-center.gap-12 { gap: 1.5rem !important; }
+}
+
+@media (max-width: 600px) and (min-height: 501px) {
+    :host {
+        --card-width: 20vw;
+        --card-height: 28vw;
+        --card-font-size: 22vw;
+        --clock-gap: 0.8rem;
+    }
 }
 
 @media (orientation: portrait) and (max-height: 600px) {
