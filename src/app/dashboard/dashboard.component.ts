@@ -22,7 +22,6 @@ import { ProfileService } from '../core/services/profile.service';
     animations: [staggerList, fadeSlideInOut]
 })
 export class DashboardComponent implements OnInit {
-
     // ── Spotlight Tracking ────────────────────────────
     @HostListener('mousemove', ['$event'])
     onMouseMove(event: MouseEvent) {
