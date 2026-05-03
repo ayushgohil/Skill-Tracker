@@ -1,155 +1,207 @@
 <!-- src/app/shared/pomodoro/pomodoro.component.html -->
 @if (pomodoroService.isVisible() && pomodoroService.state() !== 'idle') {
-    
-    <!-- ── Full Screen Mode ─────────────────────── -->
-    @if (pomodoroService.isFullScreen()) {
-    <div class="fullscreen-overlay" [class.glow-emerald]="pomodoroService.state() === 'running'" [class.glow-blue]="pomodoroService.state() === 'break'" [class.glow-amber]="pomodoroService.isPaused()">
-        
-        <!-- Header Controls -->
-        <div class="absolute top-8 left-8 right-8 flex items-center justify-between pointer-events-none">
-            <div class="flex flex-col pointer-events-auto">
-                <span class="text-zinc-500 uppercase tracking-widest text-xs font-bold mb-1">Focusing on</span>
-                <span class="text-2xl font-medium">{{ pomodoroService.activeTopicTitle() }}</span>
-            </div>
-            
-            <div class="flex items-center gap-4 pointer-events-auto">
-                @if (!pomodoroService.isBreakWaiting()) {
-                    <button (click)="toggle()" class="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white">
-                        @if (pomodoroService.isPaused()) {
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        } @else {
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
-                        }
-                    </button>
-                    
-                    <button (click)="stop()" class="p-3 rounded-full bg-white/5 hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-                    </button>
-                }
 
-                <button (click)="toggleFullScreen()" class="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white" title="Exit Full Screen">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
+<!-- ══════════════════════════════════════════
+         FULL SCREEN MODE
+    ══════════════════════════════════════════ -->
+@if (pomodoroService.isFullScreen()) {
+<div class="fullscreen-overlay"
+    [class.glow-emerald]="pomodoroService.state() === 'running' && !pomodoroService.isPaused()"
+    [class.glow-blue]="pomodoroService.state() === 'break'" [class.glow-amber]="pomodoroService.isPaused()">
+
+    <!-- Header: topic title + close -->
+    <div class="fs-header">
+        <div class="flex flex-col gap-1">
+            <span class="text-zinc-500 uppercase tracking-widest text-[10px] font-bold">Focusing on</span>
+            <span class="text-white font-semibold" style="font-size: clamp(1rem, 3.5vmin, 1.75rem);">
+                {{ pomodoroService.activeTopicTitle() }}
+            </span>
         </div>
-        <!-- Flip Clock -->
-        <div class="flex flex-col items-center gap-12 mt-8">
-            <div class="flip-clock">
-                <!-- Minutes -->
-                <div class="flip-unit">
-                    @for (digit of getDigits(getMinutes()); track $index) {
-                        <div class="flip-card">
-                            <div class="flip-card-top"><span>{{ digit }}</span></div>
-                            <div class="flip-card-bottom"><span>{{ digit }}</span></div>
-                        </div>
-                    }
-                </div>
-                
-                <!-- Separator -->
-                <div class="text-7xl font-bold text-zinc-700 animate-pulse">:</div>
 
-                <!-- Seconds -->
-                <div class="flip-unit">
-                    @for (digit of getDigits(getSeconds()); track $index) {
-                        <div class="flip-card">
-                            <div class="flip-card-top"><span>{{ digit }}</span></div>
-                            <div class="flip-card-bottom"><span>{{ digit }}</span></div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- State / Message -->
-            <div class="text-center">
-                @if (pomodoroService.isBreakWaiting()) {
-                    <div class="flex flex-col items-center gap-6">
-                        <span class="text-3xl font-light text-blue-400">Focus session complete!</span>
-                        <button (click)="startBreak()" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
-                            Start 5-Minute Break
-                        </button>
-                    </div>
+        <!-- Controls top-right -->
+        <div class="flex items-center gap-2">
+            @if (!pomodoroService.isBreakWaiting()) {
+            <!-- Pause / Resume -->
+            <button (click)="toggle()" class="fs-btn-primary"
+                [class.bg-emerald-500]="pomodoroService.isPaused() && pomodoroService.state() === 'running'"
+                [class.bg-blue-500]="pomodoroService.isPaused() && pomodoroService.state() === 'break'"
+                [class.bg-white/10]="!pomodoroService.isPaused()" style="color:white">
+                @if (pomodoroService.isPaused()) {
+                <svg @scaleInOut
+                    style="width: clamp(20px,5vmin,32px); height: clamp(20px,5vmin,32px); transform: translateX(2px)"
+                    fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
                 } @else {
-                    <span class="text-zinc-500 uppercase tracking-[0.3em] text-sm font-bold">
-                        {{ pomodoroService.state() === 'running' ? 'Focus Period' : 'Break Time' }} 
-                        {{ pomodoroService.isPaused() ? '(Paused)' : '' }}
-                    </span>
+                <svg @scaleInOut style="width: clamp(20px,5vmin,32px); height: clamp(20px,5vmin,32px)"
+                    fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6zm8 0h4v16h-4z" />
+                </svg>
+                }
+            </button>
+
+            <!-- Stop -->
+            <button (click)="stop()" class="fs-btn-secondary">
+                <svg style="width: clamp(16px,4vmin,26px); height: clamp(16px,4vmin,26px)" fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <path d="M6 6h12v12H6z" />
+                </svg>
+            </button>
+            }
+
+            <!-- Exit fullscreen -->
+            <button (click)="toggleFullScreen()" class="fs-btn-secondary" style="color:#a1a1aa">
+                <svg style="width: clamp(16px,4vmin,26px); height: clamp(16px,4vmin,26px)" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Clock + label — fills the bottom half ── -->
+    <div class="clock-wrapper">
+
+        @if (pomodoroService.isBreakWaiting()) {
+        <!-- Break waiting state -->
+        <div class="break-waiting">
+            <span class="break-waiting-title">Focus session complete!</span>
+            <button (click)="startBreak()" style="padding: clamp(0.75rem,2vmin,1.25rem) clamp(1.5rem,4vmin,3rem);
+                               font-size: clamp(0.875rem,2.5vmin,1.125rem)" class="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold
+                               shadow-xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
+                Start 5-Minute Break
+            </button>
+        </div>
+
+        } @else {
+        <!-- Flip clock digits -->
+        <div class="flip-clock">
+
+            <!-- Minutes -->
+            <div class="flip-unit">
+                @for (digit of getDigits(getMinutes()); track $index) {
+                <div class="flip-card">
+                    <div class="flip-card-top"><span>{{ digit }}</span></div>
+                    <div class="flip-card-bottom"><span>{{ digit }}</span></div>
+                </div>
+                }
+            </div>
+
+            <!-- Colon -->
+            <span class="clock-colon">:</span>
+
+            <!-- Seconds -->
+            <div class="flip-unit">
+                @for (digit of getDigits(getSeconds()); track $index) {
+                <div class="flip-card">
+                    <div class="flip-card-top"><span>{{ digit }}</span></div>
+                    <div class="flip-card-bottom"><span>{{ digit }}</span></div>
+                </div>
                 }
             </div>
         </div>
-    </div>
-    }
 
-    <!-- ── Floating Mode ────────────────────────── -->
-    @if (!pomodoroService.isFullScreen()) {
-    <div @fadeSlideInOut class="fixed bottom-6 right-6 z-[9999] w-72 rounded-3xl overflow-hidden glass-widget"
-        [class.opacity-80]="isDragging()"
-        [class.shadow-[0_20px_50px_rgba(37,99,235,0.15)]]="isDragging()"
-        [style.transform]="'translate(' + dragPosition().x + 'px, ' + dragPosition().y + 'px) scale(' + (isDragging() ? '0.96' : '1') + ') rotate(' + (isDragging() ? '-1deg' : '0deg') + ')'">
-        
-        <!-- Header (Draggable Handle) -->
-        <div (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)"
-            class="px-5 py-4 flex items-center justify-between border-b border-zinc-100/50 cursor-move active:cursor-grabbing select-none bg-white/40">
-            <div class="flex items-center gap-3">
-                <div class="w-2.5 h-2.5 rounded-full shadow-sm animate-pulse"
-                    [class.bg-emerald-500]="pomodoroService.state() === 'running'"
-                    [class.bg-blue-500]="pomodoroService.state() === 'break'"
-                    [class.bg-amber-500]="pomodoroService.isPaused()"></div>
-                <span class="text-[10px] font-bold text-[#737686] tracking-widest uppercase">
-                    {{ pomodoroService.state() === 'break' ? 'Break' : 'Focus' }}
-                </span>
-            </div>
-            <div class="flex items-center gap-1">
-                <button (click)="toggleFullScreen()" class="p-1.5 text-zinc-400 hover:text-blue-600 transition-colors bg-white hover:bg-blue-50 rounded-lg shadow-sm border border-zinc-100/50" title="Full Screen">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                    </svg>
-                </button>
-                <button (click)="close()" class="p-1.5 text-zinc-400 hover:text-red-500 transition-colors bg-white hover:bg-red-50 rounded-lg shadow-sm border border-zinc-100/50" title="Close">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
+        <!-- State label -->
+        <span class="state-label">
+            {{ pomodoroService.state() === 'running' ? 'Focus Period' : 'Break Time' }}
+            {{ pomodoroService.isPaused() ? '· Paused' : '' }}
+        </span>
+        }
+    </div>
+
+</div>
+}
+
+<!-- ══════════════════════════════════════════
+         FLOATING WIDGET MODE
+    ══════════════════════════════════════════ -->
+@if (!pomodoroService.isFullScreen()) {
+<div @fadeSlideInOut class="fixed bottom-6 right-6 z-[9999] w-72 rounded-3xl overflow-hidden glass-widget"
+    [class.opacity-80]="isDragging()"
+    [style.transform]="'translate(' + dragPosition().x + 'px, ' + dragPosition().y + 'px) scale(' + (isDragging() ? '0.96' : '1') + ') rotate(' + (isDragging() ? '-1deg' : '0deg') + ')'">
+
+    <!-- Draggable header -->
+    <div (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)" class="px-5 py-4 flex items-center justify-between border-b border-zinc-100/50
+                   cursor-move active:cursor-grabbing select-none bg-white/40">
+
+        <div class="flex items-center gap-3">
+            <div class="w-2.5 h-2.5 rounded-full shadow-sm animate-pulse"
+                [class.bg-emerald-500]="pomodoroService.state() === 'running'"
+                [class.bg-blue-500]="pomodoroService.state() === 'break'"
+                [class.bg-amber-500]="pomodoroService.isPaused()"></div>
+            <span class="text-[10px] font-bold text-[#737686] tracking-widest uppercase">
+                {{ pomodoroService.state() === 'break' ? 'Break' : 'Focus' }}
+            </span>
         </div>
 
-        <!-- Body -->
-        <div class="p-6 text-center">
-            @if (pomodoroService.isBreakWaiting()) {
-                <div class="py-2 flex flex-col gap-4">
-                    <p class="text-sm font-semibold text-[#131B2E]">Focus session finished!</p>
-                    <button (click)="startBreak()" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all active:scale-95 w-full">Start Break</button>
-                </div>
-            } @else {
-                <div class="text-5xl font-black tracking-tight font-mono tabular-nums mb-6 transition-colors drop-shadow-sm"
-                    [class.text-emerald-600]="pomodoroService.state() === 'running' && !pomodoroService.isPaused()"
-                    [class.text-blue-600]="pomodoroService.state() === 'break' && !pomodoroService.isPaused()"
-                    [class.text-amber-600]="pomodoroService.isPaused()">
-                    {{ pomodoroService.formattedTime() }}
-                </div>
-
-                <div class="flex items-center justify-center gap-4">
-                    <button (click)="toggle()" class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md border"
-                        [class.bg-emerald-50]="pomodoroService.state() === 'running'"
-                        [class.text-emerald-600]="pomodoroService.state() === 'running'"
-                        [class.border-emerald-100]="pomodoroService.state() === 'running'"
-                        [class.bg-blue-50]="pomodoroService.state() === 'break'"
-                        [class.text-blue-600]="pomodoroService.state() === 'break'"
-                        [class.border-blue-100]="pomodoroService.state() === 'break'">
-                        @if (pomodoroService.isPaused()) {
-                            <svg @scaleInOut class="w-6 h-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        } @else {
-                            <svg @scaleInOut class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
-                        }
-                    </button>
-                    
-                    <button (click)="stop()" class="w-14 h-14 rounded-2xl bg-white hover:bg-red-50 text-zinc-400 hover:text-red-500 flex items-center justify-center transition-all shadow-sm border border-zinc-100">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-                    </button>
-                </div>
-            }
+        <div class="flex items-center gap-1">
+            <button (click)="toggleFullScreen()" class="p-1.5 text-zinc-400 hover:text-blue-600 transition-colors
+                           bg-white hover:bg-blue-50 rounded-lg shadow-sm border border-zinc-100/50"
+                title="Full Screen">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+            </button>
+            <button (click)="close()" class="p-1.5 text-zinc-400 hover:text-red-500 transition-colors
+                           bg-white hover:bg-red-50 rounded-lg shadow-sm border border-zinc-100/50" title="Close">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
     </div>
-    }
+
+    <!-- Widget body -->
+    <div class="p-6 text-center">
+        @if (pomodoroService.isBreakWaiting()) {
+        <div class="py-2 flex flex-col gap-4">
+            <p class="text-sm font-semibold text-[#131B2E]">Focus session finished!</p>
+            <button (click)="startBreak()" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600
+                               text-white font-bold py-2.5 px-4 rounded-xl text-sm w-full
+                               shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all active:scale-95">
+                Start Break
+            </button>
+        </div>
+        } @else {
+        <div class="text-5xl font-black tracking-tight font-mono tabular-nums mb-6
+                            transition-colors drop-shadow-sm"
+            [class.text-emerald-600]="pomodoroService.state() === 'running' && !pomodoroService.isPaused()"
+            [class.text-blue-600]="pomodoroService.state() === 'break' && !pomodoroService.isPaused()"
+            [class.text-amber-600]="pomodoroService.isPaused()">
+            {{ pomodoroService.formattedTime() }}
+        </div>
+
+        <div class="flex items-center justify-center gap-4">
+            <button (click)="toggle()" class="w-14 h-14 rounded-2xl flex items-center justify-center
+                               transition-all hover:scale-105 active:scale-95 shadow-md border"
+                [class.bg-emerald-50]="pomodoroService.state() === 'running'"
+                [class.text-emerald-600]="pomodoroService.state() === 'running'"
+                [class.border-emerald-100]="pomodoroService.state() === 'running'"
+                [class.bg-blue-50]="pomodoroService.state() === 'break'"
+                [class.text-blue-600]="pomodoroService.state() === 'break'"
+                [class.border-blue-100]="pomodoroService.state() === 'break'">
+                @if (pomodoroService.isPaused()) {
+                <svg @scaleInOut class="w-6 h-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+                } @else {
+                <svg @scaleInOut class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6zm8 0h4v16h-4z" />
+                </svg>
+                }
+            </button>
+
+            <button (click)="stop()" class="w-14 h-14 rounded-2xl bg-white hover:bg-red-50 text-zinc-400
+                               hover:text-red-500 flex items-center justify-center
+                               transition-all shadow-sm border border-zinc-100">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 6h12v12H6z" />
+                </svg>
+            </button>
+        </div>
+        }
+    </div>
+</div>
+}
 }
