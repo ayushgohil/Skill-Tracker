@@ -3,57 +3,54 @@
     class="relative min-h-screen overflow-hidden text-zinc-100 font-sans selection:bg-[#00C8E8]/30 selection:text-white"
     style="background: linear-gradient(165deg, #03001e 0%, #7303c0 50%, #ec38bc 100%);">
 
-    <!-- Ultra-Premium Backdrop Canvas -->
+    <!-- Backdrop Canvas -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <!-- Dynamic Mesh Gradients / Light Orbs -->
-        <div class="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#00C8E8]/40 rounded-full blur-[140px] animate-pulse"
+        <div class="absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-[#00C8E8]/40 rounded-full blur-[80px] sm:blur-[120px] md:blur-[140px] animate-pulse"
             style="animation-duration: 8s;"></div>
-        <div class="absolute top-1/3 -left-60 w-[600px] h-[600px] bg-[#7303c0]/50 rounded-full blur-[160px] animate-pulse"
+        <div class="absolute top-1/3 -left-20 sm:-left-40 md:-left-60 w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] bg-[#7303c0]/50 rounded-full blur-[100px] sm:blur-[140px] md:blur-[160px] animate-pulse"
             style="animation-duration: 12s; animation-delay: 2s;"></div>
-        <div class="absolute -bottom-40 right-1/4 w-[450px] h-[450px] bg-[#ec38bc]/30 rounded-full blur-[120px] animate-pulse"
+        <div class="absolute -bottom-20 right-1/4 w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] bg-[#ec38bc]/30 rounded-full blur-[80px] sm:blur-[100px] md:blur-[120px] animate-pulse"
             style="animation-duration: 10s; animation-delay: 4s;"></div>
-
-        <!-- SVG Grid Pattern Overlay -->
         <div
-            class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]">
+            class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] sm:bg-[size:40px_40px]">
         </div>
     </div>
 
-    <!-- Premium Top Navigation -->
-    <header class="relative z-30 border-b border-white/[0.08] bg-black/20 backdrop-blur-2xl px-6 py-4">
+    <!-- Top Navigation -->
+    <header class="relative z-30 border-b border-white/[0.08] bg-black/20 backdrop-blur-2xl px-4 sm:px-6 py-4">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <!-- Scaled, Premium Logo Allocation -->
+            <!-- Logo -->
             <div class="flex items-center">
                 <img src="assets/nextlyr-logo.png" onerror="this.src='nextlyr-logo.png'" alt="Nextlyr Logo"
-                    class="w-40 md:w-40 h-auto object-contain transition-transform duration-500 hover:scale-[1.02]" />
+                    class="w-28 sm:w-36 md:w-40 h-auto object-contain transition-transform duration-500 hover:scale-[1.02]" />
             </div>
 
-            <!-- Consolidated Navigation Controls -->
-            <div class="flex items-center gap-6">
+            <!-- Nav Controls -->
+            <div class="flex items-center gap-3 sm:gap-6">
                 <a routerLink="/auth/login"
-                    class="text-zinc-300 hover:text-white text-sm font-semibold tracking-wide transition-all">
+                    class="text-zinc-300 hover:text-white text-xs sm:text-sm font-semibold tracking-wide transition-all">
                     Sign In
                 </a>
                 <a routerLink="/auth/register"
-                    class="relative group overflow-hidden bg-white text-[#03001e] font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_10px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:translate-y-0">
+                    class="relative group overflow-hidden bg-white text-[#03001e] font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-[0_10px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:translate-y-0 min-h-[40px] flex items-center">
                     <span class="relative z-10">Get Started</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section / Core Content -->
-    <section class="relative z-20 px-4 pt-24 pb-16 flex flex-col items-center justify-center text-center min-h-[70vh]">
-        <div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+    <!-- Hero Section -->
+    <section class="relative z-20 px-4 sm:px-6 pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 flex flex-col items-center justify-center text-center min-h-[65vh] sm:min-h-[70vh]">
+        <div class="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
 
-            <!-- Subtext Pill -->
+            <!-- Pill -->
             <div
-                class="inline-flex items-center px-5 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[#00C8E8] text-xs font-bold uppercase tracking-widest shadow-sm">
+                class="inline-flex items-center px-4 sm:px-5 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[#00C8E8] text-[10px] sm:text-xs font-bold uppercase tracking-widest shadow-sm">
                 Nextlyr Skill Tracker
             </div>
 
-            <!-- Strategic Headline -->
-            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1] drop-shadow-md">
+            <!-- Headline -->
+            <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] drop-shadow-md">
                 Track what you learn.<br>
                 <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#00C8E8] via-[#ec38bc] to-[#ffd700]">
                     Own your compound growth.
@@ -61,14 +58,26 @@
             </h1>
 
             <!-- Description -->
-            <p class="text-zinc-200/80 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed drop-shadow">
+            <p class="text-zinc-200/80 text-sm sm:text-base md:text-lg lg:text-xl font-medium max-w-2xl mx-auto leading-relaxed drop-shadow px-2">
                 Organize your workflow by subject, monitor milestones with adaptive depth thresholds, archive notes
                 securely, and unlock progress over time.
             </p>
 
-            <!-- Simple Sub-Note -->
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2">
+                <a routerLink="/auth/register"
+                    class="w-full sm:w-auto bg-white text-[#03001e] font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 min-h-[48px] flex items-center justify-center">
+                    Start for Free
+                </a>
+                <a routerLink="/auth/login"
+                    class="w-full sm:w-auto border border-white/20 bg-white/5 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/10 transition-all min-h-[48px] flex items-center justify-center">
+                    Sign In
+                </a>
+            </div>
+
+            <!-- Sub-Note -->
             <div
-                class="flex items-center justify-center gap-2 text-zinc-300/60 text-xs tracking-widest uppercase font-semibold mt-6">
+                class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-zinc-300/60 text-[10px] sm:text-xs tracking-widest uppercase font-semibold mt-4 sm:mt-6">
                 <span>• No Complexity</span>
                 <span>• Full Visibility</span>
                 <span>• Scalable Tracking</span>
@@ -76,25 +85,28 @@
         </div>
     </section>
 
-    <!-- Minimalist High-Aesthetic Features Block -->
-    <section class="relative z-20 py-20 px-4 border-t border-white/[0.08] bg-black/30 backdrop-blur-sm">
+    <!-- Features Block -->
+    <section class="relative z-20 py-14 sm:py-20 px-4 sm:px-6 border-t border-white/[0.08] bg-black/30 backdrop-blur-sm">
         <div class="max-w-5xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <h2 class="text-center text-white font-bold text-xl sm:text-2xl mb-3 sm:mb-4">Everything you need to grow</h2>
+            <p class="text-center text-zinc-400 text-sm mb-10 sm:mb-14 max-w-lg mx-auto">Built for learners who take their progress seriously.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-8">
                 <!-- Card 1 -->
                 <div
-                    class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-3xl p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
+                    class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-[#00C8E8]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-[#00C8E8]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl sm:rounded-3xl transition-opacity duration-500">
                     </div>
                     <div
-                        class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        class="w-11 h-11 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center mb-5 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-                            class="w-6 h-6 text-[#00C8E8]">
+                            class="w-5 h-5 sm:w-6 sm:h-6 text-[#00C8E8]">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                     </div>
-                    <h3 class="text-white font-bold text-xl mb-3">Subjects & Topics</h3>
+                    <h3 class="text-white font-bold text-lg sm:text-xl mb-2 sm:mb-3">Subjects & Topics</h3>
                     <p class="text-zinc-400 text-sm leading-relaxed relative z-10">
                         Map goals conceptually. Structure targets against deep, intermediate, or shallow criteria
                         seamlessly.
@@ -103,19 +115,19 @@
 
                 <!-- Card 2 -->
                 <div
-                    class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-3xl p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
+                    class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-[#7303c0]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-[#7303c0]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl sm:rounded-3xl transition-opacity duration-500">
                     </div>
                     <div
-                        class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        class="w-11 h-11 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center mb-5 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-                            class="w-6 h-6 text-[#ec38bc]">
+                            class="w-5 h-5 sm:w-6 sm:h-6 text-[#ec38bc]">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 class="text-white font-bold text-xl mb-3">Subtopic Checklists</h3>
+                    <h3 class="text-white font-bold text-lg sm:text-xl mb-2 sm:mb-3">Subtopic Checklists</h3>
                     <p class="text-zinc-400 text-sm leading-relaxed relative z-10">
                         Partition milestones granularly. Observe recursive parent completions aggregate immediately.
                     </p>
@@ -123,19 +135,19 @@
 
                 <!-- Card 3 -->
                 <div
-                    class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-3xl p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl">
+                    class="group relative bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1 shadow-2xl sm:col-span-2 md:col-span-1">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-[#ec38bc]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-[#ec38bc]/10 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl sm:rounded-3xl transition-opacity duration-500">
                     </div>
                     <div
-                        class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        class="w-11 h-11 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center mb-5 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-                            class="w-6 h-6 text-[#ffd700]">
+                            class="w-5 h-5 sm:w-6 sm:h-6 text-[#ffd700]">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94" />
                         </svg>
                     </div>
-                    <h3 class="text-white font-bold text-xl mb-3">Progress Analytics</h3>
+                    <h3 class="text-white font-bold text-lg sm:text-xl mb-2 sm:mb-3">Progress Analytics</h3>
                     <p class="text-zinc-400 text-sm leading-relaxed relative z-10">
                         Isolate completion ratios clearly. Drive real-time trajectory tracking effortlessly.
                     </p>
@@ -144,9 +156,9 @@
         </div>
     </section>
 
-    <!-- Final Conversion / Footer -->
-    <footer class="relative z-20 border-t border-white/[0.08] bg-[#03001e]/80 backdrop-blur-xl py-8 px-6">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Footer -->
+    <footer class="relative z-20 border-t border-white/[0.08] bg-[#03001e]/80 backdrop-blur-xl py-6 sm:py-8 px-4 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
             <div class="flex items-center gap-2">
                 <span class="text-zinc-500 text-xs">© 2026 SkillTracker.</span>
             </div>
@@ -158,18 +170,8 @@
 
 <style>
     @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-10px);
-        }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
     }
-
-    .animate-float {
-        animation: float 6s ease-in-out infinite;
-    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
 </style>

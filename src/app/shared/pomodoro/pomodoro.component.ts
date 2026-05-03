@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, ElementRef, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, ElementRef, ViewChild, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PomodoroService } from '../../core/services/pomodoro.service';
 import { fadeSlideInOut, scaleInOut } from '../../core/animations/app.animations';
@@ -11,9 +11,7 @@ import { fadeSlideInOut, scaleInOut } from '../../core/animations/app.animations
     styleUrls: ['./pomodoro.css'],
     animations: [fadeSlideInOut, scaleInOut]
 })
-export class PomodoroComponent implements OnInit {
-    @ViewChild('fullScreenContainer') fullScreenContainer!: ElementRef;
-
+export class PomodoroComponent implements OnInit, OnDestroy {
     // Draggable state
     dragPosition = signal({ x: 0, y: 0 });
     isDragging = signal(false);
@@ -37,19 +35,15 @@ export class PomodoroComponent implements OnInit {
     ngOnInit() {
         this.pomodoroService.requestNotificationPermission();
         
-        // Listen for browser fullscreen changes (e.g. user pressing ESC)
+        // Listen for browser fullscreen changes
         if (typeof document !== 'undefined') {
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement) {
-                    this.pomodoroService.exitFullScreen();
-                }
-            });
+            document.addEventListener('fullscreenchange', this.onFullScreenChange);
 
             // Global mouse/touch move and end for smooth dragging
-            window.addEventListener('mousemove', (e) => this.onDragMove(e));
-            window.addEventListener('mouseup', () => this.onDragEnd());
-            window.addEventListener('touchmove', (e) => this.onDragMove(e), { passive: false });
-            window.addEventListener('touchend', () => this.onDragEnd());
+            window.addEventListener('mousemove', this.onMouseMove);
+            window.addEventListener('mouseup', this.onMouseUp);
+            window.addEventListener('touchmove', this.onTouchMove, { passive: false });
+            window.addEventListener('touchend', this.onTouchUp);
         }
     }
 
@@ -79,6 +73,27 @@ export class PomodoroComponent implements OnInit {
     private onDragEnd() {
         this.isDragging.set(false);
     }
+
+    ngOnDestroy() {
+        if (typeof document !== 'undefined') {
+            document.removeEventListener('fullscreenchange', this.onFullScreenChange);
+            window.removeEventListener('mousemove', this.onMouseMove);
+            window.removeEventListener('mouseup', this.onMouseUp);
+            window.removeEventListener('touchmove', this.onTouchMove);
+            window.removeEventListener('touchend', this.onTouchUp);
+        }
+    }
+
+    private onFullScreenChange = () => {
+        if (!document.fullscreenElement) {
+            this.pomodoroService.exitFullScreen();
+        }
+    };
+
+    private onMouseMove = (e: MouseEvent) => this.onDragMove(e);
+    private onMouseUp = () => this.onDragEnd();
+    private onTouchMove = (e: TouchEvent) => this.onDragMove(e);
+    private onTouchUp = () => this.onDragEnd();
 
     private async enterBrowserFullScreen() {
         try {
