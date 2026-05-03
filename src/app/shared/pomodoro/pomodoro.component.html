@@ -85,45 +85,38 @@
         </div>
         }
 
-        <!-- Landscape orientation hint for mobile -->
-        <div class="landscape-warning">
-            <svg class="w-16 h-16 text-zinc-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13l-3 3-3-3m3 3V8"/>
-            </svg>
-            <p class="text-zinc-400 font-medium">Please rotate your device to landscape for the best experience</p>
-        </div>
+
     </div>
     }
 
     <!-- ── Floating Mode ────────────────────────── -->
     @if (!pomodoroService.isFullScreen()) {
-    <div @fadeSlideInOut class="fixed bottom-6 right-6 z-[9999] w-72 rounded-3xl shadow-2xl overflow-hidden glass-widget"
+    <div @fadeSlideInOut class="fixed bottom-6 right-6 z-[9999] w-72 rounded-3xl overflow-hidden glass-widget"
         [class.opacity-80]="isDragging()"
-        [class.shadow-blue-500/20]="isDragging()"
-        [style.transform]="'translate(' + dragPosition().x + 'px, ' + dragPosition().y + 'px) scale(' + (isDragging() ? '0.9' : '1') + ') rotate(' + (isDragging() ? '-2deg' : '0deg') + ')'">
+        [class.shadow-[0_20px_50px_rgba(37,99,235,0.15)]]="isDragging()"
+        [style.transform]="'translate(' + dragPosition().x + 'px, ' + dragPosition().y + 'px) scale(' + (isDragging() ? '0.96' : '1') + ') rotate(' + (isDragging() ? '-1deg' : '0deg') + ')'">
         
         <!-- Header (Draggable Handle) -->
         <div (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)"
-            class="px-5 py-4 flex items-center justify-between border-b border-white/5 cursor-move active:cursor-grabbing select-none">
+            class="px-5 py-4 flex items-center justify-between border-b border-zinc-100/50 cursor-move active:cursor-grabbing select-none bg-white/40">
             <div class="flex items-center gap-3">
-                <div class="w-2 h-2 rounded-full animate-pulse"
+                <div class="w-2.5 h-2.5 rounded-full shadow-sm animate-pulse"
                     [class.bg-emerald-500]="pomodoroService.state() === 'running'"
-                    [class.bg-blue-400]="pomodoroService.state() === 'break'"
+                    [class.bg-blue-500]="pomodoroService.state() === 'break'"
                     [class.bg-amber-500]="pomodoroService.isPaused()"></div>
-                <span class="text-xs font-bold text-zinc-400 tracking-wider uppercase">
+                <span class="text-[10px] font-bold text-[#737686] tracking-widest uppercase">
                     {{ pomodoroService.state() === 'break' ? 'Break' : 'Focus' }}
                 </span>
             </div>
             <div class="flex items-center gap-1">
-                <button (click)="toggleFullScreen()" class="p-1.5 text-zinc-500 hover:text-white transition-colors" title="Full Screen">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button (click)="toggleFullScreen()" class="p-1.5 text-zinc-400 hover:text-blue-600 transition-colors bg-white hover:bg-blue-50 rounded-lg shadow-sm border border-zinc-100/50" title="Full Screen">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                     </svg>
                 </button>
-                <button (click)="stop()" class="p-1.5 text-zinc-500 hover:text-white transition-colors" title="Close">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <button (click)="close()" class="p-1.5 text-zinc-400 hover:text-red-500 transition-colors bg-white hover:bg-red-50 rounded-lg shadow-sm border border-zinc-100/50" title="Close">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
@@ -133,23 +126,25 @@
         <div class="p-6 text-center">
             @if (pomodoroService.isBreakWaiting()) {
                 <div class="py-2 flex flex-col gap-4">
-                    <p class="text-sm text-zinc-300">Focus session finished!</p>
-                    <button (click)="startBreak()" class="btn-primary py-2 px-4 text-xs w-full">Start Break</button>
+                    <p class="text-sm font-semibold text-[#131B2E]">Focus session finished!</p>
+                    <button (click)="startBreak()" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all active:scale-95 w-full">Start Break</button>
                 </div>
             } @else {
-                <div class="text-5xl font-black tracking-tight font-mono tabular-nums mb-6 transition-colors"
-                    [class.text-emerald-400]="pomodoroService.state() === 'running' && !pomodoroService.isPaused()"
-                    [class.text-blue-400]="pomodoroService.state() === 'break' && !pomodoroService.isPaused()"
-                    [class.text-amber-400]="pomodoroService.isPaused()">
+                <div class="text-5xl font-black tracking-tight font-mono tabular-nums mb-6 transition-colors drop-shadow-sm"
+                    [class.text-emerald-600]="pomodoroService.state() === 'running' && !pomodoroService.isPaused()"
+                    [class.text-blue-600]="pomodoroService.state() === 'break' && !pomodoroService.isPaused()"
+                    [class.text-amber-600]="pomodoroService.isPaused()">
                     {{ pomodoroService.formattedTime() }}
                 </div>
 
                 <div class="flex items-center justify-center gap-4">
-                    <button (click)="toggle()" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                        [class.bg-emerald-500/10]="pomodoroService.state() === 'running'"
-                        [class.text-emerald-400]="pomodoroService.state() === 'running'"
-                        [class.bg-blue-500/10]="pomodoroService.state() === 'break'"
-                        [class.text-blue-400]="pomodoroService.state() === 'break'">
+                    <button (click)="toggle()" class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md border"
+                        [class.bg-emerald-50]="pomodoroService.state() === 'running'"
+                        [class.text-emerald-600]="pomodoroService.state() === 'running'"
+                        [class.border-emerald-100]="pomodoroService.state() === 'running'"
+                        [class.bg-blue-50]="pomodoroService.state() === 'break'"
+                        [class.text-blue-600]="pomodoroService.state() === 'break'"
+                        [class.border-blue-100]="pomodoroService.state() === 'break'">
                         @if (pomodoroService.isPaused()) {
                             <svg @scaleInOut class="w-6 h-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         } @else {
@@ -157,7 +152,7 @@
                         }
                     </button>
                     
-                    <button (click)="stop()" class="w-12 h-12 rounded-2xl bg-white/5 hover:bg-red-500/10 text-zinc-500 hover:text-red-400 flex items-center justify-center transition-all border border-white/5">
+                    <button (click)="stop()" class="w-14 h-14 rounded-2xl bg-white hover:bg-red-50 text-zinc-400 hover:text-red-500 flex items-center justify-center transition-all shadow-sm border border-zinc-100">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
                     </button>
                 </div>
