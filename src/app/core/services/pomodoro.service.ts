@@ -16,7 +16,10 @@ export class PomodoroService {
     activeTopicTitle = signal<string | null>(null);
     activeTopicId = signal<string | null>(null);
     isVisible = signal<boolean>(false);
+    isFullScreen = signal<boolean>(false);
+    isBreakWaiting = signal<boolean>(false);
     
+    private isRunning = signal<boolean>(false);
     private timerInterval: any = null;
 
     // Computed formatting
@@ -31,6 +34,7 @@ export class PomodoroService {
         // If already running for this topic, just show it
         if (this.activeTopicId() === topicId && this.state() !== 'idle') {
             this.isVisible.set(true);
+            this.isFullScreen.set(true);
             return;
         }
 
@@ -41,38 +45,71 @@ export class PomodoroService {
         this.timeRemaining.set(this.FOCUS_MINUTES * 60);
         this.state.set('running');
         this.isVisible.set(true);
+        this.isFullScreen.set(true);
+        this.isBreakWaiting.set(false);
+        this.startTick();
+    }
+
+    startBreak() {
+        this.isBreakWaiting.set(false);
+        this.state.set('break');
+        this.timeRemaining.set(this.BREAK_MINUTES * 60);
         this.startTick();
     }
 
     togglePause() {
-        if (this.state() === 'running') {
-            this.state.set('paused');
-            clearInterval(this.timerInterval);
-        } else if (this.state() === 'paused') {
-            this.state.set('running');
-            this.startTick();
+        if (this.state() === 'running' || this.state() === 'break') {
+            if (this.isRunning()) {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                this.isRunning.set(false);
+            } else {
+                this.startTick();
+            }
         }
     }
 
+    // New helper to check if paused
+    isPaused = computed(() => (this.state() === 'running' || this.state() === 'break') && !this.isRunning());
+
     stop() {
-        clearInterval(this.timerInterval);
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        this.isRunning.set(false);
         this.state.set('idle');
         this.activeTopicId.set(null);
         this.activeTopicTitle.set(null);
         this.timeRemaining.set(this.FOCUS_MINUTES * 60);
         this.isVisible.set(false);
+        this.isFullScreen.set(false);
+        this.isBreakWaiting.set(false);
     }
 
     closeWidget() {
         this.isVisible.set(false);
+        this.isFullScreen.set(false);
     }
 
     openWidget() {
         this.isVisible.set(true);
     }
 
+    enterFullScreen() {
+        this.isFullScreen.set(true);
+        this.isVisible.set(true);
+    }
+
+    exitFullScreen() {
+        this.isFullScreen.set(false);
+    }
+
     private startTick() {
-        clearInterval(this.timerInterval);
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.isRunning.set(true);
         this.timerInterval = setInterval(() => {
             if (this.timeRemaining() > 0) {
                 this.timeRemaining.update(t => t - 1);
@@ -83,7 +120,11 @@ export class PomodoroService {
     }
 
     private handleTimerComplete() {
-        clearInterval(this.timerInterval);
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        this.isRunning.set(false);
         
         // Simple notification if browser supports it
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
@@ -94,10 +135,8 @@ export class PomodoroService {
         }
 
         if (this.state() === 'running') {
-            // Start break
-            this.state.set('break');
-            this.timeRemaining.set(this.BREAK_MINUTES * 60);
-            this.startTick();
+            // Wait for user to start break
+            this.isBreakWaiting.set(true);
         } else if (this.state() === 'break') {
             // Stop after break
             this.stop();
