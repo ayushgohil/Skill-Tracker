@@ -52,7 +52,7 @@ export class DashboardComponent implements OnInit {
     newSubjectName = '';
     newSubjectColor = '#2563EB';
     savingSubject = signal(false);
-    
+
     selectedIcon = signal('code');
     icons = ['code', 'palette', 'terminal', 'fitness', 'language', 'architecture', 'science', 'music'];
     colors = ['#2563EB', '#0F766E', '#B91C1C', '#10B981', '#7C3AED', '#F59E0B'];
@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit {
     async ngOnInit() {
         await this.load();
         this.loadWeeklyData();
-        
+
         // Hydrate profile signal
         try {
             await this.profileService.getProfile();
@@ -134,7 +134,7 @@ export class DashboardComponent implements OnInit {
         }
 
         const sortedLogs = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
+
         const today = new Date().toISOString().split('T')[0];
         const yesterdayDate = new Date();
         yesterdayDate.setDate(yesterdayDate.getDate() - 1);
@@ -154,16 +154,16 @@ export class DashboardComponent implements OnInit {
         let lastDate: Date | null = null;
 
         const ascLogs = [...sortedLogs].reverse();
-        
+
         for (const log of ascLogs) {
             const logDate = new Date(log.date);
-            
+
             if (!lastDate) {
                 tempStreak = 1;
             } else {
                 const diffTime = Math.abs(logDate.getTime() - lastDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
                 if (diffDays === 1) {
                     tempStreak++;
                 } else if (diffDays > 1) {
