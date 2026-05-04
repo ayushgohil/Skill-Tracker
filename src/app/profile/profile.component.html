@@ -71,7 +71,7 @@
         </div>
 
         <!-- ── Stats Grid ──────────────────────────── -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 animate-slide-up">
+        <div id="tour-profile-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 animate-slide-up">
             <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
                 <span class="block text-xl sm:text-2xl font-black text-[#131B2E]">{{ totalSubjects() }}</span>
                 <span class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Subjects</span>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- ── Activity Heatmap ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up overflow-hidden">
+        <div id="tour-profile-heatmap" class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up overflow-hidden">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-sm font-black text-[#131B2E]">Learning Activity</h3>
@@ -232,7 +232,7 @@
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
     <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-50 w-[92%] max-w-sm">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
+        <a id="tour-nav-home" routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
             <span class="text-[8px] sm:text-[9px] font-bold">Home</span>
         </a>

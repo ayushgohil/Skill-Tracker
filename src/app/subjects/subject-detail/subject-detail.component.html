@@ -6,7 +6,7 @@
         <div class="max-w-3xl mx-auto flex flex-col gap-4 relative z-10">
             <!-- Back & Title row -->
             <div class="flex items-center justify-between">
-                <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white text-sm font-bold group">
+                <button id="tour-back-btn" (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white text-sm font-bold group">
                     <svg class="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
@@ -47,7 +47,7 @@
         } @else if (subject(); as sub) {
 
         <!-- Search & Sort Panel -->
-        <div class="flex items-center gap-3 mb-6 relative z-[200]">
+        <div id="tour-search-topics" class="flex items-center gap-3 mb-6 relative z-[200]">
             <div class="relative flex-1">
                 <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -125,7 +125,7 @@
                 <button (click)="showAddTopic.set(false)" class="w-full text-center text-xs font-bold text-[#737686] hover:text-[#434654] py-1">Cancel</button>
             </div>
             } @else {
-            <button (click)="showAddTopic.set(true)" class="w-full border border-dashed border-zinc-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600 text-sm font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
+            <button id="tour-add-topic" (click)="showAddTopic.set(true)" class="w-full border border-dashed border-zinc-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600 text-sm font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
                 + Add Topic
             </button>
             }

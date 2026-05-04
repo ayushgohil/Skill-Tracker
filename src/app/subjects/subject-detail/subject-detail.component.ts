@@ -6,6 +6,7 @@ import { SubjectsService } from '../../core/services/subjects.service';
 import { TopicsService } from '../../core/services/topics.service';
 import { SubtopicsService } from '../../core/services/subtopics.service';
 import { ToastService } from '../../core/services/toast.service';
+import { TourService } from '../../core/services/tour.service';
 import { Subject, TopicWithProgress, Depth } from '../../core/models';
 import {
     TopicItemComponent,
@@ -104,7 +105,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private subjectsService: SubjectsService,
         private topicsService: TopicsService,
         private subtopicsService: SubtopicsService,
-        private toast: ToastService
+        private toast: ToastService,
+        private tourService: TourService
     ) { }
 
     async ngOnInit() {
@@ -129,6 +131,9 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         }
 
         document.addEventListener('click', this.clickOutsideHandler);
+
+        // Run subject-detail tour phase if applicable
+        this.tourService.checkAndRunTour('subject-detail');
     }
 
     ngOnDestroy() {

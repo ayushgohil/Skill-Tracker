@@ -2,7 +2,7 @@
 <div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
 
     <!-- ── Header Area ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-6 sm:py-10 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
+    <header id="tour-header" class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-6 sm:py-10 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
         <div class="absolute top-[-50%] right-[-20%] w-56 sm:w-72 h-56 sm:h-72 bg-white/10 blur-3xl rounded-full"></div>
 
         <div class="max-w-5xl mx-auto flex flex-col gap-4 sm:gap-6 relative z-10">
@@ -12,13 +12,13 @@
                     <span class="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Learning Dashboard</span>
                     <h1 class="text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 tracking-tight">Nextlyr Skill Tracker</h1>
                 </div>
-                <a routerLink="/profile" class="w-10 h-10 min-w-[40px] rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation">
+                <a id="tour-profile" routerLink="/profile" class="w-10 h-10 min-w-[40px] rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation">
                     {{ userInitial() }}
                 </a>
             </div>
 
             <!-- Metrics Cards -->
-            <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-1 sm:mt-2">
+            <div id="tour-metrics" class="grid grid-cols-3 gap-2 sm:gap-3 mt-1 sm:mt-2">
                 <!-- Mastery Circle -->
                 <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2 shadow-sm">
                     <div class="relative flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14">
@@ -88,7 +88,7 @@
         <!-- Section Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4">
             <h2 class="text-sm sm:text-base font-black text-[#131B2E]">Learning Paths</h2>
-            <button (click)="showAddSubject.set(true)" class="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline min-h-[32px] touch-manipulation">
+            <button id="tour-add-subject" (click)="showAddSubject.set(true)" class="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline min-h-[32px] touch-manipulation">
                 + Add Subject
             </button>
         </div>
@@ -141,7 +141,7 @@
 
                 } @else {
                 <!-- Display Mode -->
-                <div (click)="openSubject(sub.id)" class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3 sm:gap-4 cursor-pointer hover:border-blue-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all animate-scale-in touch-manipulation">
+                <div data-tour-subject-card (click)="openSubject(sub.id)" class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3 sm:gap-4 cursor-pointer hover:border-blue-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all animate-scale-in touch-manipulation">
                     <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                         <!-- Color Bar -->
                         <div class="w-3 sm:w-4 h-10 sm:h-12 rounded-full flex-shrink-0" [style.background-color]="sub.color"></div>
@@ -167,11 +167,11 @@
                             <span class="text-[10px] font-bold text-[#737686]">{{ sub.completedCount }}/{{ sub.totalCount }}</span>
                         </div>
 
-                        <button (click)="startEditSubject($event, sub)" class="w-8 h-8 min-w-[32px] rounded-xl hover:bg-[#F4F5FC] text-zinc-400 hover:text-blue-600 transition-all flex items-center justify-center touch-manipulation">
+                        <button data-tour-edit-subject (click)="startEditSubject($event, sub)" class="w-8 h-8 min-w-[32px] rounded-xl hover:bg-[#F4F5FC] text-zinc-400 hover:text-blue-600 transition-all flex items-center justify-center touch-manipulation">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         </button>
 
-                        <button (click)="deleteSubject($event, sub.id, sub.name)" class="w-8 h-8 min-w-[32px] rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-all flex items-center justify-center touch-manipulation">
+                        <button data-tour-delete-subject (click)="deleteSubject($event, sub.id, sub.name)" class="w-8 h-8 min-w-[32px] rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-all flex items-center justify-center touch-manipulation">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
@@ -185,12 +185,12 @@
     </main>
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm">
+    <nav id="tour-bottom-nav" class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm">
         <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-cyan-400 touch-manipulation">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
             <span class="text-[8px] sm:text-[9px] font-bold">Home</span>
         </a>
-        <button (click)="goToWeeklyReview()" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
+        <button id="tour-weekly-nav" (click)="goToWeeklyReview()" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span class="text-[8px] sm:text-[9px] font-bold">Weekly</span>
         </button>
@@ -219,7 +219,7 @@
             <!-- Subject Name -->
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Subject Name</span>
-                <input [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)" (keydown.enter)="addSubject()"
+                <input id="tour-subject-name" [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)" (keydown.enter)="addSubject()"
                     class="w-full h-13 sm:h-14 rounded-2xl bg-[#F4F5FC] border border-[#E4E6F5] px-4 text-base font-bold outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-[#131B2E] placeholder-zinc-400"
                     placeholder="e.g. Master React Native" />
             </div>
@@ -227,7 +227,7 @@
             <!-- Icons -->
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Visual Identity</span>
-                <div class="grid grid-cols-4 gap-2 sm:gap-3">
+                <div id="tour-subject-icons" class="grid grid-cols-4 gap-2 sm:gap-3">
                     @for (icon of icons; track icon) {
                     <button (click)="selectedIcon.set(icon)"
                         class="h-14 sm:h-16 rounded-2xl flex items-center justify-center transition-all shadow-sm touch-manipulation"
@@ -301,7 +301,7 @@
             </div>
 
             <!-- CTA -->
-            <button (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()"
+            <button id="tour-subject-create" (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()"
                 class="w-full mt-2 sm:mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black rounded-2xl py-3.5 sm:py-4 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-[52px] touch-manipulation">
                 <span>Create Subject</span>
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

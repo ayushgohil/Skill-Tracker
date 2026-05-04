@@ -6,6 +6,204 @@
 /* ── Google Font ─────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
+/* ── Premium Driver.js Customization ──────────────────────── */
+.driver-popover {
+  border-radius: 24px !important;
+  font-family: 'Outfit', sans-serif !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 24px 80px rgba(19, 27, 46, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  padding: 24px !important;
+  background: #ffffff !important;
+  max-width: 90vw !important;
+  width: 360px !important; 
+}
+.driver-popover-title {
+  font-weight: 900 !important;
+  color: #131b2e !important;
+  font-size: 1.3rem !important;
+  margin-bottom: 12px !important;
+  letter-spacing: -0.02em !important;
+}
+.driver-popover-description {
+  color: #434654 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+}
+.driver-popover-footer {
+  margin-top: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+.driver-popover-navigation-btns {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 1 !important;
+  justify-content: flex-end !important;
+}
+.driver-popover-progress-text {
+  font-weight: 800 !important;
+  color: #a0a3b1 !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.05em !important;
+  margin-right: auto !important;
+}
+.driver-popover-next-btn, .driver-popover-prev-btn {
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  transition: all 0.2s ease !important;
+  font-size: 0.85rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 40px !important;
+  cursor: pointer !important;
+}
+.driver-popover-next-btn {
+  background: #1a56db !important;
+  color: white !important;
+  text-shadow: none !important;
+  box-shadow: 0 4px 12px rgba(26, 86, 219, 0.25) !important;
+}
+.driver-popover-next-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(26, 86, 219, 0.35) !important;
+}
+.driver-popover-prev-btn {
+  background: #f4f5fc !important;
+  color: #434654 !important;
+  text-shadow: none !important;
+}
+.driver-popover-prev-btn:hover {
+  background: #e4e6f5 !important;
+}
+.driver-popover-close-btn {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #94a3b8 !important;
+  background: #f1f5f9 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  z-index: 1 !important;
+}
+
+.driver-popover-close-btn:hover {
+  color: #64748b !important;
+  background: #e2e8f0 !important;
+  transform: rotate(90deg) !important;
+}
+
+.driver-popover-title {
+  padding-right: 32px !important; /* Make room for the X button */
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #1e293b !important;
+}
+
+.tour-title-flex {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.tour-icon {
+  flex-shrink: 0 !important;
+  opacity: 0.9 !important;
+  transition: transform 0.3s ease !important;
+}
+
+.driver-popover:hover .tour-icon {
+  transform: scale(1.1) rotate(5deg) !important;
+}
+
+/* Lucide-like icon colors */
+.text-blue-500 { color: #3b82f6 !important; }
+.text-emerald-500 { color: #10b981 !important; }
+.text-emerald-600 { color: #059669 !important; }
+.text-blue-600 { color: #2563eb !important; }
+.text-orange-500 { color: #f97316 !important; }
+.text-indigo-500 { color: #6366f1 !important; }
+.text-amber-500 { color: #f59e0b !important; }
+.text-violet-500 { color: #8b5cf6 !important; }
+.text-rose-500 { color: #f43f5e !important; }
+.text-rose-600 { color: #e11d48 !important; }
+.text-red-500 { color: #ef4444 !important; }
+.text-slate-500 { color: #64748b !important; }
+.text-slate-600 { color: #475569 !important; }
+
+@media (max-width: 640px) {
+  .driver-popover {
+    padding: 20px !important;
+  }
+  .driver-popover-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .driver-popover-navigation-btns {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+  .driver-popover-progress-text {
+    margin-bottom: 8px !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+  .driver-popover-next-btn, .driver-popover-prev-btn {
+    flex: 1 !important;
+  }
+}
+
+/* Block accidental taps on overlay during tour */
+.driver-overlay {
+  pointer-events: none !important;
+}
+
+/* Tour Completion Celebration Modal */
+.tour-completion-popup {
+  border-radius: 28px !important;
+  font-family: 'Outfit', sans-serif !important;
+  padding: 12px !important;
+}
+.tour-completion-title {
+  font-family: 'Outfit', sans-serif !important;
+  font-weight: 900 !important;
+  font-size: 1.5rem !important;
+  color: #131b2e !important;
+  letter-spacing: -0.02em !important;
+}
+.tour-completion-btn {
+  border-radius: 14px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+  padding: 14px 32px !important;
+  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+.tour-completion-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(26, 86, 219, 0.35) !important;
+}
+
 /* ── Base ────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 

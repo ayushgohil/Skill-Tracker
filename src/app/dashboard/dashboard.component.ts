@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, computed, HostListener, ElementRef } from '@angular/core';
 import Swal from 'sweetalert2';
-import { TitleCasePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TopicsService } from '../core/services/topics.service';
@@ -13,11 +12,12 @@ import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
+import { TourService } from '../core/services/tour.service';
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ToastComponent, FormsModule, RouterLink, TitleCasePipe],
+    imports: [ToastComponent, FormsModule, RouterLink],
     templateUrl: './dashboard.component.html',
     animations: [staggerList, fadeSlideInOut]
 })
@@ -83,7 +83,8 @@ export class DashboardComponent implements OnInit {
         private toast: ToastService,
         private router: Router,
         private el: ElementRef,
-        private profileService: ProfileService
+        private profileService: ProfileService,
+        private tourService: TourService
     ) { }
 
     async ngOnInit() {
@@ -96,6 +97,9 @@ export class DashboardComponent implements OnInit {
         } catch (err) {
             console.error('Profile error on dashboard init:', err);
         }
+
+        // Start tour for new users
+        this.tourService.checkAndRunTour('dashboard');
     }
 
     async load() {
@@ -204,6 +208,11 @@ export class DashboardComponent implements OnInit {
             this.showAddSubject.set(false);
             await this.load();
             this.toast.success('Subject created.');
+
+            // If tour is active, continue to phase 5 (subject card tour)
+            if (this.tourService.isTourActive()) {
+                setTimeout(() => this.tourService.checkAndRunTour('dashboard'), 600);
+            }
         } catch {
             this.toast.error('Failed to create subject.');
         } finally {
@@ -267,5 +276,8 @@ export class DashboardComponent implements OnInit {
         }
     }
 
-    logout() { this.auth.logout(); }
+    logout() {
+        this.tourService.forceCloseTour();
+        this.auth.logout();
+    }
 }

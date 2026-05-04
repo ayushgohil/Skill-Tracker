@@ -7,6 +7,7 @@ import { SubjectsService } from '../core/services/subjects.service';
 import { TopicsService } from '../core/services/topics.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
+import { TourService } from '../core/services/tour.service';
 import { Profile, SubjectWithTopics } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -53,7 +54,8 @@ export class ProfileComponent implements OnInit {
         private profileService: ProfileService,
         private topicsService: TopicsService,
         private auth: AuthService,
-        private toast: ToastService
+        private toast: ToastService,
+        private tourService: TourService
     ) { }
 
     async ngOnInit() {
@@ -72,6 +74,8 @@ export class ProfileComponent implements OnInit {
             this.toast.error('Failed to load profile.');
         } finally {
             this.loading.set(false);
+            // Run profile tour phase if applicable
+            this.tourService.checkAndRunTour('profile');
         }
     }
 
@@ -90,7 +94,10 @@ export class ProfileComponent implements OnInit {
         }
     }
 
-    logout() { this.auth.logout(); }
+    logout() {
+        this.tourService.forceCloseTour();
+        this.auth.logout();
+    }
 
     startDeleteAccount() {
         this.deleteConfirmationEmail = '';
