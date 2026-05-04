@@ -139,6 +139,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Built with ❤️ for masters of their craft.
 
-[Follow on GitHub](https://github.com/yourusername) • [Report Bug](https://github.com/yourusername/Skill-Tracker/issues)
+[Follow on GitHub](https://github.com/ayushgohil) • [Report Bug](https://github.com/ayushgohil/Skill-Tracker/issues)
 
 </div>
