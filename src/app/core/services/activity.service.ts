@@ -15,6 +15,18 @@ export interface ActivityLog {
 export class ActivityService {
 
     /**
+     * Returns today's date as a YYYY-MM-DD string using LOCAL time (not UTC).
+     * Critical for users in non-UTC timezones (e.g. IST) where toISOString()
+     * could return the previous day's date for hours before midnight UTC.
+     */
+    getLocalDateStr(date: Date = new Date()): string {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    /**
      * Gets activity logs for a specific year.
      */
     async getActivityLogsForYear(year: number): Promise<ActivityLog[]> {
@@ -40,6 +52,35 @@ export class ActivityService {
     }
 
     /**
+     * Fetches the last 400 days of activity logs using local dates.
+     * Used for streak calculation so it correctly handles cross-year streaks
+     * (e.g. a streak spanning Dec 31 → Jan 1).
+     */
+    async getRecentActivityLogs(): Promise<ActivityLog[]> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const endDate = this.getLocalDateStr();
+        const startDateObj = new Date();
+        startDateObj.setDate(startDateObj.getDate() - 400);
+        const startDate = this.getLocalDateStr(startDateObj);
+
+        const { data, error } = await supabase
+            .from('activity_logs')
+            .select('*')
+            .eq('user_id', user.id)
+            .gte('date', startDate)
+            .lte('date', endDate)
+            .order('date', { ascending: true });
+
+        if (error) {
+            console.error('Error fetching recent activity logs:', error);
+            return [];
+        }
+        return data as ActivityLog[];
+    }
+
+    /**
      * Logs an activity. If a record for today exists, it increments tasks_completed.
      */
     async logActivity(): Promise<void> {
@@ -51,13 +92,13 @@ export class ActivityService {
         try {
             const { error: rpcError } = await supabase.rpc('increment_activity_log', {
                 p_user_id: user.id,
-                p_date: new Date().toISOString().split('T')[0]
+                p_date: this.getLocalDateStr()  // ✅ Use local date, not UTC
             });
             
             if (rpcError) {
                 console.warn('RPC failed, falling back to manual upsert:', rpcError);
                 // Fallback (might not increment correctly if concurrent, but fine for now)
-                const date = new Date().toISOString().split('T')[0];
+                const date = this.getLocalDateStr();  // ✅ Use local date, not UTC
                 const { data } = await supabase
                     .from('activity_logs')
                     .select('tasks_completed')

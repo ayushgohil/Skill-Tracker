@@ -114,7 +114,9 @@ export class DashboardComponent implements OnInit {
             const [isDue, starred, logs] = await Promise.all([
                 this.weeklyService.isReviewDue(),
                 this.weeklyService.getAllStarredTopics(),
-                this.activityService.getActivityLogsForYear(new Date().getFullYear())
+                // Use getRecentActivityLogs() instead of getActivityLogsForYear() so that
+                // cross-year streaks (e.g. Dec 31 → Jan 1) are calculated correctly (Bug #3 fix)
+                this.activityService.getRecentActivityLogs()
             ]);
             this.reviewDue.set(isDue);
             this.starredTopics.set(starred);
@@ -134,15 +136,16 @@ export class DashboardComponent implements OnInit {
 
         const sortedLogs = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-        const today = new Date().toISOString().split('T')[0];
-        const yesterdayDate = new Date();
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterday = yesterdayDate.toISOString().split('T')[0];
+        // Bug #1 fix: Use LOCAL date strings, not UTC (toISOString() returns UTC which
+        // can be the wrong calendar day for users in timezones ahead of UTC like IST).
+        const today = this.activityService.getLocalDateStr();
+        const yesterdayObj = new Date();
+        yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+        const yesterday = this.activityService.getLocalDateStr(yesterdayObj);
 
-        let streakActive = false;
-        if (sortedLogs.length > 0 && (sortedLogs[0].date === today || sortedLogs[0].date === yesterday)) {
-            streakActive = true;
-        }
+        // Bug #2 fix: Use .split('T')[0] defensively in case DB returns a full ISO timestamp
+        const mostRecentDate = sortedLogs[0].date.split('T')[0];
+        const streakActive = mostRecentDate === today || mostRecentDate === yesterday;
 
         if (!streakActive) {
             this.currentStreak.set(0);
@@ -155,13 +158,17 @@ export class DashboardComponent implements OnInit {
         const ascLogs = [...sortedLogs].reverse();
 
         for (const log of ascLogs) {
-            const logDate = new Date(log.date);
+            // Parse the date-only string as local midnight to avoid UTC offset issues
+            const [y, mo, d] = log.date.split('T')[0].split('-').map(Number);
+            const logDate = new Date(y, mo - 1, d);
 
             if (!lastDate) {
                 tempStreak = 1;
             } else {
                 const diffTime = Math.abs(logDate.getTime() - lastDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                // Bug #4 fix: Use Math.round instead of Math.ceil to avoid off-by-one
+                // errors from DST transitions or floating-point precision.
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
                 if (diffDays === 1) {
                     tempStreak++;

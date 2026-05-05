@@ -34,6 +34,18 @@ export class ActivityHeatmapComponent implements OnInit {
         });
     }
 
+    /**
+     * Returns a date as a YYYY-MM-DD string using LOCAL time (not UTC).
+     * Avoids the UTC-offset bug where toISOString() returns the previous day
+     * for users in timezones ahead of UTC (e.g. IST = UTC+5:30).
+     */
+    private getLocalDateStr(date: Date = new Date()): string {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     ngOnInit() {
         // Load the initial selected year (current year) on mount
         this.loadYear(this.selectedYear());
@@ -126,14 +138,18 @@ export class ActivityHeatmapComponent implements OnInit {
         
         const sortedLogs = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         
-        const today = new Date().toISOString().split('T')[0];
-        const yesterdayDate = new Date();
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterday = yesterdayDate.toISOString().split('T')[0];
+        // Bug #1 fix: Use LOCAL date strings, not UTC (toISOString() returns UTC which
+        // can be the wrong calendar day for users in timezones ahead of UTC like IST).
+        const today = this.getLocalDateStr();
+        const yesterdayObj = new Date();
+        yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+        const yesterday = this.getLocalDateStr(yesterdayObj);
 
+        // Bug #2 fix: Use .split('T')[0] defensively in case DB returns a full ISO timestamp
         let streakActive = false;
-        if (sortedLogs.length > 0 && (sortedLogs[0].date === today || sortedLogs[0].date === yesterday)) {
-            streakActive = true;
+        if (sortedLogs.length > 0) {
+            const mostRecentDate = sortedLogs[0].date.split('T')[0];
+            streakActive = mostRecentDate === today || mostRecentDate === yesterday;
         }
 
         let tempStreak = 0;
@@ -143,13 +159,20 @@ export class ActivityHeatmapComponent implements OnInit {
         
         for (const log of ascLogs) {
             total += log.tasks_completed;
-            const logDate = new Date(log.date);
+
+            // Bug #4 fix: Parse date-only string as LOCAL midnight, not UTC midnight.
+            // new Date("YYYY-MM-DD") parses as UTC 00:00 which can shift the date
+            // for local timezone comparisons. Using new Date(y, m, d) uses local time.
+            const [y, mo, d] = log.date.split('T')[0].split('-').map(Number);
+            const logDate = new Date(y, mo - 1, d);
             
             if (!lastDate) {
                 tempStreak = 1;
             } else {
                 const diffTime = Math.abs(logDate.getTime() - lastDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                // Bug #4 fix: Use Math.round instead of Math.ceil to avoid off-by-one
+                // errors from DST transitions or floating-point precision.
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); 
                 
                 if (diffDays === 1) {
                     tempStreak++;
