@@ -136,12 +136,10 @@ export class TopicsService {
         if (error) throw error;
         
         this.cacheService.clear('subjects_with_topics');
-        this.cacheService.clear(); // Clear all to avoid stale data
+        this.cacheService.clear();
 
-        
-        // Log activity if completed
-        if (completed) {
-            this.activityService.logActivity();
-        }
+        // Sync activity after every toggle — syncActivity SETs the real count from DB,
+        // so it's idempotent and accurate regardless of how many times a topic is toggled.
+        this.activityService.syncActivity();
     }
 }

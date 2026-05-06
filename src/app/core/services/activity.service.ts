@@ -81,43 +81,46 @@ export class ActivityService {
     }
 
     /**
-     * Logs an activity. If a record for today exists, it increments tasks_completed.
+     * Syncs today's activity log to the ACTUAL count of completed topics in the DB.
+     *
+     * Why SET instead of INCREMENT:
+     * Incrementing means toggling a checkbox 50× adds 50 to the count, which is wrong.
+     * Setting means we always store the truth: "how many topics are done right now".
+     * This is idempotent — no matter how many times a topic is toggled, the count is accurate.
      */
-    async logActivity(): Promise<void> {
+    async syncActivity(): Promise<void> {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Note: Ideally this calls the increment_activity_log RPC function from the migration.
-        // As a fallback if the RPC wasn't created, we try a standard upsert.
         try {
-            const { error: rpcError } = await supabase.rpc('increment_activity_log', {
-                p_user_id: user.id,
-                p_date: this.getLocalDateStr()  // ✅ Use local date, not UTC
-            });
-            
-            if (rpcError) {
-                console.warn('RPC failed, falling back to manual upsert:', rpcError);
-                // Fallback (might not increment correctly if concurrent, but fine for now)
-                const date = this.getLocalDateStr();  // ✅ Use local date, not UTC
-                const { data } = await supabase
-                    .from('activity_logs')
-                    .select('tasks_completed')
-                    .eq('user_id', user.id)
-                    .eq('date', date)
-                    .single();
-                
-                const currentCount = data?.tasks_completed ?? 0;
-                await supabase
-                    .from('activity_logs')
-                    .upsert({
-                        user_id: user.id,
-                        date: date,
-                        tasks_completed: currentCount + 1,
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: 'user_id,date' });
-            }
+            // Count topics completed (topics with no subtopics)
+            const { count: topicCount } = await supabase
+                .from('user_progress')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('completed', true);
+
+            // Count subtopics completed (subtopics for topics that have subtopics)
+            const { count: subtopicCount } = await supabase
+                .from('subtopics')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('completed', true);
+
+            const totalCompleted = (topicCount ?? 0) + (subtopicCount ?? 0);
+
+            // SET tasks_completed — never increment, always reflect truth
+            await supabase
+                .from('activity_logs')
+                .upsert({
+                    user_id: user.id,
+                    date: this.getLocalDateStr(),
+                    tasks_completed: totalCompleted,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id,date' });
+
         } catch (e) {
-             console.error('Failed to log activity. Migration might not be run yet.', e);
+            console.error('Failed to sync activity log:', e);
         }
     }
 }

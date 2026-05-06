@@ -120,7 +120,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         }
 
         await this.load();
-        
+
         if (searchParam) {
             const matchingTopic = this.topics().find(t => t.title.toLowerCase() === searchParam.toLowerCase());
             if (matchingTopic) {

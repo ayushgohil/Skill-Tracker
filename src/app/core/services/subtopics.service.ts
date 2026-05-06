@@ -68,9 +68,9 @@ export class SubtopicsService {
         
         this.cacheService.clear();
 
-        if (completed) {
-            this.activityService.logActivity();
-        }
+        // Sync activity after every toggle — syncActivity SETs the real count from DB,
+        // so it's idempotent and accurate regardless of how many times a topic is toggled.
+        this.activityService.syncActivity();
     }
 
     async updateSubtopicNotes(id: string, notes: string): Promise<void> {
