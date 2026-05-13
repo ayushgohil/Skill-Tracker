@@ -37,6 +37,7 @@ export class ProfileComponent implements OnInit {
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
     );
     userEmail = computed(() => this.auth.currentUser()?.email ?? '');
+    userAvatar = computed(() => this.auth.currentUser()?.user_metadata?.['avatar_url'] ?? '');
     memberSince = computed(() => {
         const p = this.profile();
         if (!p) return '';

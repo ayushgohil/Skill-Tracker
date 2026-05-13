@@ -68,6 +68,7 @@ export class DashboardComponent implements OnInit {
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
     );
     userEmail = computed(() => this.auth.currentUser()?.email ?? '');
+    userAvatar = computed(() => this.auth.currentUser()?.user_metadata?.['avatar_url'] ?? '');
     userInitial = computed(() => {
         const name = this.profileService.userProfile()?.display_name;
         if (name && name.trim()) return name.trim()[0].toUpperCase();

@@ -2,18 +2,21 @@
 <div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
 
     <!-- ── Header ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-5 sm:py-8 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in">
+    <header
+        class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-5 sm:py-8 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in">
         <div class="max-w-3xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl">
+            <div
+                class="flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl">
                 <div class="w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-md flex items-center justify-center flex-shrink-0">
                     <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <span class="font-black tracking-tight text-xs sm:text-sm">SkillTracker</span>
             </div>
 
-            <button (click)="logout()" class="text-white/80 hover:text-white font-bold text-xs bg-white/10 hover:bg-white/20 px-3 sm:px-4 py-2 rounded-full transition-all min-h-[36px] touch-manipulation">
+            <button (click)="logout()"
+                class="text-white/80 hover:text-white font-bold text-xs bg-white/10 hover:bg-white/20 px-3 sm:px-4 py-2 rounded-full transition-all min-h-[36px] touch-manipulation">
                 Sign Out
             </button>
         </div>
@@ -33,23 +36,36 @@
         } @else {
 
         <!-- ── Profile Hero ────────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl animate-fade-in">
+        <div
+            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl animate-fade-in">
             <div class="flex items-center gap-3 sm:gap-4 md:gap-6">
                 <!-- Avatar -->
-                <div class="w-14 h-14 sm:w-16 md:w-20 sm:h-16 md:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-black text-2xl sm:text-3xl shadow-md flex-shrink-0">
+                @if (userAvatar()) {
+                <img [src]="userAvatar()" alt="Profile"
+                    class="w-14 h-14 sm:w-16 md:w-20 sm:h-16 md:h-20 rounded-2xl sm:rounded-3xl object-cover shadow-md flex-shrink-0"
+                    referrerpolicy="no-referrer" />
+                } @else {
+                <div
+                    class="w-14 h-14 sm:w-16 md:w-20 sm:h-16 md:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-black text-2xl sm:text-3xl shadow-md flex-shrink-0">
                     {{ (profile()?.display_name || userEmail())[0]?.toUpperCase() }}
                 </div>
+                }
 
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                     @if (editingName()) {
                     <div class="flex items-center gap-2 flex-wrap animate-slide-up">
-                        <input [(ngModel)]="displayName" (keydown.enter)="saveName()" (keydown.escape)="editingName.set(false)" class="w-full sm:w-44 h-10 px-3 rounded-xl bg-[#F4F5FC] border border-zinc-200 text-sm font-bold outline-none focus:border-blue-400" placeholder="Display name" />
+                        <input [(ngModel)]="displayName" (keydown.enter)="saveName()"
+                            (keydown.escape)="editingName.set(false)"
+                            class="w-full sm:w-44 h-10 px-3 rounded-xl bg-[#F4F5FC] border border-zinc-200 text-sm font-bold outline-none focus:border-blue-400"
+                            placeholder="Display name" />
                         <div class="flex gap-2">
-                            <button (click)="saveName()" [disabled]="saving()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold h-10 px-4 rounded-xl disabled:opacity-50 flex-shrink-0 min-w-[60px] touch-manipulation">
+                            <button (click)="saveName()" [disabled]="saving()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold h-10 px-4 rounded-xl disabled:opacity-50 flex-shrink-0 min-w-[60px] touch-manipulation">
                                 {{ saving() ? '...' : 'Save' }}
                             </button>
-                            <button (click)="editingName.set(false)" class="text-[#737686] hover:text-[#434654] text-xs font-bold px-2 touch-manipulation">Cancel</button>
+                            <button (click)="editingName.set(false)"
+                                class="text-[#737686] hover:text-[#434654] text-xs font-bold px-2 touch-manipulation">Cancel</button>
                         </div>
                     </div>
                     } @else {
@@ -57,15 +73,19 @@
                         <h1 class="text-lg sm:text-xl font-black text-[#131B2E] truncate">
                             {{ profile()?.display_name || 'Set Name' }}
                         </h1>
-                        <button (click)="editingName.set(true)" class="text-[#737686] hover:text-blue-600 transition-colors flex-shrink-0 touch-manipulation">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        <button (click)="editingName.set(true)"
+                            class="text-[#737686] hover:text-blue-600 transition-colors flex-shrink-0 touch-manipulation">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </button>
                     </div>
                     }
                     <p class="text-[#737686] text-xs font-bold truncate">{{ userEmail() }}</p>
-                    <p class="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-wider">Joined {{ memberSince() }}</p>
+                    <p class="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-wider">Joined {{ memberSince()
+                        }}</p>
                 </div>
             </div>
         </div>
@@ -74,7 +94,8 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 animate-slide-up">
             <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
                 <span class="block text-xl sm:text-2xl font-black text-[#131B2E]">{{ totalSubjects() }}</span>
-                <span class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Subjects</span>
+                <span
+                    class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Subjects</span>
             </div>
             <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
                 <span class="block text-xl sm:text-2xl font-black text-[#131B2E]">{{ totalTopics() }}</span>
@@ -82,7 +103,8 @@
             </div>
             <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
                 <span class="block text-xl sm:text-2xl font-black text-emerald-500">{{ totalCompleted() }}</span>
-                <span class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Completed</span>
+                <span
+                    class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Completed</span>
             </div>
             <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
                 <span class="block text-xl sm:text-2xl font-black text-blue-600">{{ percent() }}%</span>
@@ -91,7 +113,8 @@
         </div>
 
         <!-- ── Activity Heatmap ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up overflow-hidden">
+        <div
+            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up overflow-hidden">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-sm font-black text-[#131B2E]">Learning Activity</h3>
@@ -111,23 +134,28 @@
         </div>
 
         <!-- ── Overall Progress ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
+        <div
+            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-black text-[#131B2E]">Overall Skill Mastery</span>
-                <span class="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-1 rounded-full font-black">{{ totalCompleted() }}/{{ totalTopics() }}</span>
+                <span class="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-1 rounded-full font-black">{{
+                    totalCompleted() }}/{{ totalTopics() }}</span>
             </div>
             <div class="w-full bg-zinc-100 rounded-full h-2.5 sm:h-3">
-                <div class="progress-fill bg-gradient-to-r from-cyan-500 to-blue-600 h-2.5 sm:h-3 rounded-full transition-all duration-700" [style.width.%]="percent()"></div>
+                <div class="progress-fill bg-gradient-to-r from-cyan-500 to-blue-600 h-2.5 sm:h-3 rounded-full transition-all duration-700"
+                    [style.width.%]="percent()"></div>
             </div>
         </div>
 
         <!-- ── Account Settings ────────────────────── -->
-        <div class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
+        <div
+            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
             <h3 class="text-sm font-black text-[#131B2E] mb-4">Account Details</h3>
             <div class="divide-y divide-zinc-100">
                 <div class="flex justify-between items-center py-3 gap-4">
                     <span class="text-[#737686] text-xs font-bold flex-shrink-0">Email Address</span>
-                    <span class="text-[#131B2E] text-xs sm:text-sm font-medium truncate text-right">{{ userEmail() }}</span>
+                    <span class="text-[#131B2E] text-xs sm:text-sm font-medium truncate text-right">{{ userEmail()
+                        }}</span>
                 </div>
                 <div class="flex justify-between items-center py-3">
                     <span class="text-[#737686] text-xs font-bold">Account Created</span>
@@ -135,7 +163,8 @@
                 </div>
                 <div class="flex justify-between items-center py-3">
                     <span class="text-[#737686] text-xs font-bold">Authentication</span>
-                    <button (click)="logout()" class="text-red-500 hover:text-red-600 text-xs font-bold min-h-[32px] touch-manipulation">
+                    <button (click)="logout()"
+                        class="text-red-500 hover:text-red-600 text-xs font-bold min-h-[32px] touch-manipulation">
                         Sign Out
                     </button>
                 </div>
@@ -143,10 +172,13 @@
         </div>
 
         <!-- ── Danger Zone ────────────────────── -->
-        <div class="bg-red-50 border border-red-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up mt-4">
+        <div
+            class="bg-red-50 border border-red-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up mt-4">
             <h3 class="text-sm font-black text-red-600 mb-2">Danger Zone</h3>
-            <p class="text-red-500 text-xs font-medium mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-            <button (click)="startDeleteAccount()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all min-h-[48px] touch-manipulation">
+            <p class="text-red-500 text-xs font-medium mb-4">Once you delete your account, there is no going back.
+                Please be certain.</p>
+            <button (click)="startDeleteAccount()"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all min-h-[48px] touch-manipulation">
                 Delete My Account
             </button>
         </div>
@@ -156,19 +188,23 @@
 
     <!-- ── Delete Account Modal ────────────────────── -->
     @if (showDeleteModal()) {
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in" (click)="!isDeleting() && showDeleteModal.set(false)">
-        <div class="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in" (click)="$event.stopPropagation()">
-            
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in"
+        (click)="!isDeleting() && showDeleteModal.set(false)">
+        <div class="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in"
+            (click)="$event.stopPropagation()">
+
             <div class="flex items-center gap-3 mb-4 text-red-600">
                 <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <h2 class="text-xl font-black">Are you sure?</h2>
             </div>
 
             <div class="space-y-4">
                 <p class="text-sm text-[#434654] font-medium">
-                    This action <span class="font-bold text-red-600">cannot</span> be undone. This will permanently delete your profile and wipe out all of your progress, including:
+                    This action <span class="font-bold text-red-600">cannot</span> be undone. This will permanently
+                    delete your profile and wipe out all of your progress, including:
                 </p>
                 <ul class="text-xs text-[#737686] font-bold list-disc pl-5 space-y-1">
                     <li>All {{ totalSubjects() }} subjects</li>
@@ -178,52 +214,61 @@
                 </ul>
 
                 @if (!isDeleting() && deletionProgress()[0].status === 'pending') {
-                    <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-200 mt-4">
-                        <label class="block text-xs font-bold text-[#737686] mb-2">Please type <span class="font-black text-[#131B2E] select-all">{{ userEmail() }}</span> to confirm.</label>
-                        <input [(ngModel)]="deleteConfirmationEmail" type="text" class="w-full h-11 rounded-lg border border-zinc-300 px-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-200 outline-none transition-all" />
-                    </div>
+                <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-200 mt-4">
+                    <label class="block text-xs font-bold text-[#737686] mb-2">Please type <span
+                            class="font-black text-[#131B2E] select-all">{{ userEmail() }}</span> to confirm.</label>
+                    <input [(ngModel)]="deleteConfirmationEmail" type="text"
+                        class="w-full h-11 rounded-lg border border-zinc-300 px-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-200 outline-none transition-all" />
+                </div>
 
-                    <div class="flex gap-3 mt-6">
-                        <button (click)="showDeleteModal.set(false)" class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-[#434654] font-bold py-3.5 rounded-xl transition-all">
-                            Cancel
-                        </button>
-                        <button (click)="confirmDeleteAccount()" [disabled]="deleteConfirmationEmail !== userEmail()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md">
-                            I understand, delete
-                        </button>
-                    </div>
+                <div class="flex gap-3 mt-6">
+                    <button (click)="showDeleteModal.set(false)"
+                        class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-[#434654] font-bold py-3.5 rounded-xl transition-all">
+                        Cancel
+                    </button>
+                    <button (click)="confirmDeleteAccount()" [disabled]="deleteConfirmationEmail !== userEmail()"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md">
+                        I understand, delete
+                    </button>
+                </div>
                 } @else {
-                    <!-- Progress UI -->
-                    <div class="mt-6 space-y-3">
-                        <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Deletion Progress</h4>
-                        @for (step of deletionProgress(); track step.table) {
-                            <div class="flex items-center justify-between text-sm py-1">
-                                <span class="font-bold" 
-                                    [class.text-zinc-400]="step.status === 'pending'"
-                                    [class.text-blue-600]="step.status === 'deleting'"
-                                    [class.text-emerald-500]="step.status === 'done'"
-                                    [class.text-red-500]="step.status === 'error'">
-                                    {{ step.label }}
-                                </span>
-                                
-                                @if (step.status === 'pending') {
-                                    <span class="w-5 h-5 border-2 border-zinc-200 rounded-full"></span>
-                                } @else if (step.status === 'deleting') {
-                                    <svg class="w-5 h-5 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                } @else if (step.status === 'done') {
-                                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                } @else if (step.status === 'error') {
-                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                }
-                            </div>
+                <!-- Progress UI -->
+                <div class="mt-6 space-y-3">
+                    <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Deletion Progress
+                    </h4>
+                    @for (step of deletionProgress(); track step.table) {
+                    <div class="flex items-center justify-between text-sm py-1">
+                        <span class="font-bold" [class.text-zinc-400]="step.status === 'pending'"
+                            [class.text-blue-600]="step.status === 'deleting'"
+                            [class.text-emerald-500]="step.status === 'done'"
+                            [class.text-red-500]="step.status === 'error'">
+                            {{ step.label }}
+                        </span>
+
+                        @if (step.status === 'pending') {
+                        <span class="w-5 h-5 border-2 border-zinc-200 rounded-full"></span>
+                        } @else if (step.status === 'deleting') {
+                        <svg class="w-5 h-5 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        } @else if (step.status === 'done') {
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        } @else if (step.status === 'error') {
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
                         }
                     </div>
+                    }
+                </div>
                 }
             </div>
         </div>
@@ -231,17 +276,27 @@
     }
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-50 w-[92%] max-w-sm">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+    <nav
+        class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-50 w-[92%] max-w-sm">
+        <a routerLink="/dashboard"
+            class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z" />
+            </svg>
             <span class="text-[8px] sm:text-[9px] font-bold">Home</span>
         </a>
-        <a routerLink="/weekly" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <a routerLink="/weekly"
+            class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span class="text-[8px] sm:text-[9px] font-bold">Weekly</span>
         </a>
         <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
             <span class="text-[8px] sm:text-[9px] font-bold">Profile</span>
         </a>
     </nav>
