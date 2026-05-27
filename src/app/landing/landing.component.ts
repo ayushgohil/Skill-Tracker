@@ -1,5 +1,5 @@
 // src/app/landing/landing.component.ts
-import { Component, signal, afterNextRender } from '@angular/core';
+import { Component, signal, afterNextRender, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -8,8 +8,9 @@ import { RouterLink } from '@angular/router';
     imports: [RouterLink],
     templateUrl: './landing.component.html'
 })
-export class LandingComponent {
+export class LandingComponent implements OnDestroy {
     isMenuOpen = signal(false);
+    private _cursorCleanup?: () => void;
 
     constructor() {
         afterNextRender(() => {
@@ -146,7 +147,131 @@ export class LandingComponent {
                     }
                 });
             }
+
+            // Cursor Follower — elements created dynamically on first mouse move
+            this._cursorCleanup = this.initCursorFollower();
         });
+    }
+
+    /**
+     * Creates cursor dot + ring dynamically. Nothing exists in the DOM until the
+     * user actually moves their mouse, so there's zero chance of a flash at (0,0).
+     */
+    private initCursorFollower(): () => void {
+        // Skip on touch devices
+        if (window.matchMedia('(hover: none)').matches) {
+            return () => {};
+        }
+
+        let dot: HTMLElement | null = null;
+        let ring: HTMLElement | null = null;
+        let created = false;
+
+        const createElements = (x: number, y: number) => {
+            // Inject styles once
+            const style = document.createElement('style');
+            style.id = 'cursor-follower-styles';
+            style.textContent = `
+                .cf-dot, .cf-ring {
+                    position: fixed;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 99999;
+                    transform: translate(-50%, -50%);
+                }
+                .cf-dot {
+                    width: 7px;
+                    height: 7px;
+                    background: #f59e0b;
+                    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+                    transition: opacity 0.3s ease;
+                }
+                .cf-ring {
+                    width: 34px;
+                    height: 34px;
+                    border: 2.5px solid rgba(245, 158, 11, 0.55);
+                    background: transparent;
+                    transition: left 0.12s ease-out, top 0.12s ease-out, opacity 0.3s ease;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Create dot
+            dot = document.createElement('div');
+            dot.className = 'cf-dot';
+            dot.style.left = x + 'px';
+            dot.style.top = y + 'px';
+            document.body.appendChild(dot);
+
+            // Create ring — already at correct position, no transition needed
+            ring = document.createElement('div');
+            ring.className = 'cf-ring';
+            ring.style.transition = 'none';
+            ring.style.left = x + 'px';
+            ring.style.top = y + 'px';
+            document.body.appendChild(ring);
+
+            // Force reflow then enable transition
+            void ring.offsetHeight;
+            ring.style.transition = '';
+
+            created = true;
+        };
+
+        const onMouseMove = (e: MouseEvent) => {
+            if (!created) {
+                createElements(e.clientX, e.clientY);
+                return;
+            }
+            if (dot) {
+                dot.style.left = e.clientX + 'px';
+                dot.style.top = e.clientY + 'px';
+            }
+            if (ring) {
+                ring.style.left = e.clientX + 'px';
+                ring.style.top = e.clientY + 'px';
+            }
+        };
+
+        const onMouseLeave = () => {
+            if (dot) dot.style.opacity = '0';
+            if (ring) ring.style.opacity = '0';
+        };
+
+        const onMouseEnter = (e: MouseEvent) => {
+            if (!created) return;
+            if (dot) {
+                dot.style.left = e.clientX + 'px';
+                dot.style.top = e.clientY + 'px';
+                dot.style.opacity = '1';
+            }
+            if (ring) {
+                ring.style.transition = 'none';
+                ring.style.left = e.clientX + 'px';
+                ring.style.top = e.clientY + 'px';
+                void ring.offsetHeight;
+                ring.style.transition = '';
+                ring.style.opacity = '1';
+            }
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseleave', onMouseLeave);
+        document.addEventListener('mouseenter', onMouseEnter);
+
+        // Return cleanup function
+        return () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseleave', onMouseLeave);
+            document.removeEventListener('mouseenter', onMouseEnter);
+            dot?.remove();
+            ring?.remove();
+            document.getElementById('cursor-follower-styles')?.remove();
+        };
+    }
+
+    ngOnDestroy() {
+        this._cursorCleanup?.();
     }
 
     toggleMenu() {
