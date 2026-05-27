@@ -20,36 +20,37 @@
             </div>
 
             <!-- Mobile hamburger button -->
-            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" (click)="toggleMenu()" [class.active]="isMenuOpen()">
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
             </button>
         </div>
 
-        <!-- Mobile drawer menu -->
-        <div class="mobile-drawer" id="mobileDrawer">
-            <div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
-            <div class="mobile-drawer-panel">
-                <div class="mobile-drawer-header">
-                    <div class="nav-logo logo-dark-badge">
-                        <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo"
-                            class="brand-logo-img mobile-brand-logo" />
-                    </div>
-                    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu">✕</button>
+    </header>
+
+    <!-- Mobile drawer menu -->
+    <div class="mobile-drawer" id="mobileDrawer" [class.open]="isMenuOpen()">
+        <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" (click)="closeMenu()"></div>
+        <div class="mobile-drawer-panel">
+            <div class="mobile-drawer-header">
+                <div class="nav-logo logo-dark-badge">
+                    <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo"
+                        class="brand-logo-img mobile-brand-logo" />
                 </div>
-                <nav class="mobile-drawer-links">
-                    <a href="#features" class="mobile-drawer-link">Features</a>
-                    <a href="#how-it-works" class="mobile-drawer-link">How It Works</a>
-                    <a href="#stats" class="mobile-drawer-link">Stats</a>
-                </nav>
-                <div class="mobile-drawer-actions">
-                    <a routerLink="/auth/login" class="btn-mobile-signin">Sign In</a>
-                    <a routerLink="/auth/register" class="btn-mobile-cta">Get Started Free</a>
-                </div>
+                <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu" (click)="closeMenu()">✕</button>
+            </div>
+            <nav class="mobile-drawer-links">
+                <a href="#features" class="mobile-drawer-link" (click)="closeMenu()">Features</a>
+                <a href="#how-it-works" class="mobile-drawer-link" (click)="closeMenu()">How It Works</a>
+                <a href="#stats" class="mobile-drawer-link" (click)="closeMenu()">Stats</a>
+            </nav>
+            <div class="mobile-drawer-actions">
+                <a routerLink="/auth/login" class="btn-mobile-signin" (click)="closeMenu()">Sign In</a>
+                <a routerLink="/auth/register" class="btn-mobile-cta" (click)="closeMenu()">Get Started Free</a>
             </div>
         </div>
-    </header>
+    </div>
 
     <!-- ===================== HERO ===================== -->
     <section class="hero-section">
@@ -711,6 +712,34 @@
         overflow-x: hidden;
     }
 
+    /* ===== PREMIUM ANIMATIONS SYSTEM ===== */
+    .reveal-item, .hero-reveal {
+        opacity: 0;
+        transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: transform, opacity;
+    }
+
+    .reveal-up, .hero-reveal.reveal-up {
+        transform: translateY(30px);
+    }
+
+    .reveal-down, .hero-reveal.reveal-down {
+        transform: translateY(-30px);
+    }
+
+    .reveal-left, .hero-reveal.reveal-left {
+        transform: translateX(-35px);
+    }
+
+    .reveal-right, .hero-reveal.reveal-right {
+        transform: translateX(35px);
+    }
+
+    .revealed {
+        opacity: 1 !important;
+        transform: translate(0) !important;
+    }
+
     .accent-text {
         color: var(--purple);
     }
@@ -720,10 +749,19 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(26, 5, 51, 0.95); /* Matches footer theme #1a0533 but translucent */
         backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         padding: 0 1.5rem;
+        transition: background-color 0.35s ease, border-color 0.35s ease, padding 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .nav-bar.nav-scrolled {
+        background: rgba(26, 5, 51, 0.98);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        border-bottom-color: rgba(255, 255, 255, 0.12);
+        padding-top: 4px;
+        padding-bottom: 4px;
     }
 
     .nav-inner {
@@ -762,7 +800,7 @@
     }
 
     .navbar-brand-logo {
-        height: 26px;
+        height: 32px;
     }
 
     .mobile-brand-logo {
@@ -780,7 +818,7 @@
     }
 
     .nav-link {
-        color: var(--text-medium);
+        color: rgba(255, 255, 255, 0.75);
         font-weight: 500;
         font-size: 0.9rem;
         text-decoration: none;
@@ -788,7 +826,7 @@
     }
 
     .nav-link:hover {
-        color: var(--purple);
+        color: #c084fc; /* Light purple violet */
     }
 
     .nav-actions {
@@ -801,12 +839,12 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        color: #7c3aed;
+        color: rgba(255, 255, 255, 0.9);
         font-weight: 700;
         font-size: 0.875rem;
         text-decoration: none;
         padding: 10px 22px;
-        border: 2px solid #7c3aed;
+        border: 2px solid rgba(255, 255, 255, 0.25);
         border-radius: 10px;
         transition: all 0.25s ease;
         background: transparent;
@@ -816,8 +854,8 @@
 
     .btn-nav-signin:hover {
         color: #ffffff;
-        background: #7c3aed;
-        box-shadow: 0 4px 16px rgba(124, 58, 237, .3);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.55);
         transform: translateY(-1px);
     }
 
@@ -2076,7 +2114,7 @@
         display: block;
         width: 24px;
         height: 2.5px;
-        background: var(--text-dark);
+        background: #ffffff;
         border-radius: 4px;
         transition: all 0.3s ease;
     }
@@ -2098,7 +2136,7 @@
         display: none;
         position: fixed;
         inset: 0;
-        z-index: 200;
+        z-index: 2000;
         pointer-events: none;
     }
 
@@ -2109,10 +2147,10 @@
     .mobile-drawer-overlay {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
+        background: rgba(10, 5, 20, 0.6);
+        backdrop-filter: blur(8px);
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.4s ease;
     }
 
     .mobile-drawer.open .mobile-drawer-overlay {
@@ -2125,13 +2163,15 @@
         right: 0;
         width: min(320px, 85vw);
         height: 100%;
-        background: white;
-        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.15);
+        background: rgba(26, 5, 51, 0.98);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
         transform: translateX(100%);
-        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         display: flex;
         flex-direction: column;
-        padding: 1.5rem;
+        padding: 2rem 1.5rem;
     }
 
     .mobile-drawer.open .mobile-drawer-panel {
@@ -2143,45 +2183,53 @@
         align-items: center;
         justify-content: space-between;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 1.5rem;
     }
 
     .mobile-drawer-close {
-        background: none;
-        border: none;
-        font-size: 1.4rem;
-        color: var(--text-medium);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
         cursor: pointer;
-        padding: 6px;
-        line-height: 1;
-        border-radius: 8px;
-        transition: background 0.2s;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.2s;
     }
 
     .mobile-drawer-close:hover {
-        background: rgba(124, 58, 237, .08);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: rotate(90deg);
     }
 
     .mobile-drawer-links {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
     }
 
     .mobile-drawer-link {
-        color: var(--text-dark);
+        color: rgba(255, 255, 255, 0.85);
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 1.05rem;
         text-decoration: none;
         padding: 12px 16px;
         border-radius: 10px;
-        transition: all 0.2s;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
     }
 
     .mobile-drawer-link:hover {
-        background: rgba(124, 58, 237, .06);
-        color: var(--purple);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--purple-light);
+        padding-left: 22px;
     }
 
     .mobile-drawer-actions {
@@ -2190,25 +2238,26 @@
         flex-direction: column;
         gap: 12px;
         padding-top: 1.5rem;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .btn-mobile-signin {
         display: block;
         text-align: center;
-        color: var(--purple);
+        color: white;
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.03);
         font-weight: 700;
         font-size: 0.95rem;
         text-decoration: none;
         padding: 12px 20px;
-        border: 2px solid var(--purple);
         border-radius: 12px;
         transition: all 0.25s;
     }
 
     .btn-mobile-signin:hover {
-        color: white;
-        background: var(--purple);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.3);
     }
 
     .btn-mobile-cta {
@@ -2470,16 +2519,16 @@
         }
 
         .float-card--streak {
-            left: -2%;
+            left: 2%;
             top: -5%;
         }
 
         .float-card--completion {
-            right: -2%;
+            right: 2%;
         }
 
         .float-card--subjects {
-            left: -2%;
+            left: 2%;
         }
 
         .stats-grid {
@@ -2558,98 +2607,3 @@
         }
     }
 </style>
-
-<script>
-    (function () {
-        /* Mini heatmap cells */
-        function makeCells(container, cols, rows) {
-            const colors = [
-                'rgba(124,58,237,.06)',
-                'rgba(124,58,237,.2)',
-                'rgba(124,58,237,.4)',
-                'rgba(124,58,237,.65)',
-                'rgba(124,58,237,.9)',
-            ];
-            const weights = [.3, .25, .22, .14, .09];
-            const total = cols * rows;
-            for (let i = 0; i < total; i++) {
-                const r = Math.random();
-                let cum = 0, level = 0;
-                for (let w = 0; w < weights.length; w++) {
-                    cum += weights[w];
-                    if (r < cum) { level = w; break; }
-                }
-                const cell = document.createElement('div');
-                cell.style.cssText = `background:${colors[level]};border-radius:2px;`;
-                container.appendChild(cell);
-            }
-        }
-
-        document.querySelectorAll('.fmh-inner').forEach(g => {
-            makeCells(g, 28, 4);
-        });
-
-        /* Scroll reveal */
-        const reveal = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-                if (e.isIntersecting) {
-                    e.target.style.opacity = '1';
-                    e.target.style.transform = 'translateY(0)';
-                    reveal.unobserve(e.target);
-                }
-            });
-        }, { threshold: 0.08 });
-
-        const revealEls = document.querySelectorAll(
-            '.feat-card-new, .step-card, .stat-card-new, .testi-card, .bv-card, .benefit-item'
-        );
-
-        revealEls.forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
-            reveal.observe(el);
-        });
-
-        /* Mobile menu toggle */
-        const menuBtn = document.getElementById('mobileMenuBtn');
-        const drawer = document.getElementById('mobileDrawer');
-        const drawerOverlay = document.getElementById('mobileDrawerOverlay');
-        const drawerClose = document.getElementById('mobileDrawerClose');
-        const drawerLinks = document.querySelectorAll('.mobile-drawer-link');
-
-        function openDrawer() {
-            drawer.classList.add('open');
-            menuBtn.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeDrawer() {
-            drawer.classList.remove('open');
-            menuBtn.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        if (menuBtn) {
-            menuBtn.addEventListener('click', function () {
-                if (drawer.classList.contains('open')) {
-                    closeDrawer();
-                } else {
-                    openDrawer();
-                }
-            });
-        }
-
-        if (drawerOverlay) {
-            drawerOverlay.addEventListener('click', closeDrawer);
-        }
-
-        if (drawerClose) {
-            drawerClose.addEventListener('click', closeDrawer);
-        }
-
-        drawerLinks.forEach(function (link) {
-            link.addEventListener('click', closeDrawer);
-        });
-    })();
-</script>

@@ -1,116 +1,228 @@
 <!-- src/app/auth/register/register.component.html -->
-<div class="flex items-center justify-center min-h-screen px-4 py-8 relative overflow-hidden text-zinc-100 font-sans selection:bg-[#00C8E8]/30 selection:text-white"
-     style="background: linear-gradient(165deg, #03001e 0%, #7303c0 50%, #ec38bc 100%);">
+<div class="flex flex-col lg:flex-row min-h-screen w-full relative overflow-y-auto text-zinc-100 font-sans selection:bg-purple-600/30 selection:text-white bg-[#06030d]">
 
-    <!-- Backdrop Canvas -->
-    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-[#00C8E8]/40 rounded-full blur-[80px] sm:blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
-        <div class="absolute top-1/3 -left-20 sm:-left-40 md:-left-60 w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] bg-[#7303c0]/50 rounded-full blur-[100px] sm:blur-[160px] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
-        <div class="absolute -bottom-20 right-1/4 w-[200px] h-[200px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] bg-[#ec38bc]/30 rounded-full blur-[80px] sm:blur-[120px] animate-pulse" style="animation-duration: 10s; animation-delay: 4s;"></div>
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] sm:bg-[size:40px_40px]"></div>
-    </div>
+    <!-- Custom animations for the premium float effect -->
+    <style>
+        @keyframes floatPerson {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes floatBadge1 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.02); }
+        }
+        @keyframes floatBadge2 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02); }
+        }
+        @keyframes floatBadge3 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.02); }
+        }
+        .animate-float-person {
+            animation: floatPerson 5s ease-in-out infinite;
+        }
+        .animate-float-badge1 {
+            animation: floatBadge1 4s ease-in-out infinite;
+        }
+        .animate-float-badge2 {
+            animation: floatBadge2 4.5s ease-in-out infinite;
+            animation-delay: 0.8s;
+        }
+        .animate-float-badge3 {
+            animation: floatBadge3 3.8s ease-in-out infinite;
+            animation-delay: 1.5s;
+        }
+    </style>
 
-    <div class="w-full max-w-xs sm:max-w-sm relative z-10">
-
-        <!-- Branding Header -->
-        <div class="flex items-center justify-center mb-6 sm:mb-8 animate-fade-in">
-            <img src="assets/nextlyr-logo.png" onerror="this.src='nextlyr-logo.png'" alt="Nextlyr Logo" class="w-36 sm:w-48 h-auto max-h-14 sm:max-h-16 object-contain" />
-        </div>
-
-        <!-- Glass Container -->
-        <div class="bg-zinc-950/40 border border-white/10 rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 shadow-2xl animate-scale-in backdrop-blur-2xl">
-            <h2 class="text-white font-extrabold text-lg sm:text-xl mb-5 sm:mb-6 tracking-wide">Create account</h2>
-
-            <!-- Alerts -->
-            @if (error()) {
-            <div class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-2xl px-4 py-3 mb-4 sm:mb-5 font-bold animate-slide-up">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                {{ error() }}
+    <!-- Left Side: Premium Brand Experience Panel (Hidden on Mobile/Tablet) -->
+    <div class="hidden lg:flex lg:w-1/2 p-10 lg:p-16 flex-col justify-between relative overflow-hidden bg-gradient-to-br from-[#0c051a] via-[#14082c] to-[#200a44] border-r border-white/5">
+        <!-- Decorative grid pattern -->
+        <div class="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        
+        <!-- Glowing background blobs inside brand panel -->
+        <div class="absolute top-[-20%] left-[-20%] w-[350px] h-[350px] bg-purple-600/20 rounded-full blur-[80px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-indigo-500/15 rounded-full blur-[80px] pointer-events-none"></div>
+        
+        <div class="relative z-10 flex flex-col h-full justify-between gap-8">
+            <!-- Brand Logo -->
+            <div class="flex items-center">
+                <img src="assets/nextlyr-logo.png" onerror="this.src='nextlyr-logo.png'" alt="Nextlyr Logo" class="h-7 w-auto object-contain" />
             </div>
-            }
+            
+            <!-- Centerpiece: Clean Circular Backdrop & Cutout with Floating Badges -->
+            <div class="flex-grow flex items-center justify-center py-6 select-none">
+                <div class="relative w-full max-w-[320px] h-[340px] flex items-end justify-center">
+                    
+                    <!-- Circular Backdrop with subtle gradient & border -->
+                    <div class="absolute bottom-0 w-[280px] h-[280px] rounded-full bg-gradient-to-b from-white/10 to-white/[0.02] border border-white/15 shadow-[inset_0_4px_30px_rgba(255,255,255,0.05)] z-0"></div>
+                    
+                    <!-- Deep backdrop purple glow -->
+                    <div class="absolute bottom-10 w-[240px] h-[240px] rounded-full bg-purple-600/15 blur-2xl z-0"></div>
+                    
+                    <!-- Student Image Cutout (sitting perfectly at the bottom) -->
+                    <img src="hero-student.png" alt="Branding Illustration" class="h-[360px] w-auto object-contain relative z-10 drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)] animate-float-person" />
+                    
+                    <!-- Floating Streak Badge -->
+                    <div class="absolute top-12 -left-8 bg-zinc-950/80 border border-white/15 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-md z-20 hover:scale-105 transition-all animate-float-badge1">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-gradient-to-tr from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/15">🔥</div>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-sm text-white leading-none">12 Day</span>
+                            <span class="text-[8px] text-zinc-500 font-bold leading-none mt-1 uppercase tracking-wider">Current Streak</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Completion Badge -->
+                    <div class="absolute top-[140px] -right-12 bg-zinc-950/80 border border-white/15 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-md z-20 hover:scale-105 transition-all animate-float-badge2">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-gradient-to-tr from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-600/15">✓</div>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-sm text-white leading-none">74%</span>
+                            <span class="text-[8px] text-zinc-500 font-bold leading-none mt-1 uppercase tracking-wider">Completion</span>
+                        </div>
+                    </div>
 
-            @if (success()) {
-            <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-2xl px-4 py-3 animate-slide-up font-bold mb-4 sm:mb-5">
-                🎉 Account created! Check your email to confirm, then
-                <a routerLink="/auth/login" class="underline text-[#00C8E8] hover:text-[#00C8E8]/80">sign in</a>.
-            </div>
-            }
-
-            <!-- Google Auth -->
-            <button (click)="loginWithGoogle()" [disabled]="googleLoading() || loading()"
-                class="w-full h-12 min-h-[48px] flex items-center justify-center gap-3 rounded-2xl px-4 text-sm font-bold text-white border border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all mb-4 sm:mb-5 touch-manipulation">
-                @if (googleLoading()) {
-                <svg class="w-4 h-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                </svg>
-                Connecting...
-                } @else {
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-                }
-            </button>
-
-            <!-- Divider -->
-            <div class="flex items-center gap-3 mb-4 sm:mb-5">
-                <div class="flex-1 h-px bg-white/10"></div>
-                <span class="text-zinc-400 text-[10px] sm:text-xs font-bold uppercase tracking-wide">or sign up with email</span>
-                <div class="flex-1 h-px bg-white/10"></div>
-            </div>
-
-            <!-- Fields -->
-            <div class="space-y-3 sm:space-y-4">
-                <div>
-                    <label class="text-zinc-300 text-[10px] sm:text-xs font-bold uppercase tracking-wide block mb-1.5">Email</label>
-                    <input [(ngModel)]="email" type="email" placeholder="you@example.com"
-                           class="w-full h-12 min-h-[48px] px-4 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium outline-none focus:border-[#00C8E8] focus:bg-white/10 transition-all" />
-                </div>
-
-                <div>
-                    <label class="text-zinc-300 text-[10px] sm:text-xs font-bold uppercase tracking-wide block mb-1.5">Password</label>
-                    <div class="relative">
-                        <input [(ngModel)]="password"
-                            [type]="showPassword() ? 'text' : 'password'"
-                            placeholder="••••••••"
-                            (keydown.enter)="submit()"
-                            class="w-full h-12 min-h-[48px] px-4 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium outline-none focus:border-[#00C8E8] focus:bg-white/10 transition-all pr-11" />
-                        <button type="button" (click)="showPassword.update(v => !v)"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center touch-manipulation"
-                            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-                            @if (showPassword()) {
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                            </svg>
-                            } @else {
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            }
-                        </button>
+                    <!-- Floating Skills Badge -->
+                    <div class="absolute bottom-8 -left-12 bg-zinc-950/80 border border-white/15 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-md z-20 hover:scale-105 transition-all animate-float-badge3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-gradient-to-tr from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/15">📚</div>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-sm text-white leading-none">6 Skills</span>
+                            <span class="text-[8px] text-zinc-500 font-bold leading-none mt-1 uppercase tracking-wider">Being Tracked</span>
+                        </div>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Branding Text Copy -->
+            <div class="max-w-md">
+                <h3 class="text-white text-lg lg:text-xl font-black leading-snug tracking-tight">Develop your skills in a new & unique way</h3>
+                <p class="text-zinc-400 text-xs lg:text-sm mt-2 leading-relaxed font-medium">
+                    A high-performance skill cockpit with Pomodoro deep work sessions, custom dashboards, and daily tracking.
+                </p>
+            </div>
+        </div>
+    </div>
 
-                <button (click)="submit()" [disabled]="loading() || googleLoading()"
-                        class="w-full h-12 min-h-[48px] bg-white hover:bg-zinc-100 text-[#03001e] text-sm font-bold rounded-2xl transition-all flex items-center justify-center shadow-xl mt-3 sm:mt-4 active:scale-[0.98] disabled:opacity-50 touch-manipulation">
-                    {{ loading() ? 'Creating...' : 'Create account' }}
-                </button>
+    <!-- Right Side: Ultra-Clean Auth Form Panel -->
+    <div class="w-full lg:w-1/2 p-4 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-gradient-to-br from-[#070312] via-[#0b051d] to-[#120727] relative min-h-screen overflow-y-auto">
+        
+        <!-- Glowing background blobs inside right panel -->
+        <div class="absolute top-[10%] right-[10%] w-[300px] h-[300px] bg-purple-600/10 rounded-full blur-[90px] pointer-events-none"></div>
+        <div class="absolute bottom-[10%] left-[10%] w-[250px] h-[250px] bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <!-- Back to Website Link (Top Right) -->
+        <a routerLink="/" class="absolute top-8 right-8 flex items-center gap-2 text-zinc-400 hover:text-white text-xs font-bold transition-all hover:translate-x-[-2px]">
+            <span>←</span>
+            <span>Back to website</span>
+        </a>
+
+        <!-- Background grid details for right panel -->
+        <div class="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
+
+        <!-- Wrapper to center the card -->
+        <div class="w-full max-w-[420px] mx-auto relative z-10 my-auto">
+            <!-- Mobile Logo Header (Visible on Mobile/Tablet only) -->
+            <div class="flex items-center justify-center mb-8 lg:hidden">
+                <img src="assets/nextlyr-logo.png" onerror="this.src='nextlyr-logo.png'" alt="Nextlyr Logo" class="h-7 w-auto object-contain" />
             </div>
 
-            <!-- Alternate Gate -->
-            <p class="text-zinc-400 text-sm text-center mt-5 sm:mt-6 font-medium">
-                Already have an account?
-                <a routerLink="/auth/login" class="text-[#00C8E8] hover:underline font-bold transition-colors ml-1">
-                    Sign in
-                </a>
-            </p>
+            <!-- Glass Card Container -->
+            <div class="bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                
+                <!-- Form Title -->
+                <h2 class="text-white text-2xl sm:text-3xl font-black tracking-tight mb-1">Create account</h2>
+                <p class="text-zinc-400 text-xs sm:text-sm font-medium mb-8">Start tracking your compound growth today.</p>
+
+                <!-- Alerts -->
+                @if (error()) {
+                <div class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm rounded-xl px-4 py-3 mb-6 font-bold animate-slide-up">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    {{ error() }}
+                </div>
+                }
+
+                @if (success()) {
+                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs sm:text-sm rounded-xl px-4 py-3 animate-slide-up font-bold mb-6">
+                    🎉 Account created! Check your email to confirm, then
+                    <a routerLink="/auth/login" class="underline text-purple-400 hover:text-purple-300 font-bold">sign in</a>.
+                </div>
+                }
+
+                <!-- Google Authentication Button -->
+                <button (click)="loginWithGoogle()" [disabled]="googleLoading() || loading()"
+                    class="w-full h-11 flex items-center justify-center gap-3 rounded-xl px-4 text-xs font-bold text-white border border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all mb-6 touch-manipulation">
+                    @if (googleLoading()) {
+                    <svg class="w-4 h-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                    Connecting...
+                    } @else {
+                    <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                    }
+                </button>
+
+                <!-- Separator -->
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex-1 h-[1px] bg-white/10"></div>
+                    <span class="text-zinc-500 text-[9px] font-bold uppercase tracking-widest">or sign up with email</span>
+                    <div class="flex-1 h-[1px] bg-white/10"></div>
+                </div>
+
+                <!-- Auth Fields -->
+                <div class="space-y-5">
+                    <div>
+                        <label class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest block mb-2">Email address</label>
+                        <input [(ngModel)]="email" type="email" placeholder="you@example.com"
+                               class="w-full h-11 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 text-white text-sm font-medium outline-none focus:border-purple-500 focus:bg-white/[0.06] focus:ring-4 focus:ring-purple-500/10 transition-all placeholder-zinc-600" />
+                    </div>
+
+                    <div>
+                        <label class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest block mb-2">Password</label>
+                        <div class="relative">
+                            <input [(ngModel)]="password"
+                                [type]="showPassword() ? 'text' : 'password'"
+                                placeholder="••••••••"
+                                (keydown.enter)="submit()"
+                                class="w-full h-11 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 text-white text-sm font-medium outline-none focus:border-purple-500 focus:bg-white/[0.06] focus:ring-4 focus:ring-purple-500/10 transition-all pr-11 placeholder-zinc-700" />
+                            <button type="button" (click)="showPassword.update(v => !v)"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors w-8 h-8 flex items-center justify-center touch-manipulation"
+                                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                                @if (showPassword()) {
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                                } @else {
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                }
+                            </button>
+                        </div>
+                    </div>
+
+                    <button (click)="submit()" [disabled]="loading() || googleLoading()"
+                            class="w-full h-11 bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center shadow-lg shadow-purple-600/25 mt-4 active:scale-[0.98] disabled:opacity-50 touch-manipulation">
+                        {{ loading() ? 'Creating...' : 'Create account' }}
+                    </button>
+                </div>
+
+                <!-- Login Redirect Link -->
+                <p class="text-zinc-400 text-xs sm:text-sm text-center mt-8 font-medium">
+                    Already have an account?
+                    <a routerLink="/auth/login" class="text-purple-400 hover:text-purple-300 font-bold hover:underline transition-colors ml-1">
+                        Sign in
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
 </div>
