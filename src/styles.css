@@ -47,6 +47,21 @@ body {
   --r-lg:  16px;
   --r-xl:  20px;
   --r-2xl: 24px;
+
+  /* Landing page tokens */
+  --purple: #7c3aed;
+  --purple-light: #a855f7;
+  --purple-pale: #ede9fe;
+  --pink: #ec4899;
+  --gold: #f59e0b;
+  --teal: #14b8a6;
+  --white: #ffffff;
+  --off-white: #f9f5ff;
+  --text-dark: #1a0533;
+  --text-medium: #4b2d7a;
+  --text-light: #7c6a9a;
+  --card-bg: #ffffff;
+  --section-bg: #f9f5ff;
 }
 
 /* ── Page ────────────────────────────────────────── */

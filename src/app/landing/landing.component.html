@@ -1,664 +1,957 @@
 <!-- src/app/landing/landing.component.html -->
-<main
-    class="relative min-h-screen overflow-hidden text-zinc-100 font-sans selection:bg-[#00C8E8]/30 selection:text-white"
-    style="background: linear-gradient(165deg, #03001e 0%, #7303c0 50%, #ec38bc 100%);">
-
-    <!-- ===================== BACKDROP ===================== -->
-    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-        <div class="orb orb-4"></div>
-        <div class="absolute inset-0"
-            style="background-image: linear-gradient(to right,rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.04) 1px,transparent 1px); background-size:40px 40px;">
-        </div>
-        <!-- floating particles -->
-        <div class="particle" style="left:12%;top:22%;animation-delay:0s;"></div>
-        <div class="particle" style="left:30%;top:60%;animation-delay:1.5s;"></div>
-        <div class="particle" style="left:55%;top:15%;animation-delay:3s;"></div>
-        <div class="particle" style="left:72%;top:75%;animation-delay:0.8s;"></div>
-        <div class="particle" style="left:88%;top:35%;animation-delay:2.2s;"></div>
-        <div class="particle" style="left:45%;top:85%;animation-delay:4s;"></div>
-    </div>
+<main class="landing-root">
 
     <!-- ===================== NAV ===================== -->
-    <header
-        class="relative z-30 border-b border-white/[0.08] bg-black/20 backdrop-blur-2xl px-4 sm:px-6 py-4 slide-down">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                        <rect width="32" height="32" rx="8" fill="url(#logoGrad)" />
-                        <path d="M8 22L14 12L18 18L21 14L26 22" stroke="white" stroke-width="2.2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <circle cx="14" cy="12" r="1.5" fill="white" />
-                        <circle cx="18" cy="18" r="1.5" fill="white" />
-                        <circle cx="21" cy="14" r="1.5" fill="white" />
-                        <defs>
-                            <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
-                                <stop offset="0%" stop-color="#00C8E8" />
-                                <stop offset="100%" stop-color="#7303c0" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-                <span class="text-white font-bold text-lg tracking-tight">Skill<span
-                        class="text-[#00C8E8]">Tracker</span></span>
+    <header class="nav-bar">
+        <div class="nav-inner">
+            <div class="nav-logo">
+                <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo" class="brand-logo-img navbar-brand-logo" />
             </div>
 
-            <nav class="hidden md:flex items-center gap-8">
+            <nav class="nav-links" id="navLinks">
                 <a href="#features" class="nav-link">Features</a>
-                <a href="#workflow" class="nav-link">How it works</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="#stats" class="nav-link">Stats</a>
             </nav>
 
-            <div class="flex items-center gap-3">
-                <a routerLink="/auth/login"
-                    class="text-zinc-300 hover:text-white text-xs sm:text-sm font-semibold tracking-wide transition-all hidden sm:inline">Sign
-                    In</a>
-                <a routerLink="/auth/register" class="btn-primary text-xs sm:text-sm">
-                    <span>Get Started</span>
-                    <svg viewBox="0 0 16 16" fill="none" class="w-3.5 h-3.5">
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </a>
+            <div class="nav-actions">
+                <a routerLink="/auth/login" class="btn-nav-signin">Sign In</a>
+                <a routerLink="/auth/register" class="btn-nav-cta">Get Started Free</a>
+            </div>
+
+            <!-- Mobile hamburger button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <!-- Mobile drawer menu -->
+        <div class="mobile-drawer" id="mobileDrawer">
+            <div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
+            <div class="mobile-drawer-panel">
+                <div class="mobile-drawer-header">
+                    <div class="nav-logo logo-dark-badge">
+                        <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo"
+                            class="brand-logo-img mobile-brand-logo" />
+                    </div>
+                    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu">✕</button>
+                </div>
+                <nav class="mobile-drawer-links">
+                    <a href="#features" class="mobile-drawer-link">Features</a>
+                    <a href="#how-it-works" class="mobile-drawer-link">How It Works</a>
+                    <a href="#stats" class="mobile-drawer-link">Stats</a>
+                </nav>
+                <div class="mobile-drawer-actions">
+                    <a routerLink="/auth/login" class="btn-mobile-signin">Sign In</a>
+                    <a routerLink="/auth/register" class="btn-mobile-cta">Get Started Free</a>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- ===================== HERO ===================== -->
-    <section class="relative z-20 px-4 sm:px-6 pt-20 sm:pt-28 pb-16 sm:pb-24 flex flex-col items-center text-center">
-        <div class="max-w-4xl mx-auto">
-            <div class="pill fade-up" style="animation-delay:.1s">
-                <span class="pill-dot"></span>
-                Nextlyr · Skill Tracker
-            </div>
+    <section class="hero-section">
+        <div class="hero-bg-blobs">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
 
-            <h1 class="fade-up hero-title" style="animation-delay:.2s">
-                Track what you learn.<br>
-                <span class="gradient-text">Own your compound growth.</span>
-            </h1>
+        <div class="hero-inner">
+            <!-- Left Content -->
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    Nextlyr · Skill Tracker
+                </div>
 
-            <p class="fade-up text-zinc-300/80 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed mt-5"
-                style="animation-delay:.3s">
-                A high-performance skill cockpit with GitHub-style heatmaps, Pomodoro deep work sessions, and
-                hierarchical habit tracking — built for learners who take their craft seriously.
-            </p>
+                <h1 class="hero-heading">
+                    Develop your skills<br>
+                    in a <span class="hero-highlight">new &amp; unique</span> way
+                </h1>
 
-            <div class="fade-up flex flex-col sm:flex-row items-center justify-center gap-3 mt-8"
-                style="animation-delay:.4s">
-                <a routerLink="/auth/register" class="btn-hero-primary w-full sm:w-auto">
-                    <svg viewBox="0 0 20 20" fill="none" class="w-4 h-4">
-                        <path d="M10 2v16M2 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    Start for Free
-                </a>
-                <a routerLink="/auth/login" class="btn-hero-ghost w-full sm:w-auto">
-                    Sign In →
-                </a>
-            </div>
+                <p class="hero-subtext">
+                    A high-performance skill cockpit with GitHub-style heatmaps, Pomodoro deep work sessions, and
+                    hierarchical habit tracking — built for learners who take their craft seriously.
+                </p>
 
-            <div class="fade-up flex flex-wrap items-center justify-center gap-6 mt-10 text-zinc-400/60 text-[11px] tracking-widest uppercase font-semibold"
-                style="animation-delay:.5s">
-                <span class="flex items-center gap-1.5"><span
-                        class="w-1 h-1 rounded-full bg-[#00C8E8] inline-block"></span>No complexity</span>
-                <span class="flex items-center gap-1.5"><span
-                        class="w-1 h-1 rounded-full bg-[#ec38bc] inline-block"></span>Full visibility</span>
-                <span class="flex items-center gap-1.5"><span
-                        class="w-1 h-1 rounded-full bg-[#ffd700] inline-block"></span>Scalable tracking</span>
-            </div>
+                <div class="hero-actions">
+                    <a routerLink="/auth/register" id="hero-start-btn" class="btn-primary-hero">
+                        Start for Free
+                    </a>
+                    <a routerLink="/auth/login" class="btn-ghost-hero">
+                        <span class="play-icon">▶</span> View Demo
+                    </a>
+                </div>
 
-            <!-- Hero preview card -->
-            <div class="fade-up mt-14 relative" style="animation-delay:.6s">
-                <div class="hero-card">
-                    <div class="hero-card-inner">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-[#00C8E8]"></div>
-                                <span class="text-xs text-zinc-400 font-medium">Consistency — Last 12 weeks</span>
-                            </div>
-                            <span class="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">Angular ·
-                                TypeScript</span>
-                        </div>
-                        <div class="heatmap-grid">
-                            <!-- Generated heatmap cells -->
-                        </div>
-                        <div class="flex justify-between mt-3">
-                            <span class="text-[10px] text-zinc-600">12 weeks ago</span>
-                            <span class="text-[10px] text-zinc-600">Today</span>
-                        </div>
+                <!-- Trust Badges -->
+                <div class="hero-trust">
+                    <div class="trust-item">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <path d="M13 3L6.5 10 3 6.5" stroke="#a855f7" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        No credit card needed
                     </div>
-
-                    <div class="hero-card-row">
-                        <div class="stat-mini">
-                            <span class="stat-mini-val">84</span>
-                            <span class="stat-mini-label">Days active</span>
-                        </div>
-                        <div class="stat-mini">
-                            <span class="stat-mini-val text-[#ec38bc]">12</span>
-                            <span class="stat-mini-label">Day streak</span>
-                        </div>
-                        <div class="stat-mini">
-                            <span class="stat-mini-val text-[#ffd700]">6</span>
-                            <span class="stat-mini-label">Subjects</span>
-                        </div>
-                        <div class="stat-mini">
-                            <span class="stat-mini-val text-[#00C8E8]">74%</span>
-                            <span class="stat-mini-label">Completion</span>
-                        </div>
+                    <div class="trust-item">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <path d="M13 3L6.5 10 3 6.5" stroke="#a855f7" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        Free forever
                     </div>
                 </div>
-                <!-- glow behind card -->
-                <div class="absolute inset-x-8 bottom-0 h-24 bg-[#7303c0]/30 blur-3xl -z-10 rounded-full"></div>
+            </div>
+
+            <!-- Right: Person Image -->
+            <div class="hero-image-wrap">
+                <div class="hero-image-bg-circle"></div>
+                <img src="hero-student.png" alt="Student with laptop" class="hero-person-img" />
+
+                <!-- Floating stat cards -->
+                <div class="float-card float-card--streak">
+                    <div class="float-card-icon" style="background:#fbbf24; color:#fff;">🔥</div>
+                    <div>
+                        <div class="float-card-val">12 Day</div>
+                        <div class="float-card-lbl">Current Streak</div>
+                    </div>
+                </div>
+
+                <div class="float-card float-card--completion">
+                    <div class="float-card-icon" style="background:#a855f7; color:#fff;">✓</div>
+                    <div>
+                        <div class="float-card-val">74%</div>
+                        <div class="float-card-lbl">Completion Rate</div>
+                    </div>
+                </div>
+
+                <div class="float-card float-card--subjects">
+                    <div class="float-card-icon" style="background:#ec4899; color:#fff;">📚</div>
+                    <div>
+                        <div class="float-card-val">6 Skills</div>
+                        <div class="float-card-lbl">Being Tracked</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ===================== FEATURES ===================== -->
-    <section id="features" class="relative z-20 py-20 px-4 sm:px-6 border-t border-white/[0.06]">
-        <div class="max-w-5xl mx-auto">
-            <div class="section-label">Core features</div>
-            <h2 class="section-title">Everything you need to grow</h2>
-            <p class="section-sub">Built for learners who take their progress seriously.</p>
+    <!-- ===================== LOGOS STRIP ===================== -->
+    <!-- <div class="logos-strip">
+    <div class="logos-inner">
+      <span class="logos-label">Trusted by learners studying at</span>
+      <div class="logos-row">
+        <div class="logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#a855f7" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/></svg>
+          Angular
+        </div>
+        <div class="logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#7c3aed" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg>
+          TypeScript
+        </div>
+        <div class="logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ec4899" stroke-width="2" stroke-linecap="round"/></svg>
+          Supabase
+        </div>
+        <div class="logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#8b5cf6" stroke-width="2"/><path d="M12 7v5l3 3" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/></svg>
+          Pomodoro
+        </div>
+        <div class="logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#a855f7" stroke-width="2"/><path d="M3 9h18M9 21V9" stroke="#a855f7" stroke-width="2"/></svg>
+          Heatmaps
+        </div>
+      </div>
+    </div>
+  </div> -->
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
+    <!-- ===================== BENEFITS ===================== -->
+    <section class="benefits-section">
+        <div class="section-inner-split">
 
-                <!-- Card 1: Heatmap -->
-                <div class="feat-card feat-card--cyan">
-                    <div class="feat-icon" style="background:rgba(0,200,232,.12)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#00C8E8" stroke-width="1.6" class="w-5 h-5">
-                            <rect x="3" y="4" width="18" height="18" rx="2" />
-                            <path d="M3 9h18M9 21V9" />
-                        </svg>
+            <!-- Left: Visual people grid -->
+            <div class="benefits-visual">
+                <div class="bv-grid">
+                    <div class="bv-card bv-card--purple">
+                        <div class="bv-avatar" style="background: linear-gradient(135deg,#a855f7,#7c3aed)">
+                            <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+                                <circle cx="16" cy="10" r="5" stroke="white" stroke-width="2" />
+                                <path d="M5 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="bv-name">Priya S.</div>
+                        <div class="bv-role">CS Student</div>
+                        <div class="bv-stat">84 days active</div>
                     </div>
-                    <h3 class="feat-title">Consistency Heatmap</h3>
-                    <p class="feat-body">GitHub-style activity grid to visualise daily effort and maintain long-term
-                        streaks. One glance tells you everything.</p>
-                    <div class="mini-heatmap">
-                        <div class="mini-heatmap-inner"></div>
+                    <div class="bv-card bv-card--pink">
+                        <div class="bv-avatar" style="background: linear-gradient(135deg,#ec4899,#be185d)">
+                            <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+                                <circle cx="16" cy="10" r="5" stroke="white" stroke-width="2" />
+                                <path d="M5 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="bv-name">Arjun M.</div>
+                        <div class="bv-role">Engineering</div>
+                        <div class="bv-stat">120 hrs tracked</div>
+                    </div>
+                    <div class="bv-card bv-card--gold">
+                        <div class="bv-avatar" style="background: linear-gradient(135deg,#f59e0b,#d97706)">
+                            <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+                                <circle cx="16" cy="10" r="5" stroke="white" stroke-width="2" />
+                                <path d="M5 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="bv-name">Diya R.</div>
+                        <div class="bv-role">Design</div>
+                        <div class="bv-stat">6 subjects</div>
+                    </div>
+                    <div class="bv-card bv-card--teal">
+                        <div class="bv-avatar" style="background: linear-gradient(135deg,#14b8a6,#0d9488)">
+                            <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+                                <circle cx="16" cy="10" r="5" stroke="white" stroke-width="2" />
+                                <path d="M5 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="bv-name">Karan T.</div>
+                        <div class="bv-role">Data Science</div>
+                        <div class="bv-stat">3-tier tracking</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Card 2: Pomodoro -->
-                <div class="feat-card feat-card--pink">
-                    <div class="feat-icon" style="background:rgba(236,56,188,.12)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#ec38bc" stroke-width="1.6" class="w-5 h-5">
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M12 7v5l3 3" />
-                        </svg>
-                    </div>
-                    <h3 class="feat-title">Pomodoro Engine</h3>
-                    <p class="feat-body">Integrated deep work timer. Manage focus sessions without leaving your tracker.
-                        Focus is your superpower.</p>
-                    <div class="pomodoro-ring">
-                        <svg viewBox="0 0 80 80" class="w-16 h-16 mx-auto mt-3">
-                            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(236,56,188,.15)" stroke-width="6" />
-                            <circle cx="40" cy="40" r="34" fill="none" stroke="#ec38bc" stroke-width="6"
-                                stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="60"
-                                transform="rotate(-90 40 40)" />
-                            <text x="40" y="44" text-anchor="middle" fill="#ec38bc" font-size="13" font-weight="600"
-                                font-family="sans-serif">18:32</text>
-                        </svg>
-                    </div>
-                </div>
+            <!-- Right: Benefits list -->
+            <div class="benefits-content">
+                <div class="section-badge">Benefits</div>
+                <h2 class="section-heading">Why <span class="accent-text">SkillTracker</span><br>changes everything</h2>
+                <p class="section-subtext">Unlike generic tools, SkillTracker is purpose-built for serious learners.
+                    Every feature compounds your growth.</p>
 
-                <!-- Card 3: Hierarchy -->
-                <div class="feat-card feat-card--gold">
-                    <div class="feat-icon" style="background:rgba(255,215,0,.1)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.6" class="w-5 h-5">
-                            <path d="M3 7h18M6 12h12M9 17h6" />
-                        </svg>
-                    </div>
-                    <h3 class="feat-title">Hierarchical Tracking</h3>
-                    <p class="feat-body">Subjects → Topics → Subtopics. Recursive parent completions aggregate instantly
-                        so nothing is missed.</p>
-                    <div class="tree-preview">
-                        <div class="tree-item tree-item--root">
-                            <span class="tree-dot" style="background:#ffd700"></span>Computer Science
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:rgba(168,85,247,.15); color:#a855f7">
+                            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor"
+                                    stroke-width="1.8" />
+                                <path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8" />
+                            </svg>
                         </div>
-                        <div class="tree-item tree-item--l1">
-                            <span class="tree-dot" style="background:#00C8E8"></span>Data Structures
-                        </div>
-                        <div class="tree-item tree-item--l2">
-                            <span class="tree-dot" style="background:#ec38bc"></span>Binary Trees
-                        </div>
-                        <div class="tree-item tree-item--l2 opacity-50">
-                            <span class="tree-dot" style="background:#6b7280"></span>Graphs
+                        <div>
+                            <div class="benefit-title">GitHub-style Heatmaps</div>
+                            <div class="benefit-desc">Visualize 365 days of learning activity. One glance tells you
+                                everything about your consistency.</div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Card 4: Weekly Insights -->
-                <div class="feat-card feat-card--purple sm:col-span-2 lg:col-span-1">
-                    <div class="feat-icon" style="background:rgba(115,3,192,.18)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.6" class="w-5 h-5">
-                            <path
-                                d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94" />
-                        </svg>
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:rgba(236,72,153,.15); color:#ec4899">
+                            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+                                <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Pomodoro Deep Work</div>
+                            <div class="benefit-desc">Built-in focus sessions that auto-log to your tracker. Work
+                                smarter, not harder.</div>
+                        </div>
                     </div>
-                    <h3 class="feat-title">Weekly Insights</h3>
-                    <p class="feat-body">Review performance patterns over time. Understand your rhythm and optimise your
-                        schedule.</p>
-                    <div class="mini-bar-chart">
-                        <div class="bar-wrap" style="--h:40%">
-                            <div class="bar" style="background:#7303c0"></div><span class="bar-label">Mon</span>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:rgba(245,158,11,.12); color:#f59e0b">
+                            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                                <path d="M3 7h18M6 12h12M9 17h6" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" />
+                            </svg>
                         </div>
-                        <div class="bar-wrap" style="--h:75%">
-                            <div class="bar" style="background:#9333ea"></div><span class="bar-label">Tue</span>
+                        <div>
+                            <div class="benefit-title">3-Tier Skill Hierarchy</div>
+                            <div class="benefit-desc">Subjects → Topics → Subtopics. Recursive progress aggregates
+                                automatically up the tree.</div>
                         </div>
-                        <div class="bar-wrap" style="--h:55%">
-                            <div class="bar" style="background:#7303c0"></div><span class="bar-label">Wed</span>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon" style="background:rgba(20,184,166,.12); color:#14b8a6">
+                            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                                <path
+                                    d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94"
+                                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                            </svg>
                         </div>
-                        <div class="bar-wrap" style="--h:90%">
-                            <div class="bar" style="background:#c084fc"></div><span class="bar-label">Thu</span>
-                        </div>
-                        <div class="bar-wrap" style="--h:65%">
-                            <div class="bar" style="background:#7303c0"></div><span class="bar-label">Fri</span>
-                        </div>
-                        <div class="bar-wrap" style="--h:30%">
-                            <div class="bar" style="background:#9333ea"></div><span class="bar-label">Sat</span>
-                        </div>
-                        <div class="bar-wrap" style="--h:50%">
-                            <div class="bar" style="background:#7303c0"></div><span class="bar-label">Sun</span>
+                        <div>
+                            <div class="benefit-title">150+ Learning Sessions</div>
+                            <div class="benefit-desc">Unlimited skills, unlimited sessions. Scale your tracking as you
+                                grow your knowledge base.</div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Card 5: Notes -->
-                <div class="feat-card feat-card--teal">
-                    <div class="feat-icon" style="background:rgba(0,200,232,.08)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.6" class="w-5 h-5">
-                            <path
-                                d="M9 12h6M9 16h6M17 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2z" />
-                        </svg>
-                    </div>
-                    <h3 class="feat-title">Secure Notes</h3>
-                    <p class="feat-body">Archive learning notes directly against subtopics. Contextual knowledge stays
-                        where you need it.</p>
-                    <div class="note-preview">
-                        <div class="note-line w-full"></div>
-                        <div class="note-line w-4/5"></div>
-                        <div class="note-line w-3/5 mt-2"></div>
-                    </div>
-                </div>
-
-                <!-- Card 6: Auth / Account -->
-                <div class="feat-card feat-card--default">
-                    <div class="feat-icon" style="background:rgba(255,255,255,.07)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" class="w-5 h-5">
-                            <path
-                                d="M15 3a4 4 0 010 8M12 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M15 11c2.21 0 4-1.79 4-4S17.21 3 15 3" />
-                            <circle cx="9" cy="7" r="4" />
-                        </svg>
-                    </div>
-                    <h3 class="feat-title">Your account, your data</h3>
-                    <p class="feat-body">Supabase-powered auth. Delete your account and all data via one-click Edge
-                        Function. Full control.</p>
-                    <div class="flex gap-2 mt-4">
-                        <span class="tag">Supabase Auth</span>
-                        <span class="tag">RLS policies</span>
-                    </div>
-                </div>
-
             </div>
         </div>
     </section>
 
     <!-- ===================== HOW IT WORKS ===================== -->
-    <section id="workflow"
-        class="relative z-20 py-20 px-4 sm:px-6 border-t border-white/[0.06] bg-black/25 backdrop-blur-sm">
-        <div class="max-w-4xl mx-auto">
-            <div class="section-label">How it works</div>
-            <h2 class="section-title">From zero to mastery in 3 steps</h2>
-            <p class="section-sub">Simple setup. Deep tracking.</p>
+    <section id="how-it-works" class="steps-section">
+        <div class="steps-bg"></div>
+        <div class="section-inner">
+            <div class="section-badge text-center-badge">How It Works</div>
+            <h2 class="section-heading text-center-h">From zero to mastery in <span class="accent-text">3 steps</span>
+            </h2>
+            <p class="section-subtext text-center-p">Simple setup. Deep tracking. Compound results.</p>
 
-            <div class="steps-grid mt-12">
-                <div class="step">
-                    <div class="step-num">01</div>
-                    <div class="step-body">
-                        <h3 class="step-title">Create your subjects</h3>
-                        <p class="step-desc">Add any skill domain — programming, design, music, languages. Break each
-                            into topics and granular subtopics.</p>
+            <div class="steps-row">
+                <div class="step-card" id="step-card-1">
+                    <div class="step-number" style="background:linear-gradient(135deg,#a855f7,#7c3aed)">01</div>
+                    <div class="step-icon-circle" style="background:rgba(168,85,247,.1)">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14" stroke="#a855f7" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Create Your Subjects</h3>
+                    <p class="step-desc">Add any skill domain — programming, design, music, languages. Break each into
+                        topics and granular subtopics to track precisely.</p>
+                    <div class="step-tag">Subject → Topic → Subtopic</div>
+                </div>
+
+                <div class="step-arrow">
+                    <svg width="40" height="40" fill="none" viewBox="0 0 24 24">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="#a855f7" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+
+                <div class="step-card" id="step-card-2">
+                    <div class="step-number" style="background:linear-gradient(135deg,#ec4899,#be185d)">02</div>
+                    <div class="step-icon-circle" style="background:rgba(236,72,153,.1)">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" stroke="#ec4899" stroke-width="2" />
+                            <path d="M12 7v5l3 3" stroke="#ec4899" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Log Your Sessions</h3>
+                    <p class="step-desc">Mark subtopics complete as you study. Fire up the Pomodoro timer for deep work.
+                        Every session auto-logs to your activity heatmap.</p>
+                    <div class="step-tag"
+                        style="background:rgba(236,72,153,.1); color:#ec4899; border-color:rgba(236,72,153,.3)">25-min
+                        Focus Blocks</div>
+                </div>
+
+                <div class="step-arrow">
+                    <svg width="40" height="40" fill="none" viewBox="0 0 24 24">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="#a855f7" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+
+                <div class="step-card" id="step-card-3">
+                    <div class="step-number" style="background:linear-gradient(135deg,#f59e0b,#d97706)">03</div>
+                    <div class="step-icon-circle" style="background:rgba(245,158,11,.1)">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <path
+                                d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94"
+                                stroke="#f59e0b" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Watch Compound Growth</h3>
+                    <p class="step-desc">Review weekly insights, maintain streaks, and watch completion percentages
+                        climb. Consistency compounds over time.</p>
+                    <div class="step-tag"
+                        style="background:rgba(245,158,11,.1); color:#f59e0b; border-color:rgba(245,158,11,.3)">Weekly
+                        Reports</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FEATURES ===================== -->
+    <section id="features" class="features-section">
+        <div class="section-inner">
+            <div class="section-badge text-center-badge">Core Features</div>
+            <h2 class="section-heading text-center-h">Our <span class="accent-text">Popular</span> Tracking Features
+            </h2>
+            <p class="section-subtext text-center-p">Everything built for learners who take their progress seriously.
+            </p>
+
+            <div class="features-grid">
+
+                <!-- Feature 1 -->
+                <div class="feat-card-new" id="feat-heatmap">
+                    <div class="feat-top-bar" style="background: linear-gradient(135deg,#7c3aed,#a855f7)"></div>
+                    <div class="feat-card-inner">
+                        <div class="feat-badge" style="color:#a855f7; background:rgba(168,85,247,.1)">Heatmap</div>
+                        <h3 class="feat-title-new">Consistency Heatmap</h3>
+                        <p class="feat-desc-new">GitHub-style activity grid to visualize daily effort and maintain
+                            long-term streaks.</p>
+                        <div class="feat-price-row">
+                            <span class="feat-stat">365</span>
+                            <span class="feat-stat-label">Days of History</span>
+                        </div>
+                        <div class="feat-mini-heatmap">
+                            <div class="fmh-inner"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="step-connector"></div>
-                <div class="step">
-                    <div class="step-num" style="border-color:#ec38bc; color:#ec38bc">02</div>
-                    <div class="step-body">
-                        <h3 class="step-title">Log your sessions</h3>
-                        <p class="step-desc">Mark subtopics complete as you study. Fire up the Pomodoro timer for deep
-                            work. Every session logs to your activity heatmap.</p>
+
+                <!-- Feature 2 -->
+                <div class="feat-card-new" id="feat-pomodoro">
+                    <div class="feat-top-bar" style="background: linear-gradient(135deg,#be185d,#ec4899)"></div>
+                    <div class="feat-card-inner">
+                        <div class="feat-badge" style="color:#ec4899; background:rgba(236,72,153,.1)">Timer</div>
+                        <h3 class="feat-title-new">Pomodoro Engine</h3>
+                        <p class="feat-desc-new">Integrated deep work timer. Manage focus sessions without leaving your
+                            tracker.</p>
+                        <div class="feat-price-row">
+                            <span class="feat-stat">25:00</span>
+                            <span class="feat-stat-label">Default Session</span>
+                        </div>
+                        <div class="pomo-ring-wrap">
+                            <svg viewBox="0 0 80 80" width="64" height="64">
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(236,72,153,.15)"
+                                    stroke-width="6" />
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#ec4899" stroke-width="6"
+                                    stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="55"
+                                    transform="rotate(-90 40 40)" />
+                                <text x="40" y="45" text-anchor="middle" fill="#ec4899" font-size="13" font-weight="700"
+                                    font-family="sans-serif">18:32</text>
+                            </svg>
+                        </div>
                     </div>
                 </div>
-                <div class="step-connector"></div>
-                <div class="step">
-                    <div class="step-num" style="border-color:#ffd700; color:#ffd700">03</div>
-                    <div class="step-body">
-                        <h3 class="step-title">Watch compound growth</h3>
-                        <p class="step-desc">Review weekly insights, maintain streaks, and watch completion percentages
-                            climb. Consistency compounds.</p>
+
+                <!-- Feature 3 -->
+                <div class="feat-card-new" id="feat-hierarchy">
+                    <div class="feat-top-bar" style="background: linear-gradient(135deg,#d97706,#f59e0b)"></div>
+                    <div class="feat-card-inner">
+                        <div class="feat-badge" style="color:#f59e0b; background:rgba(245,158,11,.1)">Hierarchy</div>
+                        <h3 class="feat-title-new">3-Tier Tracking</h3>
+                        <p class="feat-desc-new">Subjects → Topics → Subtopics with recursive progress that aggregates
+                            automatically.</p>
+                        <div class="feat-price-row">
+                            <span class="feat-stat">∞</span>
+                            <span class="feat-stat-label">Subjects per User</span>
+                        </div>
+                        <div class="feat-tree">
+                            <div class="ftree-item ftree-root"><span class="ftree-dot"
+                                    style="background:#f59e0b"></span> Computer Science</div>
+                            <div class="ftree-item ftree-l1"><span class="ftree-dot" style="background:#a855f7"></span>
+                                Data Structures</div>
+                            <div class="ftree-item ftree-l2"><span class="ftree-dot" style="background:#ec4899"></span>
+                                Binary Trees ✓</div>
+                            <div class="ftree-item ftree-l2 ftree-dim"><span class="ftree-dot"
+                                    style="background:#6b7280"></span> Graphs</div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Feature 4 -->
+                <div class="feat-card-new" id="feat-weekly">
+                    <div class="feat-top-bar" style="background: linear-gradient(135deg,#0d9488,#14b8a6)"></div>
+                    <div class="feat-card-inner">
+                        <div class="feat-badge" style="color:#14b8a6; background:rgba(20,184,166,.1)">Analytics</div>
+                        <h3 class="feat-title-new">Weekly Insights</h3>
+                        <p class="feat-desc-new">Review performance patterns over time. Understand your rhythm and
+                            optimise your schedule.</p>
+                        <div class="feat-price-row">
+                            <span class="feat-stat">7-Day</span>
+                            <span class="feat-stat-label">Rolling Review</span>
+                        </div>
+                        <div class="feat-bar-chart">
+                            <div class="fbar-wrap" style="--fh:40%">
+                                <div class="fbar" style="background:#7c3aed"></div><span class="fbar-lbl">M</span>
+                            </div>
+                            <div class="fbar-wrap" style="--fh:75%">
+                                <div class="fbar" style="background:#a855f7"></div><span class="fbar-lbl">T</span>
+                            </div>
+                            <div class="fbar-wrap" style="--fh:55%">
+                                <div class="fbar" style="background:#7c3aed"></div><span class="fbar-lbl">W</span>
+                            </div>
+                            <div class="fbar-wrap" style="--fh:90%">
+                                <div class="fbar" style="background:#c084fc"></div><span class="fbar-lbl">T</span>
+                            </div>
+                            <div class="fbar-wrap" style="--fh:65%">
+                                <div class="fbar" style="background:#7c3aed"></div><span class="fbar-lbl">F</span>
+                            </div>
+                            <div class="fbar-wrap" style="--fh:30%">
+                                <div class="fbar" style="background:#a855f7"></div><span class="fbar-lbl">S</span>
+                            </div>
+                            <div class="fbar-wrap" style="--fh:50%">
+                                <div class="fbar" style="background:#7c3aed"></div><span class="fbar-lbl">S</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feat-card-new" id="feat-notes">
+                    <div class="feat-top-bar" style="background: linear-gradient(135deg,#6d28d9,#8b5cf6)"></div>
+                    <div class="feat-card-inner">
+                        <div class="feat-badge" style="color:#8b5cf6; background:rgba(139,92,246,.1)">Notes</div>
+                        <h3 class="feat-title-new">Smart Notes</h3>
+                        <p class="feat-desc-new">Attach learning notes directly to any subtopic. Your knowledge stays
+                            organised and contextual.</p>
+                        <div class="feat-price-row">
+                            <span class="feat-stat">📝</span>
+                            <span class="feat-stat-label">Per-Topic Notes</span>
+                        </div>
+                        <div class="feat-note-lines">
+                            <div class="fnote-line" style="width:100%"></div>
+                            <div class="fnote-line" style="width:85%"></div>
+                            <div class="fnote-line" style="width:65%; margin-top:6px"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feat-card-new" id="feat-auth">
+                    <div class="feat-top-bar" style="background: linear-gradient(135deg,#be185d,#9d174d)"></div>
+                    <div class="feat-card-inner">
+                        <div class="feat-badge" style="color:#f472b6; background:rgba(244,114,182,.1)">Privacy</div>
+                        <h3 class="feat-title-new">Your Data, Your Control</h3>
+                        <p class="feat-desc-new">Your learning data is fully private. Delete your account and all
+                            associated data instantly — no questions asked.</p>
+                        <div class="feat-price-row">
+                            <span class="feat-stat">100%</span>
+                            <span class="feat-stat-label">Data Ownership</span>
+                        </div>
+                        <div class="feat-tags">
+                            <span class="ftag">Private by Default</span>
+                            <span class="ftag">Instant Deletion</span>
+                            <span class="ftag">Secure Login</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
     <!-- ===================== STATS ===================== -->
-    <section id="stats" class="relative z-20 py-20 px-4 sm:px-6 border-t border-white/[0.06]">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="section-title">Built for real learners</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
-                <div class="stat-card">
-                    <div class="stat-val" style="color:#00C8E8">∞</div>
-                    <div class="stat-label">Subjects per user</div>
+    <section id="stats" class="stats-section">
+        <div class="stats-bg-gradient"></div>
+        <div class="section-inner">
+            <div class="section-badge text-center-badge">By The Numbers</div>
+            <h2 class="section-heading text-center-h">Built for <span class="accent-text">real learners</span></h2>
+
+            <div class="stats-grid">
+                <div class="stat-card-new" id="stat-1">
+                    <div class="stat-icon" style="background:rgba(168,85,247,.1); color:#a855f7">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <path d="M3 7h18M6 12h12M9 17h6" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-number" style="color:#a855f7">∞</div>
+                    <div class="stat-name">Subjects Per User</div>
+                    <div class="stat-desc">No limits. Track everything you learn.</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-val" style="color:#ec38bc">25:00</div>
-                    <div class="stat-label">Pomodoro default</div>
+
+                <div class="stat-card-new" id="stat-2">
+                    <div class="stat-icon" style="background:rgba(236,72,153,.1); color:#ec4899">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-number" style="color:#ec4899">25:00</div>
+                    <div class="stat-name">Pomodoro Default</div>
+                    <div class="stat-desc">Scientifically proven focus interval.</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-val" style="color:#ffd700">365</div>
-                    <div class="stat-label">Days of history</div>
+
+                <div class="stat-card-new" id="stat-3">
+                    <div class="stat-icon" style="background:rgba(245,158,11,.1); color:#f59e0b">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+                            <path d="M3 9h18" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="stat-number" style="color:#f59e0b">365</div>
+                    <div class="stat-name">Days of History</div>
+                    <div class="stat-desc">Full year of learning tracked and visualized.</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-val" style="color:#a855f7">3-tier</div>
-                    <div class="stat-label">Hierarchy depth</div>
+
+                <div class="stat-card-new" id="stat-4">
+                    <div class="stat-icon" style="background:rgba(20,184,166,.1); color:#14b8a6">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                            <path
+                                d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-.001m5.94 0v5.94"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-number" style="color:#14b8a6">3-tier</div>
+                    <div class="stat-name">Hierarchy Depth</div>
+                    <div class="stat-desc">Recursive progress aggregation built-in.</div>
                 </div>
             </div>
         </div>
     </section>
 
+
     <!-- ===================== CTA ===================== -->
-    <section class="relative z-20 py-24 px-4 sm:px-6 border-t border-white/[0.06] text-center">
-        <div class="max-w-2xl mx-auto">
-            <div class="cta-glow"></div>
-            <div class="section-label">Ready to start?</div>
-            <h2 class="hero-title mt-2">Start mastering your craft<br><span class="gradient-text">today.</span></h2>
-            <p class="text-zinc-400 text-sm sm:text-base mt-4 mb-8 max-w-lg mx-auto">Free forever. No credit card. Just
-                you, your skills, and the compound effect of daily consistency.</p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a routerLink="/auth/register" class="btn-hero-primary w-full sm:w-auto">
-                    Create your free account
-                    <svg viewBox="0 0 16 16" fill="none" class="w-3.5 h-3.5">
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </a>
-                <a href="https://github.com/ayushgohil/Skill-Tracker" target="_blank"
-                    class="btn-hero-ghost w-full sm:w-auto flex items-center justify-center gap-2">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                        <path
-                            d="M12 .3a12 12 0 00-3.79 23.4c.6.1.82-.26.82-.57v-2.18c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.34-1.77-1.34-1.77-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .31.21.68.82.57A12 12 0 0012 .3z" />
-                    </svg>
-                    View on GitHub
-                </a>
+    <section class="cta-section">
+        <div class="cta-bg-blob"></div>
+        <div class="cta-inner">
+            <div class="cta-content">
+                <div class="section-badge text-center-badge">Ready to Start?</div>
+                <h2 class="cta-heading">If you're serious about<br><span class="accent-text">learning, join now.</span>
+                </h2>
+                <p class="cta-subtext">Free forever. No credit card. Just you, your skills, and the compound effect of
+                    daily consistency.</p>
+
+                <div class="cta-perks">
+                    <div class="cta-perk">
+                        <span class="cperk-check">✓</span> Unlimited subjects
+                    </div>
+                    <div class="cta-perk">
+                        <span class="cperk-check">✓</span> Pomodoro timer
+                    </div>
+                    <div class="cta-perk">
+                        <span class="cperk-check">✓</span> Full analytics
+                    </div>
+                    <div class="cta-perk">
+                        <span class="cperk-check">✓</span> Secure notes
+                    </div>
+                </div>
+
+                <div class="cta-actions">
+                    <a routerLink="/auth/register" id="cta-register-btn" class="btn-primary-hero btn-large">
+                        Create Free Account
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                    <a href="https://github.com/ayushgohil/Skill-Tracker" target="_blank"
+                        class="btn-ghost-hero btn-large">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 .3a12 12 0 00-3.79 23.4c.6.1.82-.26.82-.57v-2.18c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.34-1.77-1.34-1.77-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .31.21.68.82.57A12 12 0 0012 .3z" />
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Person image in CTA -->
+            <div class="cta-person-wrap">
+                <div class="cta-person-glow"></div>
+                <img src="hero-student.png" alt="Enthusiastic learner" class="cta-person-img" />
             </div>
         </div>
     </section>
 
     <!-- ===================== FOOTER ===================== -->
-    <footer class="relative z-20 border-t border-white/[0.06] bg-[#03001e]/80 backdrop-blur-xl py-8 px-4 sm:px-6">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <div class="logo-icon w-6 h-6">
-                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                        <rect width="32" height="32" rx="8" fill="url(#logoGrad2)" />
-                        <path d="M8 22L14 12L18 18L21 14L26 22" stroke="white" stroke-width="2.2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <defs>
-                            <linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32">
-                                <stop offset="0%" stop-color="#00C8E8" />
-                                <stop offset="100%" stop-color="#7303c0" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="nav-logo">
+                    <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo" class="brand-logo-img footer-brand-logo" />
                 </div>
-                <span class="text-zinc-500 text-xs">© 2026 SkillTracker by Nextlyr.</span>
+                <p class="footer-tagline">Track what you learn. Own your compound growth.</p>
             </div>
-            <div class="flex items-center gap-6 text-zinc-600 text-xs">
-                <a href="https://github.com/ayushgohil/Skill-Tracker" target="_blank"
-                    class="hover:text-zinc-400 transition-colors">GitHub</a>
-                <span>Angular 21 · Tailwind · Supabase</span>
+
+            <div class="footer-links">
+                <div class="footer-col">
+                    <div class="footer-col-title">Product</div>
+                    <a href="#features" class="footer-link">Features</a>
+                    <a href="#how-it-works" class="footer-link">How It Works</a>
+                    <a href="#stats" class="footer-link">Stats</a>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Account</div>
+                    <a routerLink="/auth/register" class="footer-link">Sign Up Free</a>
+                    <a routerLink="/auth/login" class="footer-link">Sign In</a>
+                </div>
+
             </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 SkillTracker by Nextlyr. All rights reserved.</span>
+            <a href="https://github.com/ayushgohil/Skill-Tracker" target="_blank" class="footer-gh-link">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 .3a12 12 0 00-3.79 23.4c.6.1.82-.26.82-.57v-2.18c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.34-1.77-1.34-1.77-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .31.21.68.82.57A12 12 0 0012 .3z" />
+                </svg>
+                GitHub
+            </a>
         </div>
     </footer>
 
 </main>
 
 <style>
-    /* ───── Orbs ───── */
-    .orb {
-        position: absolute;
-        border-radius: 50%;
-        pointer-events: none;
+    /* ===== GOOGLE FONTS IMPORT ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+    /* ===== ROOT VARIABLES ===== */
+    :root {
+        --purple: #7c3aed;
+        --purple-light: #a855f7;
+        --purple-pale: #ede9fe;
+        --pink: #ec4899;
+        --gold: #f59e0b;
+        --teal: #14b8a6;
+        --white: #ffffff;
+        --off-white: #f9f5ff;
+        --text-dark: #1a0533;
+        --text-medium: #4b2d7a;
+        --text-light: #7c6a9a;
+        --card-bg: #ffffff;
+        --section-bg: #f9f5ff;
+        --border: rgba(124, 58, 237, .12);
     }
 
-    .orb-1 {
-        top: -80px;
-        right: -80px;
-        width: clamp(250px, 40vw, 520px);
-        height: clamp(250px, 40vw, 520px);
-        background: rgba(0, 200, 232, .35);
-        filter: blur(130px);
-        animation: pulseSlow 9s ease-in-out infinite;
+    /* ===== BASE ===== */
+    .landing-root {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background: var(--off-white);
+        color: var(--text-dark);
+        overflow-x: hidden;
     }
 
-    .orb-2 {
-        top: 30%;
-        left: -120px;
-        width: clamp(300px, 45vw, 600px);
-        height: clamp(300px, 45vw, 600px);
-        background: rgba(115, 3, 192, .45);
-        filter: blur(150px);
-        animation: pulseSlow 13s ease-in-out infinite;
-        animation-delay: 2s;
+    .accent-text {
+        color: var(--purple);
     }
 
-    .orb-3 {
-        bottom: -100px;
-        right: 20%;
-        width: clamp(200px, 35vw, 450px);
-        height: clamp(200px, 35vw, 450px);
-        background: rgba(236, 56, 188, .28);
-        filter: blur(120px);
-        animation: pulseSlow 11s ease-in-out infinite;
-        animation-delay: 4s;
+    /* ===== NAV ===== */
+    .nav-bar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
     }
 
-    .orb-4 {
-        top: 60%;
-        left: 40%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 215, 0, .08);
-        filter: blur(100px);
-        animation: pulseSlow 15s ease-in-out infinite;
-        animation-delay: 7s;
+    .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 68px;
     }
 
-    @keyframes pulseSlow {
-
-        0%,
-        100% {
-            opacity: .7;
-            transform: scale(1);
-        }
-
-        50% {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-    }
-
-    /* ───── Particles ───── */
-    .particle {
-        position: absolute;
-        width: 3px;
-        height: 3px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, .4);
-        animation: floatParticle 8s ease-in-out infinite;
-    }
-
-    @keyframes floatParticle {
-
-        0%,
-        100% {
-            transform: translateY(0) scale(1);
-            opacity: .4;
-        }
-
-        50% {
-            transform: translateY(-20px) scale(1.5);
-            opacity: .9;
-        }
-    }
-
-    /* ───── Entrance ───── */
-    .slide-down {
-        animation: slideDown .6s ease both;
-    }
-
-    @keyframes slideDown {
-        from {
-            transform: translateY(-20px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    .fade-up {
-        animation: fadeUp .7s ease both;
-    }
-
-    @keyframes fadeUp {
-        from {
-            transform: translateY(24px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    /* ───── Logo icon ───── */
-    .logo-icon {
-        width: 32px;
-        height: 32px;
-    }
-
-    /* ───── Nav links ───── */
-    .nav-link {
-        color: rgba(212, 212, 216, .7);
-        font-size: .875rem;
-        font-weight: 500;
+    .nav-logo {
+        display: flex;
+        align-items: center;
         text-decoration: none;
-        transition: color .2s;
+    }
+
+    .nav-logo.logo-dark-badge {
+        background: #0f172a;
+        /* Premium dark navy backing for white text visibility */
+        padding: 6px 14px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .nav-logo.logo-dark-badge:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+    }
+
+    .brand-logo-img {
+        height: 26px;
+        width: auto;
+        object-fit: contain;
+        display: block;
+    }
+
+    .navbar-brand-logo {
+        height: 26px;
+    }
+
+    .mobile-brand-logo {
+        height: 24px;
+    }
+
+    .footer-brand-logo {
+        height: 30px;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .nav-link {
+        color: var(--text-medium);
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: color 0.2s;
     }
 
     .nav-link:hover {
-        color: #fff;
+        color: var(--purple);
     }
 
-    /* ───── Buttons ───── */
-    .btn-primary {
-        display: inline-flex;
+    .nav-actions {
+        display: flex;
         align-items: center;
-        gap: 6px;
-        background: #fff;
-        color: #03001e;
-        font-weight: 700;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-size: .8rem;
-        text-decoration: none;
-        transition: transform .2s, box-shadow .2s;
-        box-shadow: 0 8px 24px rgba(255, 255, 255, .15);
+        gap: 14px;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(255, 255, 255, .25);
-    }
-
-    .btn-hero-primary {
+    .btn-nav-signin {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        background: #fff;
-        color: #03001e;
+        color: #7c3aed;
         font-weight: 700;
-        padding: 14px 28px;
-        border-radius: 14px;
-        font-size: .9rem;
+        font-size: 0.875rem;
         text-decoration: none;
-        transition: transform .2s, box-shadow .2s;
-        box-shadow: 0 10px 30px rgba(255, 255, 255, .18);
-        min-height: 48px;
+        padding: 10px 22px;
+        border: 2px solid #7c3aed;
+        border-radius: 10px;
+        transition: all 0.25s ease;
+        background: transparent;
+        line-height: 1.2;
+        white-space: nowrap;
     }
 
-    .btn-hero-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 14px 40px rgba(255, 255, 255, .28);
+    .btn-nav-signin:hover {
+        color: #ffffff;
+        background: #7c3aed;
+        box-shadow: 0 4px 16px rgba(124, 58, 237, .3);
+        transform: translateY(-1px);
     }
 
-    .btn-hero-ghost {
+    .btn-nav-cta {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        border: 1px solid rgba(255, 255, 255, .18);
-        background: rgba(255, 255, 255, .05);
-        color: #fff;
-        font-weight: 600;
-        padding: 14px 28px;
-        border-radius: 14px;
-        font-size: .9rem;
+        background: #7c3aed;
+        color: #ffffff;
+        padding: 10px 22px;
+        border: 2px solid #7c3aed;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.875rem;
         text-decoration: none;
-        transition: background .2s;
-        min-height: 48px;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 16px rgba(124, 58, 237, .35);
+        line-height: 1.2;
+        white-space: nowrap;
     }
 
-    .btn-hero-ghost:hover {
-        background: rgba(255, 255, 255, .1);
+    .btn-nav-cta:hover {
+        background: #6d28d9;
+        border-color: #6d28d9;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(124, 58, 237, .45);
     }
 
-    /* ───── Pill ───── */
-    .pill {
+    /* ===== HERO ===== */
+    .hero-section {
+        position: relative;
+        background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 40%, #a855f7 70%, #c084fc 100%);
+        overflow: hidden;
+        padding: 80px 2rem 0;
+        min-height: 640px;
+    }
+
+    .hero-bg-blobs {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.5;
+    }
+
+    .blob-1 {
+        width: 400px;
+        height: 400px;
+        background: rgba(236, 72, 153, .4);
+        top: -100px;
+        right: 15%;
+        animation: blobPulse 8s ease-in-out infinite;
+    }
+
+    .blob-2 {
+        width: 300px;
+        height: 300px;
+        background: rgba(245, 158, 11, .25);
+        bottom: 0;
+        left: 5%;
+        animation: blobPulse 10s ease-in-out infinite 2s;
+    }
+
+    .blob-3 {
+        width: 250px;
+        height: 250px;
+        background: rgba(20, 184, 166, .2);
+        top: 30%;
+        left: 50%;
+        animation: blobPulse 12s ease-in-out infinite 4s;
+    }
+
+    @keyframes blobPulse {
+
+        0%,
+        100% {
+            transform: scale(1) translate(0, 0);
+            opacity: 0.5;
+        }
+
+        50% {
+            transform: scale(1.15) translate(10px, -10px);
+            opacity: 0.7;
+        }
+    }
+
+    .hero-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: flex-end;
+        gap: 3rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-content {
+        padding-bottom: 80px;
+        animation: fadeUp 0.7s ease both;
+    }
+
+    .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        background: rgba(255, 255, 255, .15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, .25);
+        color: white;
         padding: 6px 16px;
         border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, .18);
-        background: rgba(255, 255, 255, .04);
-        backdrop-filter: blur(12px);
-        color: #00C8E8;
-        font-size: .7rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        letter-spacing: .12em;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
     }
 
-    .pill-dot {
-        display: inline-block;
-        width: 6px;
-        height: 6px;
+    .badge-dot {
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
-        background: #00C8E8;
-        animation: blink 2s ease-in-out infinite;
+        background: #fbbf24;
+        animation: badgeBlink 2s ease-in-out infinite;
     }
 
-    @keyframes blink {
+    @keyframes badgeBlink {
 
         0%,
         100% {
@@ -666,419 +959,1619 @@
         }
 
         50% {
-            opacity: .3;
+            opacity: 0.3;
         }
     }
 
-    /* ───── Typography ───── */
-    .hero-title {
-        font-size: clamp(2rem, 6vw, 4.2rem);
-        font-weight: 800;
-        line-height: 1.08;
-        letter-spacing: -.02em;
-        color: #fff;
-        margin-bottom: 0;
+    .hero-heading {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        color: white;
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.03em;
     }
 
-    .gradient-text {
-        background: linear-gradient(90deg, #00C8E8, #ec38bc, #ffd700);
+    .hero-highlight {
+        background: linear-gradient(90deg, #fbbf24, #f472b6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
-    .section-label {
-        text-align: center;
-        font-size: .7rem;
+    .hero-subtext {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        max-width: 500px;
+    }
+
+    .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        color: var(--purple);
+        font-weight: 800;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
+    }
+
+    .btn-primary-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, .3);
+    }
+
+    .btn-ghost-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, .12);
+        border: 1.5px solid rgba(255, 255, 255, .35);
+        color: white;
         font-weight: 700;
-        letter-spacing: .16em;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-ghost-hero:hover {
+        background: rgba(255, 255, 255, .2);
+    }
+
+    .btn-large {
+        padding: 16px 32px;
+        font-size: 1rem;
+    }
+
+    .play-icon {
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, .25);
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-trust {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba(255, 255, 255, .75);
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+
+    /* Hero Image */
+    .hero-image-wrap {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        height: 520px;
+    }
+
+    .hero-image-bg-circle {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .1);
+        border: 2px solid rgba(255, 255, 255, .15);
+    }
+
+    .hero-person-img {
+        position: relative;
+        z-index: 2;
+        height: 500px;
+        width: auto;
+        object-fit: contain;
+        object-position: bottom;
+        filter: drop-shadow(0 20px 60px rgba(0, 0, 0, .3));
+        animation: heroFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes heroFloat {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Floating cards */
+    .float-card {
+        position: absolute;
+        background: white;
+        border-radius: 14px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, .15);
+        z-index: 5;
+        animation: floatCard 3s ease-in-out infinite;
+    }
+
+    .float-card--streak {
+        top: 60px;
+        left: -20px;
+        animation-delay: 0s;
+    }
+
+    .float-card--completion {
+        top: 180px;
+        right: -30px;
+        animation-delay: 1s;
+    }
+
+    .float-card--subjects {
+        bottom: 120px;
+        left: -30px;
+        animation-delay: 2s;
+    }
+
+    @keyframes floatCard {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-6px);
+        }
+    }
+
+    .float-card-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .float-card-val {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        line-height: 1.1;
+    }
+
+    .float-card-lbl {
+        font-size: 0.7rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    /* ===== LOGOS STRIP ===== */
+    .logos-strip {
+        background: white;
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+    }
+
+    .logos-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .logos-label {
+        color: var(--text-light);
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .logos-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .logo-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: var(--section-bg);
+        border: 1px solid var(--border);
+        color: var(--text-medium);
+        font-size: 0.82rem;
+        font-weight: 600;
+        transition: border-color 0.2s, background 0.2s;
+    }
+
+    .logo-pill:hover {
+        background: rgba(124, 58, 237, .06);
+        border-color: rgba(124, 58, 237, .3);
+    }
+
+    /* ===== SHARED SECTION STYLES ===== */
+    .section-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 2rem;
+    }
+
+    .section-badge {
+        display: inline-flex;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: #00C8E8;
-        margin-bottom: .75rem;
-    }
-
-    .section-title {
-        text-align: center;
-        font-size: clamp(1.5rem, 3.5vw, 2.4rem);
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: .5rem;
-    }
-
-    .section-sub {
-        text-align: center;
-        color: rgba(161, 161, 170, .7);
-        font-size: .95rem;
-        margin-bottom: 0;
-    }
-
-    /* ───── Hero card ───── */
-    .hero-card {
-        background: rgba(255, 255, 255, .04);
-        border: 1px solid rgba(255, 255, 255, .1);
-        border-radius: 20px;
-        backdrop-filter: blur(16px);
-        padding: 1.5rem;
-        overflow: hidden;
-    }
-
-    .hero-card-inner {
+        color: var(--purple);
+        background: rgba(124, 58, 237, .08);
+        border: 1px solid rgba(124, 58, 237, .2);
+        padding: 5px 14px;
+        border-radius: 999px;
         margin-bottom: 1rem;
     }
 
-    .hero-card-row {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-        border-top: 1px solid rgba(255, 255, 255, .08);
-        padding-top: 1rem;
+    .text-center-badge {
+        display: flex;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        width: fit-content;
     }
 
-    .stat-mini {
+    .section-heading {
+        font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+        font-weight: 800;
+        color: var(--text-dark);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.75rem;
+    }
+
+    .text-center-h {
         text-align: center;
     }
 
-    .stat-mini-val {
-        display: block;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #fff;
-        line-height: 1;
+    .section-subtext {
+        color: var(--text-light);
+        font-size: 1rem;
+        line-height: 1.65;
+        max-width: 560px;
     }
 
-    .stat-mini-label {
-        display: block;
-        font-size: .65rem;
-        color: rgba(161, 161, 170, .6);
-        margin-top: 4px;
-        text-transform: uppercase;
-        letter-spacing: .08em;
+    .text-center-p {
+        text-align: center;
+        margin: 0 auto 3rem;
     }
 
-    /* ───── Heatmap ───── */
-    .heatmap-grid {
+    /* ===== BENEFITS SECTION ===== */
+    .benefits-section {
+        background: white;
+    }
+
+    .section-inner-split {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 2rem;
         display: grid;
-        grid-template-columns: repeat(84, 1fr);
-        gap: 2px;
-        margin-top: 8px;
+        grid-template-columns: 1fr 1fr;
+        gap: 5rem;
+        align-items: center;
     }
 
-    /* ───── Feature cards ───── */
-    .feat-card {
-        position: relative;
-        background: rgba(255, 255, 255, .03);
-        border: 1px solid rgba(255, 255, 255, .07);
-        border-radius: 20px;
-        padding: 1.75rem;
-        transition: transform .35s ease, border-color .35s ease;
-        overflow: hidden;
+    /* Benefits Visual */
+    .bv-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
     }
 
-    .feat-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 20px;
-        opacity: 0;
-        transition: opacity .35s;
+    .bv-card {
+        background: var(--off-white);
+        border: 1.5px solid var(--border);
+        border-radius: 18px;
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
-    .feat-card:hover {
+    .bv-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(255, 255, 255, .14);
+        box-shadow: 0 16px 48px rgba(124, 58, 237, .12);
     }
 
-    .feat-card:hover::before {
-        opacity: 1;
+    .bv-card--purple {
+        border-top: 3px solid #a855f7;
     }
 
-    .feat-card--cyan::before {
-        background: radial-gradient(circle at 30% 20%, rgba(0, 200, 232, .08), transparent 70%);
+    .bv-card--pink {
+        border-top: 3px solid #ec4899;
     }
 
-    .feat-card--pink::before {
-        background: radial-gradient(circle at 30% 20%, rgba(236, 56, 188, .08), transparent 70%);
+    .bv-card--gold {
+        border-top: 3px solid #f59e0b;
     }
 
-    .feat-card--gold::before {
-        background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, .06), transparent 70%);
+    .bv-card--teal {
+        border-top: 3px solid #14b8a6;
     }
 
-    .feat-card--purple::before {
-        background: radial-gradient(circle at 30% 20%, rgba(115, 3, 192, .1), transparent 70%);
+    .bv-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
     }
 
-    .feat-card--teal::before {
-        background: radial-gradient(circle at 30% 20%, rgba(45, 212, 191, .07), transparent 70%);
+    .bv-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        margin-bottom: 2px;
     }
 
-    .feat-icon {
-        width: 44px;
-        height: 44px;
+    .bv-role {
+        font-size: 0.72rem;
+        color: var(--text-light);
+        margin-bottom: 0.6rem;
+    }
+
+    .bv-stat {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--purple);
+        background: rgba(124, 58, 237, .08);
+        padding: 3px 10px;
+        border-radius: 999px;
+        display: inline-block;
+    }
+
+    /* Benefits list */
+    .benefits-content .section-badge {
+        display: inline-flex;
+        margin-bottom: 1rem;
+    }
+
+    .benefits-list {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .benefit-icon {
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.1rem;
+        flex-shrink: 0;
     }
 
-    .feat-title {
-        font-size: 1.05rem;
+    .benefit-title {
         font-weight: 700;
-        color: #fff;
-        margin-bottom: .5rem;
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        margin-bottom: 3px;
     }
 
-    .feat-body {
-        font-size: .82rem;
-        line-height: 1.65;
-        color: rgba(161, 161, 170, .75);
+    .benefit-desc {
+        font-size: 0.83rem;
+        color: var(--text-light);
+        line-height: 1.6;
     }
 
-    /* ───── Mini heatmap inside card ───── */
-    .mini-heatmap {
-        margin-top: 1rem;
+    /* ===== STEPS SECTION ===== */
+    .steps-section {
+        background: var(--section-bg);
+        position: relative;
+        overflow: hidden;
     }
 
-    .mini-heatmap-inner {
-        display: grid;
-        grid-template-columns: repeat(28, 1fr);
-        gap: 2px;
-        height: 28px;
+    .steps-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 50%, rgba(124, 58, 237, .06) 0%, transparent 50%),
+            radial-gradient(circle at 80% 50%, rgba(236, 72, 153, .05) 0%, transparent 50%);
     }
 
-    /* ───── Tree preview ───── */
-    .tree-preview {
-        margin-top: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .tree-item {
+    .steps-row {
         display: flex;
         align-items: center;
+        gap: 0;
+        margin-top: 3rem;
+    }
+
+    .step-card {
+        flex: 1;
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+    }
+
+    .step-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 60px rgba(124, 58, 237, .12);
+    }
+
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 800;
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .step-icon-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .step-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.6rem;
+    }
+
+    .step-desc {
+        font-size: 0.83rem;
+        color: var(--text-light);
+        line-height: 1.65;
+        margin-bottom: 1.25rem;
+    }
+
+    .step-tag {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, .08);
+        border: 1px solid rgba(124, 58, 237, .2);
+        color: var(--purple);
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .step-arrow {
+        padding: 0 1rem;
+        color: var(--purple);
+        opacity: 0.4;
+        flex-shrink: 0;
+    }
+
+    /* ===== FEATURES SECTION ===== */
+    .features-section {
+        background: white;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+
+    .feat-card-new {
+        background: var(--off-white);
+        border: 1.5px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feat-card-new:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 50px rgba(124, 58, 237, .1);
+        border-color: rgba(124, 58, 237, .25);
+    }
+
+    .feat-top-bar {
+        height: 5px;
+        width: 100%;
+    }
+
+    .feat-card-inner {
+        padding: 1.5rem;
+    }
+
+    .feat-badge {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 0.9rem;
+    }
+
+    .feat-title-new {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .feat-desc-new {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .feat-price-row {
+        display: flex;
+        align-items: baseline;
         gap: 8px;
-        font-size: .75rem;
-        color: rgba(212, 212, 216, .7);
+        margin-bottom: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border);
     }
 
-    .tree-item--root {
-        color: #ffd700;
-        font-weight: 600;
+    .feat-stat {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-dark);
     }
 
-    .tree-item--l1 {
+    .feat-stat-label {
+        font-size: 0.72rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    /* Mini heatmap in feature card */
+    .feat-mini-heatmap {
+        height: 36px;
+    }
+
+    .fmh-inner {
+        display: grid;
+        grid-template-columns: repeat(28, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        grid-auto-flow: column;
+        gap: 2px;
+        height: 100%;
+    }
+
+    /* Pomodoro ring */
+    .pomo-ring-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+
+    /* Feature tree */
+    .feat-tree {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .ftree-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.75rem;
+        color: var(--text-medium);
+        font-weight: 500;
+    }
+
+    .ftree-root {
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .ftree-l1 {
         padding-left: 12px;
     }
 
-    .tree-item--l2 {
+    .ftree-l2 {
         padding-left: 24px;
     }
 
-    .tree-dot {
+    .ftree-dim {
+        opacity: 0.4;
+    }
+
+    .ftree-dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
         flex-shrink: 0;
     }
 
-    /* ───── Bar chart ───── */
-    .mini-bar-chart {
+    /* Bar chart */
+    .feat-bar-chart {
         display: flex;
         align-items: flex-end;
-        gap: 6px;
-        height: 60px;
-        margin-top: 1rem;
+        gap: 5px;
+        height: 52px;
     }
 
-    .bar-wrap {
+    .fbar-wrap {
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 4px;
+        gap: 3px;
         height: 100%;
         justify-content: flex-end;
     }
 
-    .bar {
+    .fbar {
         width: 100%;
-        height: var(--h, 50%);
-        border-radius: 4px 4px 0 0;
-        transition: height .5s ease;
+        height: var(--fh, 50%);
+        border-radius: 3px 3px 0 0;
     }
 
-    .bar-label {
-        font-size: .6rem;
-        color: rgba(161, 161, 170, .5);
+    .fbar-lbl {
+        font-size: 0.6rem;
+        color: var(--text-light);
     }
 
-    /* ───── Note preview ───── */
-    .note-preview {
-        margin-top: 1rem;
-    }
-
-    .note-line {
-        height: 6px;
-        background: rgba(255, 255, 255, .12);
-        border-radius: 4px;
-        margin-bottom: 6px;
-    }
-
-    /* ───── Tags ───── */
-    .tag {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, .1);
-        background: rgba(255, 255, 255, .04);
-        color: rgba(161, 161, 170, .6);
-        font-size: .65rem;
-        font-weight: 600;
-        letter-spacing: .06em;
-    }
-
-    /* ───── Steps ───── */
-    .steps-grid {
+    /* Note lines */
+    .feat-note-lines {
         display: flex;
         flex-direction: column;
-        gap: 0;
-        align-items: stretch;
+        gap: 5px;
     }
 
-    @media (min-width: 768px) {
-        .steps-grid {
-            flex-direction: row;
-            align-items: flex-start;
-            gap: 0;
-        }
+    .fnote-line {
+        height: 6px;
+        background: rgba(124, 58, 237, .12);
+        border-radius: 3px;
     }
 
-    .step {
-        flex: 1;
-        background: rgba(255, 255, 255, .03);
-        border: 1px solid rgba(255, 255, 255, .07);
-        border-radius: 16px;
-        padding: 1.5rem;
+    /* Feature tags */
+    .feat-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
     }
 
-    .step-connector {
-        display: none;
+    .ftag {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, .08);
+        border: 1px solid rgba(124, 58, 237, .15);
+        color: var(--purple);
+        font-size: 0.68rem;
+        font-weight: 600;
     }
 
-    @media (min-width: 768px) {
-        .step-connector {
-            display: flex;
-            align-items: center;
-            padding: 0 8px;
-            margin-top: 2rem;
-        }
-
-        .step-connector::before {
-            content: '';
-            display: block;
-            width: 32px;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(0, 200, 232, .5), rgba(236, 56, 188, .5));
-        }
+    /* ===== STATS SECTION ===== */
+    .stats-section {
+        background: var(--section-bg);
+        position: relative;
+        overflow: hidden;
     }
 
-    .step-num {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #00C8E8;
-        border: 2px solid rgba(0, 200, 232, .3);
-        width: 52px;
-        height: 52px;
+    .stats-bg-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(124, 58, 237, .04) 0%, transparent 50%, rgba(236, 72, 153, .03) 100%);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+        margin-top: 3rem;
+    }
+
+    .stat-card-new {
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card-new:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 48px rgba(124, 58, 237, .12);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
         border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1rem;
-        line-height: 1;
+        margin: 0 auto 1rem;
     }
 
-    .step-title {
-        font-size: 1rem;
+    .stat-number {
+        font-size: 2.25rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.4rem;
+        letter-spacing: -0.02em;
+    }
+
+    .stat-name {
         font-weight: 700;
-        color: #fff;
-        margin-bottom: .4rem;
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        margin-bottom: 0.4rem;
     }
 
-    .step-desc {
-        font-size: .8rem;
-        color: rgba(161, 161, 170, .7);
-        line-height: 1.6;
+    .stat-desc {
+        font-size: 0.75rem;
+        color: var(--text-light);
+        line-height: 1.5;
     }
 
-    /* ───── Stat cards ───── */
-    .stat-card {
-        background: rgba(255, 255, 255, .04);
-        border: 1px solid rgba(255, 255, 255, .08);
-        border-radius: 16px;
-        padding: 1.25rem;
-        text-align: center;
-        transition: border-color .3s;
+    /* ===== TESTIMONIALS ===== */
+    .testimonials-section {
+        background: white;
     }
 
-    .stat-card:hover {
-        border-color: rgba(255, 255, 255, .16);
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
     }
 
-    .stat-val {
-        font-size: 2rem;
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: .4rem;
+    .testi-card {
+        background: var(--off-white);
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
     }
 
-    .stat-label {
-        font-size: .7rem;
-        color: rgba(161, 161, 170, .5);
-        text-transform: uppercase;
-        letter-spacing: .1em;
+    .testi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 48px rgba(124, 58, 237, .1);
     }
 
-    /* ───── CTA glow ───── */
-    .cta-glow {
-        position: absolute;
-        width: 400px;
-        height: 200px;
+    .testi-card--featured {
+        background: linear-gradient(135deg, #faf5ff, #ede9fe);
+        border-color: rgba(124, 58, 237, .3);
+        box-shadow: 0 8px 32px rgba(124, 58, 237, .12);
+    }
+
+    .testi-stars {
+        color: #f59e0b;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        letter-spacing: 2px;
+    }
+
+    .testi-text {
+        color: var(--text-medium);
+        font-size: 0.875rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+    }
+
+    .testi-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .testi-avatar {
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
-        background: rgba(115, 3, 192, .35);
-        filter: blur(100px);
-        left: 50%;
-        transform: translateX(-50%);
-        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .testi-name {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: var(--text-dark);
+    }
+
+    .testi-role {
+        font-size: 0.72rem;
+        color: var(--text-light);
+    }
+
+    .testi-featured-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--purple);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+    }
+
+    /* ===== CTA SECTION ===== */
+    .cta-section {
+        background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-bg-blob {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: rgba(236, 72, 153, .25);
+        filter: blur(120px);
+        top: -200px;
+        right: -100px;
         pointer-events: none;
     }
 
-    /* ───── Responsive ───── */
-    @media (max-width: 640px) {
-        .hero-card-row {
-            grid-template-columns: repeat(2, 1fr);
+    .cta-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 2rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 4rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .cta-content .section-badge {
+        background: rgba(255, 255, 255, .12);
+        border-color: rgba(255, 255, 255, .2);
+        color: rgba(255, 255, 255, .9);
+        margin-bottom: 1rem;
+    }
+
+    .cta-heading {
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        font-weight: 900;
+        color: white;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+    }
+
+    .cta-heading .accent-text {
+        color: #fbbf24;
+        -webkit-text-fill-color: #fbbf24;
+    }
+
+    .cta-subtext {
+        color: rgba(255, 255, 255, .75);
+        font-size: 1rem;
+        line-height: 1.65;
+        margin-bottom: 1.75rem;
+        max-width: 480px;
+    }
+
+    .cta-perks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 20px;
+        margin-bottom: 2rem;
+    }
+
+    .cta-perk {
+        color: rgba(255, 255, 255, .85);
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .cperk-check {
+        color: #fbbf24;
+        font-weight: 800;
+    }
+
+    .cta-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* CTA person */
+    .cta-person-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .cta-person-glow {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .1);
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .cta-person-img {
+        height: 380px;
+        width: auto;
+        object-fit: contain;
+        object-position: bottom;
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 20px 60px rgba(0, 0, 0, .25));
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+        background: #1a0533;
+        color: rgba(255, 255, 255, .6);
+    }
+
+    .footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .footer-brand {
+        max-width: 260px;
+    }
+
+    .footer-tagline {
+        margin-top: 0.75rem;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, .45);
+    }
+
+    .footer-links {
+        display: flex;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .footer-col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .footer-col-title {
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, .7);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+        color: rgba(255, 255, 255, .45);
+        font-size: 0.82rem;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .footer-link:hover {
+        color: rgba(255, 255, 255, .8);
+    }
+
+
+
+    .footer-bottom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.25rem 2rem;
+        border-top: 1px solid rgba(255, 255, 255, .07);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.78rem;
+    }
+
+    .footer-gh-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba(255, 255, 255, .4);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .footer-gh-link:hover {
+        color: rgba(255, 255, 255, .8);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
         }
 
-        .heatmap-grid {
-            grid-template-columns: repeat(42, 1fr);
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== MOBILE HAMBURGER ===== */
+    .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        z-index: 110;
+    }
+
+    .hamburger-line {
+        display: block;
+        width: 24px;
+        height: 2.5px;
+        background: var(--text-dark);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-menu-btn.active .hamburger-line:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .mobile-menu-btn.active .hamburger-line:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-btn.active .hamburger-line:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    /* ===== MOBILE DRAWER ===== */
+    .mobile-drawer {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        pointer-events: none;
+    }
+
+    .mobile-drawer.open {
+        pointer-events: all;
+    }
+
+    .mobile-drawer-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .mobile-drawer.open .mobile-drawer-overlay {
+        opacity: 1;
+    }
+
+    .mobile-drawer-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(320px, 85vw);
+        height: 100%;
+        background: white;
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.15);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+
+    .mobile-drawer.open .mobile-drawer-panel {
+        transform: translateX(0);
+    }
+
+    .mobile-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .mobile-drawer-close {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        color: var(--text-medium);
+        cursor: pointer;
+        padding: 6px;
+        line-height: 1;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+
+    .mobile-drawer-close:hover {
+        background: rgba(124, 58, 237, .08);
+    }
+
+    .mobile-drawer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .mobile-drawer-link {
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        padding: 12px 16px;
+        border-radius: 10px;
+        transition: all 0.2s;
+    }
+
+    .mobile-drawer-link:hover {
+        background: rgba(124, 58, 237, .06);
+        color: var(--purple);
+    }
+
+    .mobile-drawer-actions {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-mobile-signin {
+        display: block;
+        text-align: center;
+        color: var(--purple);
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        padding: 12px 20px;
+        border: 2px solid var(--purple);
+        border-radius: 12px;
+        transition: all 0.25s;
+    }
+
+    .btn-mobile-signin:hover {
+        color: white;
+        background: var(--purple);
+    }
+
+    .btn-mobile-cta {
+        display: block;
+        text-align: center;
+        background: var(--purple);
+        color: white;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(124, 58, 237, .35);
+        transition: all 0.25s;
+    }
+
+    .btn-mobile-cta:hover {
+        background: #6d28d9;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(124, 58, 237, .45);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+        .hero-inner {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .hero-content {
+            padding-bottom: 0;
+        }
+
+        .hero-subtext {
+            margin: 0 auto 2rem;
+        }
+
+        .hero-actions,
+        .hero-trust {
+            justify-content: center;
+        }
+
+        .hero-image-wrap {
+            height: 360px;
+        }
+
+        .hero-person-img {
+            height: 340px;
+        }
+
+        .float-card--streak {
+            left: 5%;
+        }
+
+        .float-card--completion {
+            right: 5%;
+        }
+
+        .float-card--subjects {
+            left: 5%;
+        }
+
+        .section-inner-split {
+            grid-template-columns: 1fr;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .steps-row {
+            flex-direction: column;
+        }
+
+        .step-arrow {
+            transform: rotate(90deg);
+            padding: 0.5rem 0;
+        }
+
+        .cta-inner {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .cta-subtext {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-perks {
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-actions {
+            justify-content: center;
+        }
+
+        .cta-person-wrap {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .nav-links {
+            display: none;
+        }
+
+        .nav-actions {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            display: flex;
+        }
+
+        .mobile-drawer {
+            display: block;
+        }
+
+        .hero-section {
+            padding: 48px 1.25rem 0;
+            min-height: auto;
+        }
+
+        .hero-heading {
+            font-size: 2rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtext {
+            font-size: 0.9rem;
+            max-width: 100%;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-image-wrap {
+            height: 280px;
+        }
+
+        .hero-person-img {
+            height: 260px;
+        }
+
+        .float-card {
+            transform: scale(0.85);
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .section-heading {
+            font-size: 1.6rem;
+        }
+
+        .section-inner {
+            padding: 48px 1.25rem;
+        }
+
+        .section-inner-split {
+            padding: 48px 1.25rem;
+        }
+
+        .benefits-list {
+            gap: 1rem;
+        }
+
+        .bv-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .step-card {
+            padding: 1.5rem;
+        }
+
+        .footer-inner {
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            gap: 2rem;
+        }
+
+        .footer-bottom {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .cta-heading {
+            font-size: 1.5rem;
+        }
+
+        .cta-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cta-perks {
+            grid-template-columns: 1fr;
+            text-align: left;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .nav-bar {
+            padding: 0 1rem;
+        }
+
+        .nav-inner {
+            height: 56px;
+        }
+
+        .hero-section {
+            padding: 36px 1rem 0;
+        }
+
+        .hero-heading {
+            font-size: 1.65rem;
+        }
+
+        .hero-badge {
+            font-size: 0.65rem;
+            padding: 5px 12px;
+        }
+
+        .hero-image-wrap {
+            height: 240px;
+        }
+
+        .hero-person-img {
+            height: 220px;
+        }
+
+        .float-card {
+            transform: scale(0.75);
+            padding: 8px 12px;
+        }
+
+        .float-card--streak {
+            left: -2%;
+            top: -5%;
+        }
+
+        .float-card--completion {
+            right: -2%;
+        }
+
+        .float-card--subjects {
+            left: -2%;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-inner {
+            padding: 40px 1rem;
+        }
+
+        .section-inner-split {
+            padding: 40px 1rem;
+        }
+
+        .section-heading {
+            font-size: 1.4rem;
+        }
+
+        .section-subtext {
+            font-size: 0.85rem;
+        }
+
+        .feat-card-inner {
+            padding: 1.25rem;
+        }
+
+        .step-card {
+            padding: 1.25rem;
+        }
+
+        .testi-card {
+            padding: 1.5rem;
+        }
+
+        .bv-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cta-inner {
+            padding: 2.5rem 1.25rem;
+        }
+
+        .cta-heading {
+            font-size: 1.3rem;
+        }
+
+        .footer-inner {
+            padding: 2rem 1rem;
+        }
+
+        .footer-links {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .footer-bottom {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .hero-heading {
+            font-size: 1.4rem;
+        }
+
+        .btn-primary-hero {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .btn-ghost-hero {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
         }
     }
 </style>
 
 <script>
     (function () {
-        /* ── Heatmap generator ── */
-        function makeHeatCells(container, cols, rows) {
+        /* Mini heatmap cells */
+        function makeCells(container, cols, rows) {
             const colors = [
-                'rgba(255,255,255,.04)',
-                'rgba(0,200,232,.15)',
-                'rgba(0,200,232,.35)',
-                'rgba(0,200,232,.6)',
-                'rgba(0,200,232,.9)',
+                'rgba(124,58,237,.06)',
+                'rgba(124,58,237,.2)',
+                'rgba(124,58,237,.4)',
+                'rgba(124,58,237,.65)',
+                'rgba(124,58,237,.9)',
             ];
+            const weights = [.3, .25, .22, .14, .09];
             const total = cols * rows;
-            const weights = [.35, .25, .2, .12, .08];
             for (let i = 0; i < total; i++) {
                 const r = Math.random();
                 let cum = 0, level = 0;
@@ -1087,54 +2580,76 @@
                     if (r < cum) { level = w; break; }
                 }
                 const cell = document.createElement('div');
-                cell.style.cssText = `background:${colors[level]};border-radius:2px;height:8px;transition:transform .15s;cursor:default;`;
-                cell.addEventListener('mouseenter', () => cell.style.transform = 'scale(1.4)');
-                cell.addEventListener('mouseleave', () => cell.style.transform = '');
+                cell.style.cssText = `background:${colors[level]};border-radius:2px;`;
                 container.appendChild(cell);
             }
         }
 
-        const mainGrid = document.querySelector('.heatmap-grid');
-        if (mainGrid) {
-            mainGrid.style.gridTemplateRows = 'repeat(7, 8px)';
-            mainGrid.style.gridAutoFlow = 'column';
-            makeHeatCells(mainGrid, 84, 7);
-        }
-
-        const miniGrids = document.querySelectorAll('.mini-heatmap-inner');
-        miniGrids.forEach(g => {
-            g.style.gridTemplateRows = 'repeat(4, 1fr)';
-            g.style.gridAutoFlow = 'column';
-            makeHeatCells(g, 28, 4);
+        document.querySelectorAll('.fmh-inner').forEach(g => {
+            makeCells(g, 28, 4);
         });
 
-        /* ── Intersection observer fade-up ── */
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-                if (e.isIntersecting) {
-                    e.target.style.animationPlayState = 'running';
-                    observer.unobserve(e.target);
-                }
-            });
-        }, { threshold: .15 });
-
-        document.querySelectorAll('.feat-card, .step, .stat-card').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity .55s ease, transform .55s ease';
-            observer.observe(el);
-        });
-
-        const scrollObserver = new IntersectionObserver((entries) => {
+        /* Scroll reveal */
+        const reveal = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 if (e.isIntersecting) {
                     e.target.style.opacity = '1';
                     e.target.style.transform = 'translateY(0)';
-                    scrollObserver.unobserve(e.target);
+                    reveal.unobserve(e.target);
                 }
             });
-        }, { threshold: .1 });
+        }, { threshold: 0.08 });
 
-        document.querySelectorAll('.feat-card, .step, .stat-card').forEach(el => scrollObserver.observe(el));
+        const revealEls = document.querySelectorAll(
+            '.feat-card-new, .step-card, .stat-card-new, .testi-card, .bv-card, .benefit-item'
+        );
+
+        revealEls.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
+            reveal.observe(el);
+        });
+
+        /* Mobile menu toggle */
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const drawer = document.getElementById('mobileDrawer');
+        const drawerOverlay = document.getElementById('mobileDrawerOverlay');
+        const drawerClose = document.getElementById('mobileDrawerClose');
+        const drawerLinks = document.querySelectorAll('.mobile-drawer-link');
+
+        function openDrawer() {
+            drawer.classList.add('open');
+            menuBtn.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            drawer.classList.remove('open');
+            menuBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function () {
+                if (drawer.classList.contains('open')) {
+                    closeDrawer();
+                } else {
+                    openDrawer();
+                }
+            });
+        }
+
+        if (drawerOverlay) {
+            drawerOverlay.addEventListener('click', closeDrawer);
+        }
+
+        if (drawerClose) {
+            drawerClose.addEventListener('click', closeDrawer);
+        }
+
+        drawerLinks.forEach(function (link) {
+            link.addEventListener('click', closeDrawer);
+        });
     })();
 </script>
