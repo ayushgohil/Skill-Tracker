@@ -13,14 +13,14 @@
                 <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="#stats" class="nav-link">Stats</a>
             </nav>
-
             <div class="nav-actions">
                 <a routerLink="/auth/login" class="btn-nav-signin">Sign In</a>
                 <a routerLink="/auth/register" class="btn-nav-cta">Get Started Free</a>
             </div>
 
             <!-- Mobile hamburger button -->
-            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" (click)="toggleMenu()"
+                [class.active]="isMenuOpen()">
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
@@ -35,10 +35,10 @@
         <div class="mobile-drawer-panel">
             <div class="mobile-drawer-header">
                 <div class="nav-logo logo-dark-badge">
-                    <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo"
-                        class="brand-logo-img mobile-brand-logo" />
+                    <img src="assets/nextlyr-logo.png" alt="Nextlyr Logo" class="brand-logo-img mobile-brand-logo" />
                 </div>
-                <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu" (click)="closeMenu()">✕</button>
+                <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu"
+                    (click)="closeMenu()">✕</button>
             </div>
             <nav class="mobile-drawer-links">
                 <a href="#features" class="mobile-drawer-link" (click)="closeMenu()">Features</a>
@@ -713,25 +713,30 @@
     }
 
     /* ===== PREMIUM ANIMATIONS SYSTEM ===== */
-    .reveal-item, .hero-reveal {
+    .reveal-item,
+    .hero-reveal {
         opacity: 0;
         transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
         will-change: transform, opacity;
     }
 
-    .reveal-up, .hero-reveal.reveal-up {
+    .reveal-up,
+    .hero-reveal.reveal-up {
         transform: translateY(30px);
     }
 
-    .reveal-down, .hero-reveal.reveal-down {
+    .reveal-down,
+    .hero-reveal.reveal-down {
         transform: translateY(-30px);
     }
 
-    .reveal-left, .hero-reveal.reveal-left {
+    .reveal-left,
+    .hero-reveal.reveal-left {
         transform: translateX(-35px);
     }
 
-    .reveal-right, .hero-reveal.reveal-right {
+    .reveal-right,
+    .hero-reveal.reveal-right {
         transform: translateX(35px);
     }
 
@@ -749,7 +754,8 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        background: rgba(26, 5, 51, 0.95); /* Matches footer theme #1a0533 but translucent */
+        background: rgba(26, 5, 51, 0.95);
+        /* Matches footer theme #1a0533 but translucent */
         backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         padding: 0 1.5rem;
@@ -826,7 +832,8 @@
     }
 
     .nav-link:hover {
-        color: #c084fc; /* Light purple violet */
+        color: #c084fc;
+        /* Light purple violet */
     }
 
     .nav-actions {
