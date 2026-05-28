@@ -12,8 +12,8 @@ const isValidUrl = (url: string): boolean => {
     }
 };
 
-const supabaseUrl = isValidUrl(environment.supabaseUrl) 
-    ? environment.supabaseUrl 
+const supabaseUrl = isValidUrl(environment.supabaseUrl)
+    ? environment.supabaseUrl
     : 'https://placeholder-project.supabase.co';
 
 const supabaseKey = environment.supabaseKey && environment.supabaseKey !== 'undefined'

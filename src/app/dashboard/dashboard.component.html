@@ -1,20 +1,26 @@
 <!-- src/app/dashboard/dashboard.component.html -->
-<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
+<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24">
 
     <!-- ── Header Area ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-6 sm:py-10 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
+    <header
+        class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-6 sm:py-10 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
         <div class="absolute top-[-50%] right-[-20%] w-56 sm:w-72 h-56 sm:h-72 bg-white/10 blur-3xl rounded-full"></div>
 
         <div class="max-w-5xl mx-auto flex flex-col gap-4 sm:gap-6 relative z-10">
             <!-- Top Row: Title & Profile -->
             <div class="flex items-center justify-between">
                 <div>
-                    <span class="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Learning Dashboard</span>
-                    <h1 class="text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 tracking-tight">Nextlyr Skill Tracker</h1>
+                    <span
+                        class="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-widest tahoma">Learning
+                        Dashboard</span>
+                    <h1 class="text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 tracking-tight tahoma">Nextlyr Skill
+                        Tracker</h1>
                 </div>
-                <a routerLink="/profile" class="w-10 h-10 min-w-[40px] rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation overflow-hidden">
+                <a routerLink="/profile"
+                    class="w-10 h-10 min-w-[40px] rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation overflow-hidden">
                     @if (userAvatar()) {
-                    <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
+                    <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover"
+                        referrerpolicy="no-referrer" />
                     } @else {
                     {{ userInitial() }}
                     }
@@ -24,41 +30,57 @@
             <!-- Metrics Cards -->
             <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-1 sm:mt-2">
                 <!-- Mastery Circle -->
-                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2 shadow-sm">
+                <div
+                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2 shadow-sm">
                     <div class="relative flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14">
                         <svg class="w-full h-full transform -rotate-90">
-                            <circle class="text-white/20" stroke-width="4" stroke="currentColor" fill="transparent" r="16" cx="20" cy="20" class="sm:hidden"/>
-                            <circle class="text-white" stroke-width="4" [style.stroke-dasharray]="100.5" [style.stroke-dashoffset]="100.5 - (100.5 * overallPercent() / 100)" stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="20" cy="20" class="sm:hidden"/>
-                            <circle class="text-white/20" stroke-width="4" stroke="currentColor" fill="transparent" r="22" cx="28" cy="28"/>
-                            <circle class="text-white" stroke-width="4" [style.stroke-dasharray]="138.2" [style.stroke-dashoffset]="138.2 - (138.2 * overallPercent() / 100)" stroke-linecap="round" stroke="currentColor" fill="transparent" r="22" cx="28" cy="28"/>
+                            <circle class="text-white/20" stroke-width="4" stroke="currentColor" fill="transparent"
+                                r="16" cx="20" cy="20" class="sm:hidden" />
+                            <circle class="text-white" stroke-width="4" [style.stroke-dasharray]="100.5"
+                                [style.stroke-dashoffset]="100.5 - (100.5 * overallPercent() / 100)"
+                                stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="20" cy="20"
+                                class="sm:hidden" />
+                            <circle class="text-white/20" stroke-width="4" stroke="currentColor" fill="transparent"
+                                r="22" cx="28" cy="28" />
+                            <circle class="text-white" stroke-width="4" [style.stroke-dasharray]="138.2"
+                                [style.stroke-dashoffset]="138.2 - (138.2 * overallPercent() / 100)"
+                                stroke-linecap="round" stroke="currentColor" fill="transparent" r="22" cx="28"
+                                cy="28" />
                         </svg>
-                        <span class="absolute text-[9px] sm:text-xs font-black">{{ overallPercent() }}%</span>
+                        <span class="absolute text-[9px] sm:text-xs font-black tahoma">{{ overallPercent() }}%</span>
                     </div>
-                    <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80">Mastery</span>
+                    <span
+                        class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80 tahoma">Mastery</span>
                 </div>
 
                 <!-- Streak -->
-                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
-                    <span class="text-lg sm:text-2xl font-black">🔥 {{ currentStreak() }}</span>
-                    <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80">Day Streak</span>
+                <div
+                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
+                    <span class="text-lg sm:text-2xl font-black tahoma">🔥 {{ currentStreak() }}</span>
+                    <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80 tahoma">Day
+                        Streak</span>
                 </div>
 
                 <!-- XP -->
-                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
-                    <span class="text-lg sm:text-2xl font-black">✨ {{ totalCompleted() * 100 }}</span>
-                    <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80">Total XP</span>
+                <div
+                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
+                    <span class="text-lg sm:text-2xl font-black tahoma">✨ {{ totalCompleted() * 100 }}</span>
+                    <span
+                        class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80 tahoma">Total
+                        XP</span>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- ── Main Content ────────────────────────────── -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-5 py-6 sm:py-8">
+    <main class="max-w-5xl mx-auto px-4 sm:px-5 py-6 sm:py-8 tahoma">
 
         <!-- Weekly Review Banner / Focus Topics — Skeleton Loading -->
         @if (loadingWeekly()) {
         <!-- Skeleton: Weekly Focus Ready Banner -->
-        <div class="bg-orange-50/60 border border-orange-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 flex items-center justify-between gap-3 animate-pulse">
+        <div
+            class="bg-orange-50/60 border border-orange-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 flex items-center justify-between gap-3 animate-pulse">
             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-orange-200/60 flex-shrink-0"></div>
                 <div class="min-w-0 space-y-1.5">
@@ -69,7 +91,8 @@
             <div class="h-9 w-24 sm:w-28 bg-orange-200/50 rounded-lg sm:rounded-xl flex-shrink-0"></div>
         </div>
         <!-- Skeleton: Current Focus Topics -->
-        <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-pulse">
+        <div
+            class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-pulse">
             <div class="flex items-center justify-between mb-3">
                 <div class="h-3.5 bg-zinc-200/70 rounded w-36"></div>
                 <div class="h-3 bg-zinc-100 rounded w-14"></div>
@@ -84,15 +107,17 @@
 
         <!-- Weekly Review Banner -->
         @if (reviewDue()) {
-        <div class="bg-orange-50 border border-orange-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 animate-slide-up flex items-center justify-between gap-3 shadow-sm">
+        <div
+            class="bg-orange-50 border border-orange-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 animate-slide-up flex items-center justify-between gap-3 shadow-sm">
             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                 <span class="text-xl sm:text-2xl flex-shrink-0">⭐</span>
                 <div class="min-w-0">
-                    <div class="text-[#131B2E] text-sm font-bold truncate">Weekly Focus Ready</div>
-                    <div class="text-zinc-500 text-xs hidden sm:block">Pick topics to focus on this week</div>
+                    <div class="text-[#131B2E] text-sm font-bold truncate tahoma">Weekly Focus Ready</div>
+                    <div class="text-zinc-500 text-xs hidden sm:block tahoma">Pick topics to focus on this week</div>
                 </div>
             </div>
-            <button (click)="goToWeeklyReview()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl shadow-sm transition-all whitespace-nowrap flex-shrink-0 min-h-[36px] touch-manipulation">
+            <button (click)="goToWeeklyReview()"
+                class="tahoma bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl shadow-sm transition-all whitespace-nowrap flex-shrink-0 min-h-[36px] touch-manipulation">
                 Start Review
             </button>
         </div>
@@ -100,16 +125,22 @@
 
         <!-- Focus Topics -->
         @if (starredTopics().length > 0) {
-        <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-slide-up">
+        <div
+            class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-slide-up">
             <div class="flex items-center justify-between mb-3">
-                <span class="text-blue-600 font-bold text-sm">★ Current Focus Topics</span>
-                <button (click)="goToWeeklyReview()" class="text-blue-600 hover:underline text-xs font-bold min-h-[32px] touch-manipulation">Manage</button>
+                <span class="text-blue-600 font-bold text-sm tahoma">★ Current Focus Topics</span>
+                <button (click)="goToWeeklyReview()"
+                    class="tahoma text-blue-600 hover:underline text-xs font-bold min-h-[32px] touch-manipulation">Manage</button>
             </div>
             <div class="flex flex-wrap gap-2">
                 @for (topic of starredTopics(); track topic.id) {
-                <div (click)="openSubject(topic.subject_id, topic.title)" class="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all bg-[#F4F5FC] border border-[#E4E6F5] hover:border-blue-200 touch-manipulation">
-                    <div class="w-2 h-2 rounded-full flex-shrink-0" [style.background-color]="topic.subject_color"></div>
-                    <span class="text-xs font-semibold text-[#434654] truncate max-w-[160px] sm:max-w-[250px]">{{ topic.title }}</span>
+                <div (click)="openSubject(topic.subject_id, topic.title)"
+                    class="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all bg-[#F4F5FC] border border-[#E4E6F5] hover:border-blue-200 touch-manipulation">
+                    <div class="tahoma w-2 h-2 rounded-full flex-shrink-0"
+                        [style.background-color]="topic.subject_color">
+                    </div>
+                    <span class="tahoma text-xs font-semibold text-[#434654] truncate max-w-[160px] sm:max-w-[250px]">{{
+                        topic.title }}</span>
                 </div>
                 }
             </div>
@@ -120,8 +151,9 @@
 
         <!-- Section Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 class="text-sm sm:text-base font-black text-[#131B2E]">Learning Paths</h2>
-            <button (click)="showAddSubject.set(true)" class="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline min-h-[32px] touch-manipulation">
+            <h2 class="text-sm sm:text-base font-black text-[#131B2E] tahoma">Learning Paths</h2>
+            <button (click)="showAddSubject.set(true)"
+                class="tahoma text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline min-h-[32px] touch-manipulation">
                 + Add Subject
             </button>
         </div>
@@ -140,15 +172,21 @@
 
         } @else if (subjects().length === 0 && !showAddSubject()) {
         <!-- Empty State -->
-        <div class="text-center py-12 sm:py-16 bg-white border border-dashed border-zinc-200 rounded-2xl sm:rounded-3xl animate-fade-in">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
-                <svg class="w-7 h-7 sm:w-8 sm:h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        <div
+            class="text-center py-12 sm:py-16 bg-white border border-dashed border-sky-500 rounded-2xl sm:rounded-3xl animate-fade-in shadow-xl hover:shadow-2xl transition-all duration-300">
+            <div
+                class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-7 h-7 sm:w-8 sm:h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
             </div>
-            <h3 class="text-[#131B2E] font-bold text-base sm:text-lg mb-1">Create your first Subject</h3>
-            <p class="text-zinc-400 text-xs max-w-xs mx-auto leading-relaxed mb-5 sm:mb-6 px-4">Add topics to break down skills and master content cleanly.</p>
-            <button (click)="showAddSubject.set(true)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-full shadow-md min-h-[44px] touch-manipulation">
+            <h3 class="text-[#131B2E] font-bold text-base sm:text-lg mb-1 tahoma">Create your first Subject</h3>
+            <p class="text-zinc-400 text-xs max-w-xs mx-auto leading-relaxed mb-5 sm:mb-6 px-4 tahoma">Add topics to
+                break down
+                skills and master content cleanly.</p>
+            <button (click)="showAddSubject.set(true)"
+                class="tahoma bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-full shadow-md min-h-[44px] touch-manipulation">
                 Add New Subject
             </button>
         </div>
@@ -158,58 +196,81 @@
         <div class="space-y-2 sm:space-y-3" [@staggerList]="subjects().length">
             @for (sub of subjects(); track sub.id) {
 
-                @if (editingSubjectId() === sub.id) {
-                <!-- Edit Mode -->
-                <div class="bg-white border border-blue-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-3 shadow-md animate-scale-in">
-                    <h4 class="text-xs font-bold text-[#737686]">Edit Subject</h4>
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <input [(ngModel)]="editSubjectName" (input)="editSubjectName = toTitleCase(editSubjectName)" class="w-full h-11 sm:h-12 rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" placeholder="Subject name" />
-                        <input [(ngModel)]="editSubjectColor" type="color" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-zinc-200 p-1 bg-white cursor-pointer flex-shrink-0" />
-                    </div>
-                    <div class="flex gap-2">
-                        <button (click)="saveEditSubject($event, sub.id)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl min-h-[40px] touch-manipulation">Save Changes</button>
-                        <button (click)="cancelEditSubject($event)" class="bg-zinc-100 hover:bg-zinc-200 text-[#434654] text-xs font-bold px-4 py-2.5 rounded-xl min-h-[40px] touch-manipulation">Cancel</button>
-                    </div>
+            @if (editingSubjectId() === sub.id) {
+            <!-- Edit Mode -->
+            <div
+                class="bg-white border border-blue-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-3 shadow-md animate-scale-in">
+                <h4 class="text-xs font-bold text-[#737686] tahoma">Edit Subject</h4>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <input [(ngModel)]="editSubjectName" (input)="editSubjectName = toTitleCase(editSubjectName)"
+                        class="tahoma w-full h-11 sm:h-12 rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                        placeholder="Subject name" />
+                    <input [(ngModel)]="editSubjectColor" type="color"
+                        class="tahoma w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-zinc-200 p-1 bg-white cursor-pointer flex-shrink-0" />
                 </div>
+                <div class="flex gap-2">
+                    <button (click)="saveEditSubject($event, sub.id)"
+                        class="tahoma bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl min-h-[40px] touch-manipulation">Save
+                        Changes</button>
+                    <button (click)="cancelEditSubject($event)"
+                        class="tahoma bg-zinc-100 hover:bg-zinc-200 text-[#434654] text-xs font-bold px-4 py-2.5 rounded-xl min-h-[40px] touch-manipulation">Cancel</button>
+                </div>
+            </div>
 
-                } @else {
-                <!-- Display Mode -->
-                <div (click)="openSubject(sub.id)" class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3 sm:gap-4 cursor-pointer hover:border-blue-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all animate-scale-in touch-manipulation">
-                    <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <!-- Color Bar -->
-                        <div class="w-3 sm:w-4 h-10 sm:h-12 rounded-full flex-shrink-0" [style.background-color]="sub.color"></div>
+            } @else {
+            <!-- Display Mode -->
+            <div (click)="openSubject(sub.id)"
+                class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3 sm:gap-4 cursor-pointer hover:border-blue-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all animate-scale-in touch-manipulation">
+                <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                    <!-- Color Bar -->
+                    <div class="w-3 sm:w-4 h-10 sm:h-12 rounded-full flex-shrink-0"
+                        [style.background-color]="sub.color"></div>
 
-                        <!-- Name + Progress -->
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-[#131B2E] font-bold text-sm sm:text-base truncate">{{ sub.name }}</h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <div class="w-full bg-zinc-100 rounded-full h-1.5">
-                                    <div class="h-1.5 rounded-full transition-all" [style.width.%]="sub.percent" [style.background-color]="sub.color"></div>
-                                </div>
-                                <span class="text-xs font-bold text-[#737686] flex-shrink-0">{{ sub.percent }}%</span>
+                    <!-- Name + Progress -->
+                    <div class="min-w-0 flex-1">
+                        <h3 class="text-[#131B2E] font-bold text-sm sm:text-base truncate tahoma">{{ sub.name }}</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="w-full bg-zinc-100 rounded-full h-1.5">
+                                <div class="h-1.5 rounded-full transition-all" [style.width.%]="sub.percent"
+                                    [style.background-color]="sub.color"></div>
                             </div>
+                            <span class="tahoma text-xs font-bold text-[#737686] flex-shrink-0">{{ sub.percent
+                                }}%</span>
                         </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-                        <div class="text-right hidden sm:block">
-                            <span class="text-xs font-bold text-[#737686]">{{ sub.completedCount }}/{{ sub.totalCount }} topics</span>
-                        </div>
-                        <div class="text-right sm:hidden">
-                            <span class="text-[10px] font-bold text-[#737686]">{{ sub.completedCount }}/{{ sub.totalCount }}</span>
-                        </div>
-
-                        <button (click)="startEditSubject($event, sub)" class="w-8 h-8 min-w-[32px] rounded-xl hover:bg-[#F4F5FC] text-zinc-400 hover:text-blue-600 transition-all flex items-center justify-center touch-manipulation">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        </button>
-
-                        <button (click)="deleteSubject($event, sub.id, sub.name)" class="w-8 h-8 min-w-[32px] rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-all flex items-center justify-center touch-manipulation">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
                     </div>
                 </div>
-                }
+
+                <!-- Actions -->
+                <div class="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                    <div class="text-right hidden sm:block">
+                        <span class="text-xs font-bold text-[#737686] tahoma">{{ sub.completedCount }}/{{ sub.totalCount
+                            }}
+                            topics</span>
+                    </div>
+                    <div class="text-right sm:hidden">
+                        <span class="text-[10px] font-bold text-[#737686] tahoma">{{ sub.completedCount }}/{{
+                            sub.totalCount
+                            }}</span>
+                    </div>
+
+                    <button (click)="startEditSubject($event, sub)"
+                        class="tahoma w-8 h-8 min-w-[32px] rounded-xl hover:bg-[#F4F5FC] text-zinc-400 hover:text-blue-600 transition-all flex items-center justify-center touch-manipulation">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+
+                    <button (click)="deleteSubject($event, sub.id, sub.name)"
+                        class="tahoma w-8 h-8 min-w-[32px] rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-all flex items-center justify-center touch-manipulation">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            }
 
             }
         </div>
@@ -218,99 +279,130 @@
     </main>
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-cyan-400 touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
-            <span class="text-[8px] sm:text-[9px] font-bold">Home</span>
+    <nav
+        class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm">
+        <a routerLink="/dashboard" class="flex flex-col items-center gap-0 text-cyan-400 touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z" />
+            </svg>
+            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Home</span>
         </a>
-        <button (click)="goToWeeklyReview()" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[8px] sm:text-[9px] font-bold">Weekly</span>
+        <button (click)="goToWeeklyReview()"
+            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Weekly</span>
         </button>
-        <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span class="text-[8px] sm:text-[9px] font-bold">Profile</span>
+        <a routerLink="/profile"
+            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Profile</span>
         </a>
     </nav>
 
     <!-- Add Subject Bottom Sheet -->
     @if (showAddSubject()) {
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-end justify-center animate-fade-in" (click)="showAddSubject.set(false)">
-        <div class="w-full max-w-md bg-[#FAF8FF] rounded-t-[28px] sm:rounded-t-[32px] p-5 sm:p-6 shadow-2xl animate-slide-up flex flex-col gap-4 sm:gap-5 max-h-[92vh] overflow-y-auto relative" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-end justify-center animate-fade-in"
+        (click)="showAddSubject.set(false)">
+        <div class="w-full max-w-md bg-[#FAF8FF] rounded-t-[28px] sm:rounded-t-[32px] p-5 sm:p-6 shadow-2xl animate-slide-up flex flex-col gap-4 sm:gap-5 max-h-[92vh] overflow-y-auto relative"
+            (click)="$event.stopPropagation()">
 
             <!-- Drag Handle -->
             <div class="w-10 h-1 bg-zinc-300 rounded-full mx-auto mt-[-6px] mb-1 flex-shrink-0"></div>
 
             <!-- Title Row -->
             <div class="flex items-center justify-between">
-                <h2 class="text-xl sm:text-2xl font-black text-[#131B2E] tracking-tight">New Subject</h2>
-                <button (click)="showAddSubject.set(false)" class="w-9 h-9 min-w-[36px] rounded-full bg-[#E4E6F5] text-[#737686] hover:text-[#131B2E] hover:bg-zinc-200 flex items-center justify-center transition-colors touch-manipulation">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <h2 class="text-xl sm:text-2xl font-black text-[#131B2E] tracking-tight tahoma">New Subject</h2>
+                <button (click)="showAddSubject.set(false)"
+                    class="tahoma w-9 h-9 min-w-[36px] rounded-full bg-[#E4E6F5] text-[#737686] hover:text-[#131B2E] hover:bg-zinc-200 flex items-center justify-center transition-colors touch-manipulation">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
 
             <!-- Subject Name -->
             <div class="space-y-2">
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Subject Name</span>
-                <input [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)" (keydown.enter)="addSubject()"
-                    class="w-full h-13 sm:h-14 rounded-2xl bg-[#F4F5FC] border border-[#E4E6F5] px-4 text-base font-bold outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-[#131B2E] placeholder-zinc-400"
+                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest tahoma">Subject Name</span>
+                <input [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)"
+                    (keydown.enter)="addSubject()"
+                    class="tahoma w-full h-13 sm:h-14 rounded-2xl bg-[#F4F5FC] border border-[#E4E6F5] px-4 text-base font-bold outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-[#131B2E] placeholder-zinc-400"
                     placeholder="e.g. Master React Native" />
             </div>
 
             <!-- Icons -->
             <div class="space-y-2">
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Visual Identity</span>
+                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest tahoma">Visual
+                    Identity</span>
                 <div class="grid grid-cols-4 gap-2 sm:gap-3">
                     @for (icon of icons; track icon) {
                     <button (click)="selectedIcon.set(icon)"
                         class="h-14 sm:h-16 rounded-2xl flex items-center justify-center transition-all shadow-sm touch-manipulation"
-                        [class.bg-blue-600]="selectedIcon() === icon"
-                        [class.text-white]="selectedIcon() === icon"
-                        [class.bg-indigo-50]="selectedIcon() !== icon"
-                        [class.text-indigo-600]="selectedIcon() !== icon"
+                        [class.bg-blue-600]="selectedIcon() === icon" [class.text-white]="selectedIcon() === icon"
+                        [class.bg-indigo-50]="selectedIcon() !== icon" [class.text-indigo-600]="selectedIcon() !== icon"
                         [class.hover:bg-indigo-100]="selectedIcon() !== icon">
 
                         @switch (icon) {
-                            @case ('code') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
-                                </svg>
-                            }
-                            @case ('palette') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.006-.616A16.075 16.075 0 0019.5 8.375a3.375 3.375 0 00-3.375-3.375 16.114 16.114 0 00-8.15 2.237m-.005 0A15.998 15.998 0 004.03 14.28m15.47-5.905a1.5 1.5 0 11-3.001-.004 1.5 1.5 0 013.001.004zm-3.496 5.992a1.5 1.5 0 11-3.002-.003 1.5 1.5 0 013.002.003z"/>
-                                </svg>
-                            }
-                            @case ('terminal') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0022.5 18V6a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25z"/>
-                                </svg>
-                            }
-                            @case ('fitness') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0V9.75m0 2.25m15-2.25V9.75m0 2.25v2.25m-11.25-2.25h7.5m-9 0v-3.75m0 3.75v3.75m10.5-7.5v7.5"/>
-                                </svg>
-                            }
-                            @case ('language') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 5.418A9.004 9.004 0 0112 3m8.716 11.253a9.004 9.004 0 01-17.432 0"/>
-                                </svg>
-                            }
-                            @case ('architecture') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-                                </svg>
-                            }
-                            @case ('science') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.75H14.25M12 3.75v11.25M3.75 20.25h16.5m-2.25-7.5h-10.5M7.5 20.25h9m-9 0L12 11.25m0 0L16.5 20.25"/>
-                                </svg>
-                            }
-                            @case ('music') {
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3v12m-10.5-9v12m0-12a3 3 0 100 6 3 3 0 000-6zm10.5-3a3 3 0 100 6 3 3 0 000-6z"/>
-                                </svg>
-                            }
+                        @case ('code') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                        }
+                        @case ('palette') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.006-.616A16.075 16.075 0 0019.5 8.375a3.375 3.375 0 00-3.375-3.375 16.114 16.114 0 00-8.15 2.237m-.005 0A15.998 15.998 0 004.03 14.28m15.47-5.905a1.5 1.5 0 11-3.001-.004 1.5 1.5 0 013.001.004zm-3.496 5.992a1.5 1.5 0 11-3.002-.003 1.5 1.5 0 013.002.003z" />
+                        </svg>
+                        }
+                        @case ('terminal') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0022.5 18V6a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                        }
+                        @case ('fitness') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19.5 12h-15m0 0V9.75m0 2.25m15-2.25V9.75m0 2.25v2.25m-11.25-2.25h7.5m-9 0v-3.75m0 3.75v3.75m10.5-7.5v7.5" />
+                        </svg>
+                        }
+                        @case ('language') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 5.418A9.004 9.004 0 0112 3m8.716 11.253a9.004 9.004 0 01-17.432 0" />
+                        </svg>
+                        }
+                        @case ('architecture') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        }
+                        @case ('science') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9.75 3.75H14.25M12 3.75v11.25M3.75 20.25h16.5m-2.25-7.5h-10.5M7.5 20.25h9m-9 0L12 11.25m0 0L16.5 20.25" />
+                        </svg>
+                        }
+                        @case ('music') {
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 9l10.5-3v12m-10.5-9v12m0-12a3 3 0 100 6 3 3 0 000-6zm10.5-3a3 3 0 100 6 3 3 0 000-6z" />
+                        </svg>
+                        }
                         }
                     </button>
                     }
@@ -319,14 +411,15 @@
 
             <!-- Accent Colors -->
             <div class="space-y-3">
-                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest">Accent Color</span>
+                <span class="text-[10px] font-bold text-[#737686] uppercase tracking-widest tahoma">Accent Color</span>
                 <div class="flex flex-wrap items-center gap-4 sm:gap-6 py-1 sm:py-2">
                     @for (color of colors; track color) {
                     <button (click)="newSubjectColor = color"
                         class="w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all flex items-center justify-center relative touch-manipulation"
                         [style.background-color]="color">
                         @if (newSubjectColor === color) {
-                        <div class="absolute w-13 h-13 sm:w-14 sm:h-14 rounded-full border-2 flex-shrink-0 pointer-events-none" [style.border-color]="color"></div>
+                        <div class="absolute w-13 h-13 sm:w-14 sm:h-14 rounded-full border-2 flex-shrink-0 pointer-events-none"
+                            [style.border-color]="color"></div>
                         }
                     </button>
                     }
@@ -335,9 +428,12 @@
 
             <!-- CTA -->
             <button (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()"
-                class="w-full mt-2 sm:mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black rounded-2xl py-3.5 sm:py-4 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-[52px] touch-manipulation">
+                class="tahoma w-full mt-2 sm:mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black rounded-2xl py-3.5 sm:py-4 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-[52px] touch-manipulation">
                 <span>Create Subject</span>
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </button>
 
         </div>
