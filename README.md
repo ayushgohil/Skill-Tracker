@@ -69,7 +69,7 @@ Experience a "Deep Slate" design system featuring glassmorphism, spotlight hover
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/Skill-Tracker.git
+   git clone https://github.com/ayushgohil/Skill-Tracker.git
    cd Skill-Tracker
    ```
 
