@@ -3,13 +3,14 @@ import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../supabase.client';
+import { CacheService } from './cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     currentUser = signal<User | null>(null);
     loading = signal(true);
 
-    constructor(private router: Router) {
+    constructor(private router: Router, private cacheService: CacheService) {
         supabase.auth.getSession().then(({ data }) => {
             this.currentUser.set(data.session?.user ?? null);
             this.loading.set(false);
@@ -17,6 +18,9 @@ export class AuthService {
 
         supabase.auth.onAuthStateChange((event, session) => {
             this.currentUser.set(session?.user ?? null);
+            if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+                this.cacheService.clear();
+            }
             if (event === 'PASSWORD_RECOVERY') {
                 this.router.navigate(['/reset-password']);
             }

@@ -122,8 +122,13 @@ export class TopicItemComponent implements OnDestroy {
                 import('quill'),
                 import('quill-magic-url')
             ]).then(([QuillModule, MagicUrlModule]) => {
-                const Quill = QuillModule.default || QuillModule;
-                const MagicUrl = MagicUrlModule.default || MagicUrlModule;
+                let Quill: any = QuillModule;
+                if (Quill && typeof Quill !== 'function' && Quill.default) Quill = Quill.default;
+                
+                let MagicUrl: any = MagicUrlModule;
+                if (MagicUrl && typeof MagicUrl !== 'function' && MagicUrl.default) MagicUrl = MagicUrl.default;
+                if (MagicUrl && typeof MagicUrl !== 'function' && MagicUrl.default) MagicUrl = MagicUrl.default;
+                
                 // Register if not already registered
                 if (!Quill.imports['modules/magicUrl']) {
                     Quill.register('modules/magicUrl', MagicUrl);
