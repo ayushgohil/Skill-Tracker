@@ -5,6 +5,8 @@ import { QuillModule } from 'ngx-quill';
 import { TopicWithProgress, Depth } from '../../core/models';
 import { PomodoroService } from '../../core/services/pomodoro.service';
 import Swal from 'sweetalert2';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID, Inject } from '@angular/core';
 
 export interface ProgressChange {
     topicId: string;
@@ -103,7 +105,10 @@ export class TopicItemComponent implements OnDestroy {
     );
 
     // ── Effect replaces ngOnChanges ───────────────────
-    constructor(public pomodoro: PomodoroService) {
+    constructor(
+        public pomodoro: PomodoroService,
+        @Inject(PLATFORM_ID) private platformId: Object
+    ) {
         effect(() => {
             if (this.isOpen()) {
                 this.localNotes = this.topic().notes;
@@ -111,6 +116,20 @@ export class TopicItemComponent implements OnDestroy {
             }
         });
         document.addEventListener('click', this.boundCloseMenu);
+
+        if (isPlatformBrowser(this.platformId)) {
+            Promise.all([
+                import('quill'),
+                import('quill-magic-url')
+            ]).then(([QuillModule, MagicUrlModule]) => {
+                const Quill = QuillModule.default || QuillModule;
+                const MagicUrl = MagicUrlModule.default || MagicUrlModule;
+                // Register if not already registered
+                if (!Quill.imports['modules/magicUrl']) {
+                    Quill.register('modules/magicUrl', MagicUrl);
+                }
+            }).catch(err => console.error('Failed to load magic url:', err));
+        }
     }
 
     ngOnDestroy() {
@@ -145,6 +164,15 @@ export class TopicItemComponent implements OnDestroy {
             completed: !this.topic().completed,
             notes: this.topic().notes
         });
+    }
+
+    @HostListener('click', ['$event'])
+    onLinkClick(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        const anchor = target.closest('a');
+        if (anchor && anchor.href) {
+            window.open(anchor.href, '_blank');
+        }
     }
 
     onNotesInput() { this.notesDirty = true; }

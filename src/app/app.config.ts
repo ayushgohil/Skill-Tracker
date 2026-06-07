@@ -11,6 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideQuillConfig({
       modules: {
+        magicUrl: true,
         syntax: false,
         toolbar: [
           ['bold', 'italic', 'underline', 'strike'],
