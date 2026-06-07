@@ -1,6 +1,7 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
 import { Component, input, output, signal, computed, effect, OnDestroy, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { QuillModule } from 'ngx-quill';
 import { TopicWithProgress, Depth } from '../../core/models';
 import { PomodoroService } from '../../core/services/pomodoro.service';
 import Swal from 'sweetalert2';
@@ -38,7 +39,7 @@ import { expandCollapse } from '../../core/animations/app.animations';
 @Component({
     selector: 'app-topic-item',
     standalone: true,
-    imports: [FormsModule],
+    imports: [FormsModule, QuillModule],
     templateUrl: './topic-item.component.html',
     animations: [expandCollapse]
 })

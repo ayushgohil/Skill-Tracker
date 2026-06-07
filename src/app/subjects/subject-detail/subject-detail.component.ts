@@ -174,8 +174,9 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     @HostListener('document:keydown.space', ['$event'])
     onSpaceKey(event: Event) {
         const kbEvent = event as KeyboardEvent;
-        const tag = (kbEvent.target as HTMLElement).tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        const target = kbEvent.target as HTMLElement;
+        const tag = target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable) return;
 
         const openId = this.expandedTopicId();
         if (!openId) return;

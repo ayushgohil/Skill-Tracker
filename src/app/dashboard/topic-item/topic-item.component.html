@@ -141,11 +141,11 @@
                 Notes
                 <span class="text-zinc-800 text-xs">(auto-saves on blur)</span>
             </label>
-            <textarea [(ngModel)]="localNotes" (input)="onNotesInput()" (blur)="onNotesBlur()"
+            <quill-editor [(ngModel)]="localNotes" (ngModelChange)="onNotesInput()" (onBlur)="onNotesBlur()"
                 placeholder="Paste resources, write what you learned, note open questions..."
-                rows="3"
-                class="input resize-none text-sm leading-relaxed placeholder:text-zinc-700 w-full">
-            </textarea>
+                [styles]="{height: 'auto', minHeight: '120px'}"
+                class="w-full block bg-white rounded-md border border-zinc-200">
+            </quill-editor>
 
             <!-- Subtopics -->
             <div class="border-t border-zinc-200 mt-3 pt-3">
