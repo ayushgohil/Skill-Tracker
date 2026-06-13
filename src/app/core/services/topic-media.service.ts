@@ -30,14 +30,17 @@ export class TopicMediaService {
     async upload(
         file: File,
         topicId: string,
-        topicTitle: string,       // ← add this
+        topicTitle: string,
         subjectId: string,
         subjectName: string,
-        userId: string
+        userId: string,
+        onProgress?: (percent: number) => void  // ← add this
     ): Promise<TopicMedia> {
         this.uploading.set(true);
         try {
-            const driveResult = await this.drive.uploadFile(file, subjectName, topicTitle);  // ← pass it
+            const driveResult = await this.drive.uploadFile(
+                file, subjectName, topicTitle, onProgress  // ← forward it
+            );
 
             const { data, error } = await supabase
                 .from('topic_media')

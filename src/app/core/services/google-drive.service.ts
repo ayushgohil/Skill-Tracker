@@ -59,37 +59,53 @@ export class GoogleDriveService {
     }
 
     // Upload file → NextLyr SkillTracker / {subjectName} / media
-    async uploadFile(file: File, subjectName: string, topicTitle: string): Promise<DriveUploadResult> {
+    async uploadFile(
+        file: File,
+        subjectName: string,
+        topicTitle: string,
+        onProgress?: (percent: number) => void
+    ): Promise<DriveUploadResult> {
         const token = await this.getAccessToken();
         if (!token) throw new Error('NO_DRIVE_ACCESS');
 
         const rootId = await this.findOrCreateFolder(token, 'NextLyr SkillTracker');
-        const subjectId = await this.findOrCreateFolder(token, subjectName, rootId);
-        const topicId = await this.findOrCreateFolder(token, topicTitle, subjectId);  // ← topic folder, no media subfolder
+        const subjectFolderId = await this.findOrCreateFolder(token, subjectName, rootId);
+        const topicFolderId = await this.findOrCreateFolder(token, topicTitle, subjectFolderId);
 
         const form = new FormData();
         form.append('metadata', new Blob([JSON.stringify({
             name: file.name,
-            parents: [topicId]
+            parents: [topicFolderId]
         })], { type: 'application/json' }));
         form.append('file', file);
 
-        const upload = await fetch(
-            'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType',
-            {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: form
-            }
-        );
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
 
-        if (!upload.ok) {
-            const err = await upload.json();
-            throw new Error(err.error?.message ?? 'Upload failed');
-        }
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable && onProgress) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    onProgress(percent);
+                }
+            });
 
-        const result = await upload.json();
-        return { fileId: result.id, fileName: result.name, mimeType: result.mimeType };
+            xhr.addEventListener('load', () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const result = JSON.parse(xhr.responseText);
+                    resolve({ fileId: result.id, fileName: result.name, mimeType: result.mimeType });
+                } else {
+                    const err = JSON.parse(xhr.responseText);
+                    reject(new Error(err.error?.message ?? 'Upload failed'));
+                }
+            });
+
+            xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+            xhr.addEventListener('abort', () => reject(new Error('Upload cancelled')));
+
+            xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType');
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            xhr.send(form);
+        });
     }
 
     // Fetch file as a blob URL for display

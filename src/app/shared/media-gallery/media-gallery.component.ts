@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { TopicMedia, TopicMediaService } from '../../core/services/topic-media.service';
 import { GoogleDriveService } from '../../core/services/google-drive.service';
 import { AuthService } from '../../core/services/auth.service';
+import { validateFiles } from '../../core/utils/file-validation';
+import Swal from 'sweetalert2';
+
 
 @Component({
     selector: 'app-media-gallery',
@@ -43,48 +46,64 @@ import { AuthService } from '../../core/services/auth.service';
 
           <!-- Header row -->
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span class="text-xs font-medium text-slate-400">Media</span>
-              @if (media().length > 0) {
-                <span class="text-[10px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded-full">
-                  {{ media().length }}
-                </span>
-              }
-            </div>
+  <div class="flex items-center gap-2">
+    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    </svg>
+    <span class="text-xs font-medium text-slate-400">Media</span>
+    @if (media().length > 0) {
+      <span class="text-[10px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded-full">
+        {{ media().length }}
+      </span>
+    }
+  </div>
 
-            <!-- Upload button -->
-            <div>
-              <input #fileInput type="file" class="hidden"
-                accept="image/*,video/*,.pdf" multiple
-                (change)="onFilesSelected($event)" />
-              <button
-                (click)="fileInput.click()"
-                [disabled]="mediaService.uploading()"
-                class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg
-                       bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-300
-                       border border-slate-700 hover:border-slate-600
-                       transition-all duration-200 disabled:opacity-50"
-              >
-                @if (mediaService.uploading()) {
-                  <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                  </svg>
-                  Uploading...
-                } @else {
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 4v16m8-8H4"/>
-                  </svg>
-                  Add Media
-                }
-              </button>
-            </div>
-          </div>
+  <div>
+    <input #fileInput type="file" class="hidden"
+      accept="*/*" multiple
+      (change)="onFilesSelected($event)" />
+    <button
+      (click)="fileInput.click()"
+      [disabled]="mediaService.uploading()"
+      class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg
+             bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-300
+             border border-slate-700 hover:border-slate-600
+             transition-all duration-200 disabled:opacity-50"
+    >
+      @if (mediaService.uploading()) {
+        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        Uploading {{ completedFiles() + 1 }}/{{ totalFiles() }}...
+      } @else {
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Media
+      }
+    </button>
+  </div>
+</div>
+
+<!-- Overall progress bar -->
+@if (totalFiles() > 0 && overallProgress() > 0) {
+  <div class="space-y-1">
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] text-slate-500">
+        Uploading {{ completedFiles() }} of {{ totalFiles() }} files
+      </span>
+      <span class="text-[10px] text-indigo-400 font-medium">{{ overallProgress() }}%</span>
+    </div>
+    <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+      <div
+        class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+        [style.width.%]="overallProgress()"
+      ></div>
+    </div>
+  </div>
+}
 
           <!-- Loading skeletons -->
           @if (loading()) {
@@ -109,6 +128,26 @@ import { AuthService } from '../../core/services/auth.service';
           <!-- Thumbnail strip -->
           @if (!loading() && media().length > 0) {
             <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-slate-700">
+                  <!-- Uploading placeholders -->
+  @for (entry of objectEntries(uploadingFiles()); track entry[0]) {
+    <div class="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden
+                ring-1 ring-indigo-500/40 bg-slate-800/80 flex flex-col
+                items-center justify-center gap-1.5 p-2">
+      <!-- Circular progress -->
+      <svg class="w-8 h-8 -rotate-90" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="12" fill="none" stroke="#1e293b" stroke-width="3"/>
+        <circle cx="16" cy="16" r="12" fill="none" stroke="#6366f1" stroke-width="3"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="75.4"
+          [attr.stroke-dashoffset]="75.4 - (75.4 * entry[1].percent / 100)"
+          style="transition: stroke-dashoffset 0.3s ease"/>
+      </svg>
+      <span class="text-[9px] text-indigo-400 font-medium">{{ entry[1].percent }}%</span>
+      <span class="text-[8px] text-slate-500 text-center leading-tight truncate w-full text-center">
+        {{ entry[1].name }}
+      </span>
+    </div>
+  }
               @for (item of media(); track item.id; let i = $index) {
   <div class="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden
                ring-1 ring-slate-700/60 transition-all duration-200 group"
@@ -369,11 +408,21 @@ export class MediaGalleryComponent implements OnInit {
     brokenFiles = signal<Set<string>>(new Set());
     deletingId = signal<string | null>(null);
 
+    uploadingFiles = signal<Record<string, { name: string; percent: number }>>({});
+    overallProgress = signal(0);
+    totalFiles = signal(0);
+    completedFiles = signal(0);
+
+
 
     lightboxOpen = signal(false);
     lightboxIndex = signal(0);
     lightboxUrl = signal<string | null>(null);
     lightboxLoading = signal(false);
+
+    objectEntries(obj: Record<string, any>) {
+        return Object.entries(obj);
+    }
 
     async ngOnInit() {
         this.hasDriveAccess.set(await this.drive.hasDriveAccess());
@@ -419,20 +468,114 @@ export class MediaGalleryComponent implements OnInit {
     async onFilesSelected(event: Event) {
         const input = event.target as HTMLInputElement;
         if (!input.files?.length) return;
+
         const userId = this.auth.currentUser()?.id;
         if (!userId) return;
 
-        for (const file of Array.from(input.files)) {
+        const allFiles = Array.from(input.files);
+        const { valid, errors } = validateFiles(allFiles);
+
+        if (errors.length > 0) {
+            const isMixed = valid.length > 0;
+            await Swal.fire({
+                title: errors.length === 1 ? 'File Not Allowed' : `${errors.length} Files Not Allowed`,
+                html: `
+        <div style="text-align:left; font-size:13px; color:#94a3b8; line-height:1.6">
+          ${errors.map(e => `<div style="margin-bottom:6px">⚠️ ${e}</div>`).join('')}
+          ${isMixed ? `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #334155; color:#64748b">
+            ${valid.length} valid file${valid.length > 1 ? 's' : ''} will still be uploaded.
+          </div>` : ''}
+        </div>
+      `,
+                icon: 'warning',
+                confirmButtonText: isMixed ? 'Upload Valid Files' : 'Got it',
+                showCancelButton: isMixed,
+                cancelButtonText: 'Cancel All',
+                background: '#0f172a',
+                color: '#f1f5f9',
+                confirmButtonColor: '#6366f1',
+                cancelButtonColor: '#3f3f46',
+            }).then(result => { if (result.isDismissed) valid.length = 0; });
+        }
+
+        if (!valid.length) { input.value = ''; return; }
+
+        // Set up overall progress tracking
+        this.totalFiles.set(valid.length);
+        this.completedFiles.set(0);
+        this.overallProgress.set(0);
+
+        // Add placeholder slots for each uploading file
+        const tempIds = valid.map((file, i) => {
+            const tempId = `uploading_${Date.now()}_${i}`;
+            this.uploadingFiles.update(u => ({
+                ...u,
+                [tempId]: { name: file.name, percent: 0 }
+            }));
+            return tempId;
+        });
+
+        // Upload files one by one
+        for (let i = 0; i < valid.length; i++) {
+            const file = valid[i];
+            const tempId = tempIds[i];
+
             try {
                 const saved = await this.mediaService.upload(
-                    file, this.topicId, this.topicTitle, this.subjectId, this.subjectName, userId
+                    file, this.topicId, this.topicTitle, this.subjectId, this.subjectName, userId,
+                    (percent) => {
+                        // Update per-file progress
+                        this.uploadingFiles.update(u => ({
+                            ...u,
+                            [tempId]: { name: file.name, percent }
+                        }));
+                        // Update overall progress
+                        const base = (this.completedFiles() / this.totalFiles()) * 100;
+                        const current = (percent / this.totalFiles());
+                        this.overallProgress.set(Math.round(base + current));
+                    }
                 );
+
+                // Remove placeholder, add real item
+                this.uploadingFiles.update(u => {
+                    const copy = { ...u };
+                    delete copy[tempId];
+                    return copy;
+                });
+                this.completedFiles.update(c => c + 1);
+                this.overallProgress.set(Math.round((this.completedFiles() / this.totalFiles()) * 100));
                 this.media.update(m => [saved, ...m]);
                 if (this.isImage(saved.mime_type)) this.loadThumb(saved);
+
             } catch (err: any) {
-                console.error('Upload failed:', err.message);
+                // Remove placeholder on error
+                this.uploadingFiles.update(u => {
+                    const copy = { ...u };
+                    delete copy[tempId];
+                    return copy;
+                });
+                if (err.message?.includes('insufficient authentication scopes')) {
+                    await this.auth.loginWithGoogle();
+                    return;
+                }
+                await Swal.fire({
+                    title: 'Upload Failed',
+                    text: `Could not upload ${file.name}. Please try again.`,
+                    icon: 'error',
+                    background: '#0f172a',
+                    color: '#f1f5f9',
+                    confirmButtonColor: '#6366f1',
+                });
             }
         }
+
+        // Reset overall progress after short delay
+        setTimeout(() => {
+            this.overallProgress.set(0);
+            this.totalFiles.set(0);
+            this.completedFiles.set(0);
+        }, 1500);
+
         input.value = '';
     }
 
