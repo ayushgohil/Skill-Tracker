@@ -7,6 +7,7 @@ import { PomodoroService } from '../../core/services/pomodoro.service';
 import Swal from 'sweetalert2';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID, Inject } from '@angular/core';
+import { MediaGalleryComponent } from '../../shared/media-gallery/media-gallery.component';
 
 export interface ProgressChange {
     topicId: string;
@@ -41,7 +42,7 @@ import { expandCollapse } from '../../core/animations/app.animations';
 @Component({
     selector: 'app-topic-item',
     standalone: true,
-    imports: [FormsModule, QuillModule],
+    imports: [FormsModule, QuillModule, MediaGalleryComponent],
     templateUrl: './topic-item.component.html',
     animations: [expandCollapse]
 })
@@ -69,6 +70,9 @@ export class TopicItemComponent implements OnDestroy {
 
     addingSubtopic = signal(false);
     newSubtopicTitle = '';
+
+    // ── Google Drive ───────────────────────────────────
+    subjectName = input.required<string>();
 
     // Kebab menu
     static openMenuId = signal<string | null>(null);
@@ -124,11 +128,11 @@ export class TopicItemComponent implements OnDestroy {
             ]).then(([QuillModule, MagicUrlModule]) => {
                 let Quill: any = QuillModule;
                 if (Quill && typeof Quill !== 'function' && Quill.default) Quill = Quill.default;
-                
+
                 let MagicUrl: any = MagicUrlModule;
                 if (MagicUrl && typeof MagicUrl !== 'function' && MagicUrl.default) MagicUrl = MagicUrl.default;
                 if (MagicUrl && typeof MagicUrl !== 'function' && MagicUrl.default) MagicUrl = MagicUrl.default;
-                
+
                 // Register if not already registered
                 if (!Quill.imports['modules/magicUrl']) {
                     Quill.register('modules/magicUrl', MagicUrl);

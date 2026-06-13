@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, computed, HostListener, ElementRef } from '@angular/core';
 import Swal from 'sweetalert2';
-import { TitleCasePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TopicsService } from '../core/services/topics.service';
@@ -17,7 +16,7 @@ import { ProfileService } from '../core/services/profile.service';
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ToastComponent, FormsModule, RouterLink, TitleCasePipe],
+    imports: [ToastComponent, FormsModule, RouterLink],
     templateUrl: './dashboard.component.html',
     animations: [staggerList, fadeSlideInOut]
 })

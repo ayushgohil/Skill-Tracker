@@ -30,7 +30,7 @@ export class AuthService {
     async register(email: string, password: string) {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        
+
         // If identities is empty, it means the user already exists (Supabase protection)
         if (data.user && data.user.identities && data.user.identities.length === 0) {
             throw new Error('User already registered');
@@ -46,6 +46,20 @@ export class AuthService {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        });
+        if (error) throw error;
+    }
+
+
+
+    async connectGoogleDrive() {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                scopes: 'https://www.googleapis.com/auth/drive.file',
+                queryParams: { access_type: 'offline', prompt: 'consent' },
                 redirectTo: `${window.location.origin}/auth/callback`
             }
         });

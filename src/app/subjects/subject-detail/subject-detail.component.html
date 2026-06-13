@@ -87,7 +87,7 @@
         <div class="space-y-3 relative z-10" [@staggerList]="filteredTopics().length">
             @for (topic of filteredTopics(); track topic.id) {
             <div class="animate-slide-up relative" [style.z-index]="9999 - $index">
-                <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id"
+                <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id" [subjectName]="sub.name"
                     (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
                     (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
                     (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
