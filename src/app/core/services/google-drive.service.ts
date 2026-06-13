@@ -130,4 +130,11 @@ export class GoogleDriveService {
             headers: { Authorization: `Bearer ${token}` }
         });
     }
+    getDriveViewLink(fileId: string): string {
+        return `https://drive.google.com/file/d/${fileId}/view`;
+    }
+
+    getDriveDownloadLink(fileId: string): string {
+        return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    }
 }
