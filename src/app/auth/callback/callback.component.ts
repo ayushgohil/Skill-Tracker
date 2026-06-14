@@ -1,11 +1,8 @@
-// src/app/auth/callback/callback.component.ts
-// This component handles the OAuth redirect from Supabase.
-// After Google sign-in, Supabase redirects here with tokens in the URL hash.
-// We wait for Supabase to process the tokens, then navigate to /dashboard.
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { supabase } from '../../core/supabase.client';
 import { AuthService } from '../../core/services/auth.service';
+import { DrivePromptService } from '../../core/services/drive-prompt.service';
 
 @Component({
     selector: 'app-callback',
@@ -42,18 +39,20 @@ import { AuthService } from '../../core/services/auth.service';
     `]
 })
 export class CallbackComponent implements OnInit {
-    constructor(private router: Router, private auth: AuthService) {}
+    constructor(
+        private router: Router,
+        private auth: AuthService,
+        private drivePrompt: DrivePromptService  // ← add this
+    ) { }
 
     async ngOnInit() {
-        // Supabase client automatically picks up the tokens from the URL hash
-        // and exchanges them for a session. We just need to wait for it.
         const { data, error } = await supabase.auth.getSession();
 
         if (data.session?.user) {
             this.auth.currentUser.set(data.session.user);
+            await this.drivePrompt.maybeShowFirstLoginPrompt();
             this.router.navigate(['/dashboard'], { replaceUrl: true });
         } else {
-            // If something went wrong, redirect to login
             console.error('OAuth callback failed:', error);
             this.router.navigate(['/auth/login'], { replaceUrl: true });
         }

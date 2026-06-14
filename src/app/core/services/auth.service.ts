@@ -43,9 +43,18 @@ export class AuthService {
     }
 
     async loginWithGoogle() {
+        // Check if user previously enabled auto-connect Drive
+        const autoConnect = await this.getAutoConnectDrivePref();
+
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
+                scopes: autoConnect
+                    ? 'https://www.googleapis.com/auth/drive.file'
+                    : undefined,
+                queryParams: autoConnect
+                    ? { access_type: 'offline', prompt: 'consent' }
+                    : {},
                 redirectTo: `${window.location.origin}/auth/callback`
             }
         });
@@ -64,6 +73,36 @@ export class AuthService {
             }
         });
         if (error) throw error;
+    }
+
+    async getAutoConnectDriveSetting(): Promise<boolean> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false;
+        const { data } = await supabase
+            .from('profiles')
+            .select('auto_connect_drive')
+            .eq('id', user.id)
+            .single();
+        return data?.auto_connect_drive ?? false;
+    }
+
+    async setAutoConnectDrive(value: boolean): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        await supabase
+            .from('profiles')
+            .update({ auto_connect_drive: value })
+            .eq('id', user.id);
+        // Cache in localStorage so loginWithGoogle() can read it before session
+        localStorage.setItem('auto_connect_drive', value.toString());
+    }
+
+    // Fetch preference before user is logged in (from localStorage fallback)
+    private async getAutoConnectDrivePref(): Promise<boolean> {
+        // Try localStorage first (available before session loads)
+        const cached = localStorage.getItem('auto_connect_drive');
+        if (cached !== null) return cached === 'true';
+        return false;
     }
 
     async sendPasswordReset(email: string) {

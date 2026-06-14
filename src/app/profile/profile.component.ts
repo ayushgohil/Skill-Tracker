@@ -12,6 +12,7 @@ import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.co
 import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 
+
 @Component({
     selector: 'app-profile',
     standalone: true,
@@ -32,6 +33,8 @@ export class ProfileComponent implements OnInit {
     deleteConfirmationEmail = '';
     isDeleting = signal(false);
     deletionProgress = signal<{ table: string, label: string, status: 'pending' | 'deleting' | 'done' | 'error' }[]>([]);
+    autoConnectDrive = signal(false);
+
 
     percent = computed(() =>
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
@@ -64,6 +67,7 @@ export class ProfileComponent implements OnInit {
                 this.profileService.getProfile(),
                 this.topicsService.getSubjectsWithTopics()
             ]);
+            this.autoConnectDrive.set(await this.auth.getAutoConnectDriveSetting());
             this.profile.set(profile);
             this.displayName = profile.display_name ?? '';
             this.totalSubjects.set(subjects.length);
@@ -91,6 +95,16 @@ export class ProfileComponent implements OnInit {
         }
     }
 
+    async toggleAutoConnectDrive() {
+        const newValue = !this.autoConnectDrive();
+        await this.auth.setAutoConnectDrive(newValue);
+        this.autoConnectDrive.set(newValue);
+        this.toast.success(newValue
+            ? 'Drive will connect automatically on login.'
+            : 'Drive will no longer auto-connect on login.'
+        );
+    }
+
     logout() { this.auth.logout(); }
 
     startDeleteAccount() {
@@ -110,7 +124,7 @@ export class ProfileComponent implements OnInit {
 
     async confirmDeleteAccount() {
         if (this.deleteConfirmationEmail !== this.userEmail() || this.isDeleting()) return;
-        
+
         this.isDeleting.set(true);
         const steps = this.deletionProgress();
         let currentStep = 0;
@@ -130,18 +144,18 @@ export class ProfileComponent implements OnInit {
 
         try {
             await this.profileService.deleteAccount();
-            
+
             clearInterval(progressInterval);
-            
+
             // Mark all as done
             this.deletionProgress.update(prev => prev.map(s => ({ ...s, status: 'done' })));
-            
+
             this.toast.success('Account data deleted completely.');
             setTimeout(() => this.logout(), 1500);
         } catch (err: any) {
             clearInterval(progressInterval);
             console.error(`Failed to delete account:`, err);
-            
+
             this.deletionProgress.update(prev => {
                 const arr = [...prev];
                 arr[currentStep].status = 'error';
