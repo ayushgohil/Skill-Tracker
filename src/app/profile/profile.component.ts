@@ -7,6 +7,7 @@ import { SubjectsService } from '../core/services/subjects.service';
 import { TopicsService } from '../core/services/topics.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
+import { GoogleDriveService } from '../core/services/google-drive.service';
 import { Profile, SubjectWithTopics } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -57,7 +58,8 @@ export class ProfileComponent implements OnInit {
         private profileService: ProfileService,
         private topicsService: TopicsService,
         private auth: AuthService,
-        private toast: ToastService
+        private toast: ToastService,
+        private googleDrive: GoogleDriveService
     ) { }
 
     async ngOnInit() {
@@ -99,6 +101,18 @@ export class ProfileComponent implements OnInit {
         const newValue = !this.autoConnectDrive();
         await this.auth.setAutoConnectDrive(newValue);
         this.autoConnectDrive.set(newValue);
+
+        if (newValue) {
+            const hasAccess = await this.googleDrive.hasDriveAccess();
+            if (!hasAccess) {
+                this.toast.success('Drive auto-connect enabled. Redirecting to authorize Google Drive...');
+                setTimeout(async () => {
+                    await this.auth.connectGoogleDrive();
+                }, 1200);
+                return;
+            }
+        }
+
         this.toast.success(newValue
             ? 'Drive will connect automatically on login.'
             : 'Drive will no longer auto-connect on login.'

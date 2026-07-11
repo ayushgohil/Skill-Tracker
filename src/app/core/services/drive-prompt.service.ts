@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import Swal from 'sweetalert2';
 import { AuthService } from './auth.service';
+import { GoogleDriveService } from './google-drive.service';
 import { supabase } from '../supabase.client';
 
 @Injectable({ providedIn: 'root' })
 export class DrivePromptService {
 
-    constructor(private auth: AuthService) { }
+    constructor(
+        private auth: AuthService,
+        private googleDrive: GoogleDriveService
+    ) { }
 
     // Call this after login — shows prompt only once ever
     async maybeShowFirstLoginPrompt(): Promise<void> {
@@ -17,13 +21,29 @@ export class DrivePromptService {
         const isGoogleUser = user.app_metadata?.['provider'] === 'google';
         if (!isGoogleUser) return; // email users use manual Connect Drive
 
+        // Check current setting
+        const current = await this.auth.getAutoConnectDriveSetting();
+        if (current) {
+            const hasAccess = await this.googleDrive.hasDriveAccess();
+            if (!hasAccess) {
+                const redirected = sessionStorage.getItem('drive_redirected');
+                if (!redirected) {
+                    sessionStorage.setItem('drive_redirected', 'true');
+                    localStorage.setItem('auto_connect_drive', 'true');
+                    await this.auth.connectGoogleDrive();
+                    return;
+                } else {
+                    sessionStorage.removeItem('drive_redirected');
+                }
+            } else {
+                sessionStorage.removeItem('drive_redirected');
+            }
+            return; // already enabled, no need to prompt
+        }
+
         // Check if they've already been prompted
         const alreadyPrompted = localStorage.getItem(`drive_prompted_${user.id}`);
         if (alreadyPrompted) return;
-
-        // Check current setting
-        const current = await this.auth.getAutoConnectDriveSetting();
-        if (current) return; // already enabled, no need to prompt
 
         // Show the prompt
         const result = await Swal.fire({
