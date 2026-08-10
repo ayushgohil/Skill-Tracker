@@ -1,5 +1,5 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
-import { Component, input, output, signal, computed, effect, OnDestroy, HostListener } from '@angular/core';
+import { Component, input, output, signal, computed, effect, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { TopicWithProgress, Depth } from '../../core/models';
@@ -8,6 +8,8 @@ import Swal from 'sweetalert2';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID, Inject } from '@angular/core';
 import { MediaGalleryComponent } from '../../shared/media-gallery/media-gallery.component';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 export interface ProgressChange {
     topicId: string;
@@ -46,7 +48,7 @@ import { expandCollapse } from '../../core/animations/app.animations';
     templateUrl: './topic-item.component.html',
     animations: [expandCollapse]
 })
-export class TopicItemComponent implements OnDestroy {
+export class TopicItemComponent implements OnDestroy, OnInit {
     // ── Signal inputs ─────────────────────────────────
     topic = input.required<TopicWithProgress>();
     isOpen = input<boolean>(false);
@@ -63,6 +65,12 @@ export class TopicItemComponent implements OnDestroy {
     // ── Local state ───────────────────────────────────
     localNotes = '';
     notesDirty = false;
+
+    // ── Auto-save ────────────────────────────────────
+    saveStatus = signal<'idle' | 'saving' | 'saved'>('idle');
+    private notesChanged$ = new Subject<void>();
+    private notesSubscription?: Subscription;
+    private savedTimeout?: ReturnType<typeof setTimeout>;
 
     editing = signal(false);
     editTitle = '';
@@ -117,6 +125,7 @@ export class TopicItemComponent implements OnDestroy {
             if (this.isOpen()) {
                 this.localNotes = this.topic().notes;
                 this.notesDirty = false;
+                this.saveStatus.set('idle');
             }
         });
         document.addEventListener('click', this.boundCloseMenu);
@@ -141,8 +150,19 @@ export class TopicItemComponent implements OnDestroy {
         }
     }
 
+    ngOnInit() {
+        // Debounced auto-save: triggers 800ms after the last change
+        this.notesSubscription = this.notesChanged$.pipe(
+            debounceTime(800)
+        ).subscribe(() => {
+            this.performNoteSave();
+        });
+    }
+
     ngOnDestroy() {
         document.removeEventListener('click', this.boundCloseMenu);
+        this.notesSubscription?.unsubscribe();
+        if (this.savedTimeout) clearTimeout(this.savedTimeout);
     }
 
     private closeMenuOnOutsideClick(e: MouseEvent) {
@@ -184,17 +204,38 @@ export class TopicItemComponent implements OnDestroy {
         }
     }
 
-    onNotesInput() { this.notesDirty = true; }
+    onNotesInput() {
+        this.notesDirty = true;
+        this.saveStatus.set('saving');
+        if (this.savedTimeout) clearTimeout(this.savedTimeout);
+        this.notesChanged$.next();
+    }
 
+    /** Immediate save on blur as fallback (e.g. user switches tab) */
     onNotesBlur() {
         if (this.notesDirty) {
-            this.progressChanged.emit({
-                topicId: this.topic().id,
-                completed: this.topic().completed,
-                notes: this.localNotes
-            });
-            this.notesDirty = false;
+            this.performNoteSave();
         }
+    }
+
+    private performNoteSave() {
+        if (!this.notesDirty) return;
+        this.saveStatus.set('saving');
+        this.progressChanged.emit({
+            topicId: this.topic().id,
+            completed: this.topic().completed,
+            notes: this.localNotes
+        });
+        this.notesDirty = false;
+
+        // Show "Saved" for 2 seconds, then fade back to idle
+        if (this.savedTimeout) clearTimeout(this.savedTimeout);
+        this.savedTimeout = setTimeout(() => {
+            this.saveStatus.set('saved');
+            this.savedTimeout = setTimeout(() => {
+                this.saveStatus.set('idle');
+            }, 2000);
+        }, 300);
     }
 
     toggleMenu(event: Event) {

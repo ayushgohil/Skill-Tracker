@@ -15,7 +15,8 @@ export const appConfig: ApplicationConfig = {
         syntax: false,
         toolbar: [
           ['bold', 'italic', 'underline', 'strike'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          ['code-block'],
           [{ 'color': [] }, { 'background': [] }],
           ['clean'],
           ['link']
