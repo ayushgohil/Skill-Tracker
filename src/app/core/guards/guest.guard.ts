@@ -8,11 +8,11 @@ export const guestGuard: CanActivateFn = async () => {
     const auth = inject(AuthService);
     const router = inject(Router);
 
-    // Use getUser instead of getSession to prevent race conditions on refresh
-    const { data } = await supabase.auth.getUser();
+    // Use getSession for instant local session check from localStorage without network delay
+    const { data: { session } } = await supabase.auth.getSession();
 
-    if (data.user) {
-        auth.currentUser.set(data.user);
+    if (session?.user) {
+        auth.currentUser.set(session.user);
         return router.createUrlTree(['/dashboard']);
     }
 
