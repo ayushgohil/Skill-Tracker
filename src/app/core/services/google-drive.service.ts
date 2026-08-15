@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { environment } from '../../../environments/environment';
 
 export interface DriveUploadResult {
     fileId: string;
@@ -10,18 +11,85 @@ export interface DriveUploadResult {
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
 
-    // Get provider_token from active Supabase session
+    // ── In-memory token cache ──────────────────────────────────
+    // Avoids calling the edge function on every Drive API request.
+    // The cached token is cleared on page reload (it's just a variable).
+    private cachedAccessToken: string | null = null;
+    private tokenExpiresAt = 0; // epoch ms
+
+    /**
+     * Get a valid Google access token.
+     *
+     * Strategy (in order):
+     *  1. Return the in-memory cached token if it hasn't expired
+     *  2. Try session.provider_token (available right after OAuth redirect)
+     *  3. Call the google-token edge function to mint a fresh token via refresh token
+     */
     async getAccessToken(): Promise<string | null> {
+        // 1. Check in-memory cache (with 60s safety margin)
+        if (this.cachedAccessToken && Date.now() < this.tokenExpiresAt - 60_000) {
+            return this.cachedAccessToken;
+        }
+
+        // 2. Try session.provider_token (available immediately after OAuth)
         const { data: { session } } = await supabase.auth.getSession();
-        return session?.provider_token ?? null;
+        if (session?.provider_token) {
+            // Verify it's actually valid by testing it
+            const valid = await this.verifyToken(session.provider_token);
+            if (valid) {
+                this.cachedAccessToken = session.provider_token;
+                // provider_token from Supabase typically lasts ~1 hour
+                this.tokenExpiresAt = Date.now() + 55 * 60 * 1000;
+                return this.cachedAccessToken;
+            }
+        }
+
+        // 3. Call the edge function to get a fresh token via refresh token
+        return await this.refreshAccessToken();
     }
 
-    // Check if user has Drive access
-    async hasDriveAccess(): Promise<boolean> {
-        const token = await this.getAccessToken();
-        if (!token) return false;
+    /**
+     * Call the google-token edge function to get a fresh access token.
+     * The edge function reads the stored refresh token server-side
+     * and exchanges it with Google — no secrets on the frontend.
+     */
+    private async refreshAccessToken(): Promise<string | null> {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session?.access_token) return null;
 
-        // Actually verify the token has drive.file scope
+            const supabaseUrl = environment.supabaseUrl;
+            const res = await fetch(`${supabaseUrl}/functions/v1/google-token`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!res.ok) {
+                const errBody = await res.json().catch(() => ({}));
+                console.warn('google-token edge function error:', errBody);
+
+                // If the refresh token was revoked, clear the cache
+                if (errBody.code === 'REFRESH_TOKEN_REVOKED') {
+                    this.clearCachedToken();
+                }
+                return null;
+            }
+
+            const data = await res.json();
+            this.cachedAccessToken = data.access_token;
+            this.tokenExpiresAt = Date.now() + (data.expires_in ?? 3600) * 1000;
+            return this.cachedAccessToken;
+        } catch (err) {
+            console.error('Failed to refresh Google access token:', err);
+            return null;
+        }
+    }
+
+    /** Verify a token is valid by calling Google's API */
+    private async verifyToken(token: string): Promise<boolean> {
         try {
             const res = await fetch(
                 'https://www.googleapis.com/drive/v3/about?fields=user',
@@ -31,6 +99,21 @@ export class GoogleDriveService {
         } catch {
             return false;
         }
+    }
+
+    /** Clear the in-memory token cache */
+    clearCachedToken(): void {
+        this.cachedAccessToken = null;
+        this.tokenExpiresAt = 0;
+    }
+
+    /**
+     * Check if user has Drive access.
+     * Tries all token sources — if any works, Drive is accessible.
+     */
+    async hasDriveAccess(): Promise<boolean> {
+        const token = await this.getAccessToken();
+        return !!token;
     }
 
     // Find or create a folder by name under a parent
