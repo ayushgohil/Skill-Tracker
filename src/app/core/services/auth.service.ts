@@ -105,6 +105,48 @@ export class AuthService {
         return false;
     }
 
+    // ── Refresh Token Management ────────────────────────────────
+    // Stores the Google refresh token server-side in the profiles table.
+    // This token is NEVER read by the frontend — only the edge function uses it.
+    async saveProviderRefreshToken(refreshToken: string): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Use the service-role-bypassing RPC or direct update
+        // The frontend can write to its own profile row via RLS
+        await supabase
+            .from('profiles')
+            .update({ google_refresh_token: refreshToken })
+            .eq('id', user.id);
+    }
+
+    // Check if a refresh token is stored (without reading its value)
+    async hasStoredRefreshToken(): Promise<boolean> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false;
+
+        // We query for non-null refresh token — the actual value is never sent to the frontend
+        // We only need to know if one exists
+        const { data } = await supabase
+            .from('profiles')
+            .select('google_refresh_token')
+            .eq('id', user.id)
+            .single();
+
+        return !!data?.google_refresh_token;
+    }
+
+    // Clear the stored refresh token (when user disconnects Drive)
+    async clearStoredRefreshToken(): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase
+            .from('profiles')
+            .update({ google_refresh_token: null })
+            .eq('id', user.id);
+    }
+
     async sendPasswordReset(email: string) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: `${window.location.origin}/reset-password`

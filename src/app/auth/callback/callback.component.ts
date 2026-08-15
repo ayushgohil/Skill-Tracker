@@ -42,7 +42,7 @@ export class CallbackComponent implements OnInit {
     constructor(
         private router: Router,
         private auth: AuthService,
-        private drivePrompt: DrivePromptService  // ← add this
+        private drivePrompt: DrivePromptService
     ) { }
 
     async ngOnInit() {
@@ -50,6 +50,22 @@ export class CallbackComponent implements OnInit {
 
         if (data.session?.user) {
             this.auth.currentUser.set(data.session.user);
+
+            // ── Capture & store Google refresh token ─────────────────
+            // The provider_refresh_token is ONLY available right after
+            // the OAuth redirect — Supabase does not persist it.
+            // We store it in the profiles table so the edge function
+            // can use it later to mint fresh access tokens.
+            if (data.session.provider_refresh_token) {
+                try {
+                    await this.auth.saveProviderRefreshToken(data.session.provider_refresh_token);
+                } catch (err) {
+                    console.error('Failed to save provider refresh token:', err);
+                    // Non-fatal — the user can still use the app, just may need
+                    // to re-auth Drive later
+                }
+            }
+
             await this.drivePrompt.maybeShowFirstLoginPrompt();
             this.router.navigate(['/dashboard'], { replaceUrl: true });
         } else {

@@ -103,6 +103,15 @@ export class ProfileComponent implements OnInit {
         this.autoConnectDrive.set(newValue);
 
         if (newValue) {
+            // Check if we already have a stored refresh token
+            const hasRefreshToken = await this.auth.hasStoredRefreshToken();
+            if (hasRefreshToken) {
+                // Already have a refresh token — Drive will work silently
+                this.toast.success('Drive will connect automatically on login.');
+                return;
+            }
+
+            // No refresh token — need to authorize with Google one time
             const hasAccess = await this.googleDrive.hasDriveAccess();
             if (!hasAccess) {
                 this.toast.success('Drive auto-connect enabled. Redirecting to authorize Google Drive...');
@@ -111,11 +120,15 @@ export class ProfileComponent implements OnInit {
                 }, 1200);
                 return;
             }
+        } else {
+            // Turning off auto-connect — clear stored refresh token
+            await this.auth.clearStoredRefreshToken();
+            this.googleDrive.clearCachedToken();
         }
 
         this.toast.success(newValue
             ? 'Drive will connect automatically on login.'
-            : 'Drive will no longer auto-connect on login.'
+            : 'Drive disconnected. Auto-connect disabled.'
         );
     }
 

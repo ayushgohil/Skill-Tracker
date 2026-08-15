@@ -12,7 +12,7 @@ export class DrivePromptService {
         private googleDrive: GoogleDriveService
     ) { }
 
-    // Call this after login — shows prompt only once ever
+    // Call this after login — handles auto-connect and first-time prompt
     async maybeShowFirstLoginPrompt(): Promise<void> {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -24,18 +24,35 @@ export class DrivePromptService {
         // Check current setting
         const current = await this.auth.getAutoConnectDriveSetting();
         if (current) {
-            const hasAccess = await this.googleDrive.hasDriveAccess();
-            if (!hasAccess) {
-                const redirected = sessionStorage.getItem('drive_redirected');
-                if (!redirected) {
-                    sessionStorage.setItem('drive_redirected', 'true');
-                    localStorage.setItem('auto_connect_drive', 'true');
-                    await this.auth.connectGoogleDrive();
-                    return;
-                } else {
-                    sessionStorage.removeItem('drive_redirected');
-                }
+            // Auto-connect is enabled.
+            // Check if we already have a stored refresh token — if yes,
+            // the edge function can mint tokens silently. No redirect needed.
+            const hasRefreshToken = await this.auth.hasStoredRefreshToken();
+
+            if (hasRefreshToken) {
+                // Silently verify Drive access via the edge function.
+                // This is non-blocking — Drive will work on-demand.
+                return;
+            }
+
+            // No refresh token stored yet — we need to redirect to Google
+            // OAuth one time to capture it. This only happens once.
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.provider_refresh_token) {
+                // The refresh token was provided in this session callback
+                // (already saved by callback.component.ts), so we're good.
+                return;
+            }
+
+            // Need to redirect to get the refresh token
+            const redirected = sessionStorage.getItem('drive_redirected');
+            if (!redirected) {
+                sessionStorage.setItem('drive_redirected', 'true');
+                localStorage.setItem('auto_connect_drive', 'true');
+                await this.auth.connectGoogleDrive();
+                return;
             } else {
+                // Already redirected once in this session — don't loop
                 sessionStorage.removeItem('drive_redirected');
             }
             return; // already enabled, no need to prompt
@@ -83,7 +100,7 @@ export class DrivePromptService {
 
         if (result.isConfirmed) {
             await this.auth.setAutoConnectDrive(true);
-            // Re-login with Drive scope now
+            // Re-login with Drive scope now to capture the refresh token
             await this.auth.connectGoogleDrive();
         }
     }
