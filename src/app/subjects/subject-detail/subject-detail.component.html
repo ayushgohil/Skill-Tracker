@@ -136,18 +136,29 @@
     </main>
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-6 py-3.5 flex items-center justify-between gap-10 shadow-2xl z-[60] max-w-sm w-[90%]">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
-            <span class="text-[9px] font-bold">Home</span>
+    <nav
+        class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm">
+        <a routerLink="/dashboard"
+            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z" />
+            </svg>
+            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Home</span>
         </a>
-        <a routerLink="/weekly" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[9px] font-bold">Weekly</span>
+        <a routerLink="/weekly"
+            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Weekly</span>
         </a>
-        <a routerLink="/profile" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span class="text-[9px] font-bold">Profile</span>
+        <a routerLink="/profile"
+            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Profile</span>
         </a>
     </nav>
 
