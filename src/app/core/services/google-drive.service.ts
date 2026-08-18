@@ -17,6 +17,9 @@ export class GoogleDriveService {
     private cachedAccessToken: string | null = null;
     private tokenExpiresAt = 0; // epoch ms
 
+    // ── Blob URL tracking (prevents memory leaks) ─────────────
+    private activeBlobUrls = new Set<string>();
+
     /**
      * Get a valid Google access token.
      *
@@ -126,6 +129,7 @@ export class GoogleDriveService {
             `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
+        if (!res.ok) throw new Error(`Drive folder search failed: ${res.status}`);
         const data = await res.json();
         if (data.files?.length > 0) return data.files[0].id;
 
@@ -137,6 +141,7 @@ export class GoogleDriveService {
             headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
+        if (!create.ok) throw new Error(`Drive folder creation failed: ${create.status}`);
         const folder = await create.json();
         return folder.id;
     }
@@ -202,16 +207,36 @@ export class GoogleDriveService {
         );
         if (!res.ok) throw new Error('Failed to fetch file');
         const blob = await res.blob();
-        return URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
+        this.activeBlobUrls.add(url);
+        return url;
     }
+
+    /** Revoke a blob URL to free memory. Call when the file is no longer displayed. */
+    revokeFileUrl(url: string): void {
+        if (this.activeBlobUrls.has(url)) {
+            URL.revokeObjectURL(url);
+            this.activeBlobUrls.delete(url);
+        }
+    }
+
+    /** Revoke all active blob URLs (e.g. on logout or navigation). */
+    revokeAllFileUrls(): void {
+        this.activeBlobUrls.forEach(url => URL.revokeObjectURL(url));
+        this.activeBlobUrls.clear();
+    }
+
     async deleteFile(fileId: string): Promise<void> {
         const token = await this.getAccessToken();
         if (!token) throw new Error('NO_DRIVE_ACCESS');
 
-        await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });
+        if (!res.ok && res.status !== 404) {
+            throw new Error(`Failed to delete file: ${res.status}`);
+        }
     }
     getDriveViewLink(fileId: string): string {
         return `https://drive.google.com/file/d/${fileId}/view`;

@@ -128,7 +128,9 @@ export class TopicItemComponent implements OnDestroy, OnInit {
                 this.saveStatus.set('idle');
             }
         });
-        document.addEventListener('click', this.boundCloseMenu);
+        if (isPlatformBrowser(this.platformId)) {
+            document.addEventListener('click', this.boundCloseMenu);
+        }
 
         if (isPlatformBrowser(this.platformId)) {
             Promise.all([
@@ -160,7 +162,9 @@ export class TopicItemComponent implements OnDestroy, OnInit {
     }
 
     ngOnDestroy() {
-        document.removeEventListener('click', this.boundCloseMenu);
+        if (isPlatformBrowser(this.platformId)) {
+            document.removeEventListener('click', this.boundCloseMenu);
+        }
         this.notesSubscription?.unsubscribe();
         if (this.savedTimeout) clearTimeout(this.savedTimeout);
     }
@@ -200,6 +204,8 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         const target = event.target as HTMLElement;
         const anchor = target.closest('a');
         if (anchor && anchor.href) {
+            event.preventDefault();
+            event.stopPropagation();
             window.open(anchor.href, '_blank');
         }
     }
