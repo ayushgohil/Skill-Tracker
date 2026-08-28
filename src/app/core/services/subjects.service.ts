@@ -18,6 +18,7 @@ export class SubjectsService {
         const { data, error } = await supabase
             .from('subjects')
             .select('*')
+            .order('order', { ascending: true, nullsFirst: false })
             .order('created_at', { ascending: true });
         if (error) throw error;
         
@@ -54,6 +55,7 @@ export class SubjectsService {
             .from('topics')
             .select('*')
             .eq('subject_id', subjectId)
+            .order('order', { ascending: true, nullsFirst: false })
             .order('created_at', { ascending: true });
         if (topErr) throw topErr;
 
@@ -101,9 +103,16 @@ export class SubjectsService {
     async create(name: string, color: string): Promise<Subject> {
         this.cacheService.incrementDbCall('createSubject');
         const { data: { user } } = await supabase.auth.getUser();
+
+        // Get current count for ordering
+        const { count } = await supabase
+            .from('subjects')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user!.id);
+
         const { data, error } = await supabase
             .from('subjects')
-            .insert({ name, color, user_id: user!.id })
+            .insert({ name, color, user_id: user!.id, order: count ?? 0 })
             .select()
             .single();
         if (error) throw error;
@@ -126,6 +135,23 @@ export class SubjectsService {
         this.cacheService.clear('subjects_with_topics');
     }
 
+    async updateSubjectsOrder(orderedSubjects: Subject[]): Promise<void> {
+        this.cacheService.incrementDbCall('updateSubjectsOrder');
+        const updates = orderedSubjects.map((s, index) =>
+            supabase
+                .from('subjects')
+                .update({ order: index })
+                .eq('id', s.id)
+        );
+        const results = await Promise.all(updates);
+        for (const res of results) {
+            if (res.error) throw res.error;
+        }
+
+        this.cacheService.clear('subjects_all');
+        this.cacheService.clear('subjects_with_topics');
+    }
+
     async delete(id: string): Promise<void> {
         this.cacheService.incrementDbCall('deleteSubject');
         const { error } = await supabase
@@ -140,3 +166,4 @@ export class SubjectsService {
         this.cacheService.clear('subjects_with_topics');
     }
 }
+

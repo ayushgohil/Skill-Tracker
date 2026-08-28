@@ -226,7 +226,7 @@ export class BackupService {
 
         // ── 2. Restore Subjects ──────────────────────────────────
         updateStep(1, 'Restoring subjects');
-        const subjectsToInsert = (backupData.subjects ?? []).map(s => {
+        const subjectsToInsert = (backupData.subjects ?? []).map((s, index) => {
             const newId = crypto.randomUUID();
             subjectIdMap.set(s.id, newId);
             return {
@@ -234,6 +234,7 @@ export class BackupService {
                 user_id: user.id,
                 name: s.name,
                 color: s.color || '#3b82f6',
+                order: typeof s.order === 'number' ? s.order : index,
                 created_at: s.created_at || new Date().toISOString()
             };
         });
@@ -245,7 +246,7 @@ export class BackupService {
 
         // ── 3. Restore Topics ────────────────────────────────────
         updateStep(2, 'Restoring topics');
-        const topicsToInsert = (backupData.topics ?? []).map(t => {
+        const topicsToInsert = (backupData.topics ?? []).map((t, index) => {
             const newId = crypto.randomUUID();
             topicIdMap.set(t.id, newId);
             const mappedSubjectId = subjectIdMap.get(t.subject_id) || t.subject_id;
@@ -256,9 +257,11 @@ export class BackupService {
                 title: t.title,
                 depth: t.depth || 'shallow',
                 starred: t.starred || false,
+                order: typeof t.order === 'number' ? t.order : index,
                 created_at: t.created_at || new Date().toISOString()
             };
         });
+
 
         if (topicsToInsert.length > 0) {
             const { error } = await supabase.from('topics').insert(topicsToInsert);

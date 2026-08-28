@@ -10,6 +10,7 @@ export interface Subject {
     user_id: string;
     name: string;
     color: string;
+    order?: number;
     created_at: string;
     // joined
     topics?: TopicWithProgress[];
@@ -24,8 +25,10 @@ export interface Topic {
     title: string;
     depth: Depth;
     starred: boolean;
+    order?: number;
     created_at: string;
 }
+
 
 export interface UserProgress {
     id?: string;

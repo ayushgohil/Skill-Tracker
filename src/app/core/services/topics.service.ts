@@ -20,6 +20,7 @@ export class TopicsService {
         const { data: subjects, error: subErr } = await supabase
             .from('subjects')
             .select('*')
+            .order('order', { ascending: true, nullsFirst: false })
             .order('created_at', { ascending: true });
         if (subErr) throw subErr;
 
@@ -27,6 +28,7 @@ export class TopicsService {
         const { data: topics, error: topErr } = await supabase
             .from('topics')
             .select('*')
+            .order('order', { ascending: true, nullsFirst: false })
             .order('created_at', { ascending: true });
         if (topErr) throw topErr;
 
@@ -86,9 +88,17 @@ export class TopicsService {
     async addTopic(subjectId: string, title: string, depth: Depth): Promise<Topic> {
         this.cacheService.incrementDbCall('addTopic');
         const { data: { user } } = await supabase.auth.getUser();
+
+        // Get current topic count in this subject for ordering
+        const { count } = await supabase
+            .from('topics')
+            .select('*', { count: 'exact', head: true })
+            .eq('subject_id', subjectId)
+            .eq('user_id', user!.id);
+
         const { data, error } = await supabase
             .from('topics')
-            .insert({ subject_id: subjectId, title, depth, user_id: user!.id })
+            .insert({ subject_id: subjectId, title, depth, user_id: user!.id, order: count ?? 0 })
             .select()
             .single();
         if (error) throw error;
@@ -97,7 +107,24 @@ export class TopicsService {
         return data as Topic;
     }
 
+    async updateTopicsOrder(orderedTopics: Topic[]): Promise<void> {
+        this.cacheService.incrementDbCall('updateTopicsOrder');
+        const updates = orderedTopics.map((t, index) =>
+            supabase
+                .from('topics')
+                .update({ order: index })
+                .eq('id', t.id)
+        );
+        const results = await Promise.all(updates);
+        for (const res of results) {
+            if (res.error) throw res.error;
+        }
+
+        this.cacheService.clear();
+    }
+
     async updateTopic(id: string, title: string, depth: Depth): Promise<void> {
+
         this.cacheService.incrementDbCall('updateTopic');
         const { error } = await supabase
             .from('topics')

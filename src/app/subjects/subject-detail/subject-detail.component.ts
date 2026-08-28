@@ -17,6 +17,7 @@ import {
 } from '../../dashboard/topic-item/topic-item.component';
 import { ToastComponent } from '../../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 export type SortOption = 'default' | 'depth-asc' | 'depth-desc' | 'completed-last' | 'completed-first';
 
@@ -25,11 +26,12 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
 @Component({
     selector: 'app-subject-detail',
     standalone: true,
-    imports: [TopicItemComponent, ToastComponent, FormsModule, RouterLink],
+    imports: [TopicItemComponent, ToastComponent, FormsModule, RouterLink, DragDropModule],
     templateUrl: './subject-detail.component.html',
     animations: [staggerList, fadeSlideInOut]
 })
 export class SubjectDetailComponent implements OnInit, OnDestroy {
+
     protected readonly Object = Object;
 
     // ── State ──────────────────────────────────────────
@@ -383,7 +385,28 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         }
     }
 
+    // ── Reorder Topics ────────────────────────────────
+    async onTopicDrop(event: CdkDragDrop<TopicWithProgress[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+        if (this.sortOption() !== 'default' || this.isSearching()) return;
+
+        const items = [...this.topics()];
+        moveItemInArray(items, event.previousIndex, event.currentIndex);
+        this.topics.set(items); // Instant 0ms optimistic UI update
+
+        try {
+            await this.topicsService.updateTopicsOrder(items);
+        } catch (err) {
+            console.error('Failed to update topic order:', err);
+            this.toast.error('Failed to save topic order.');
+            if (this.subject()) {
+                this.topics.set(await this.subjectsService.getTopicsForSubject(this.subject()!.id));
+            }
+        }
+    }
+
     goBack() {
         this.router.navigate(['/dashboard']);
     }
 }
+

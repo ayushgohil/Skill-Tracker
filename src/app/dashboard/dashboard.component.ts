@@ -12,15 +12,17 @@ import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ToastComponent, FormsModule, RouterLink],
+    imports: [ToastComponent, FormsModule, RouterLink, DragDropModule],
     templateUrl: './dashboard.component.html',
     animations: [staggerList, fadeSlideInOut]
 })
 export class DashboardComponent implements OnInit {
+
     // ── Spotlight Tracking ────────────────────────────
     @HostListener('mousemove', ['$event'])
     onMouseMove(event: MouseEvent) {
@@ -274,5 +276,22 @@ export class DashboardComponent implements OnInit {
         }
     }
 
+    // ── Reorder Subjects ──────────────────────────────
+    async onSubjectDrop(event: CdkDragDrop<SubjectWithTopics[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+
+        const items = [...this.subjects()];
+        moveItemInArray(items, event.previousIndex, event.currentIndex);
+        this.subjects.set(items); // Instant 0ms optimistic UI update
+
+        try {
+            await this.subjectsService.updateSubjectsOrder(items);
+        } catch (err) {
+            console.error('Failed to update subject order:', err);
+            this.toast.error('Failed to save subject order.');
+            this.subjects.set(await this.topicsService.getSubjectsWithTopics());
+        }
+    }
+
     logout() { this.auth.logout(); }
-}
+}

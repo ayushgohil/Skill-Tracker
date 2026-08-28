@@ -84,14 +84,34 @@
         </div>
 
         <!-- Topics Overview -->
-        <div class="space-y-3 relative z-10" [@staggerList]="filteredTopics().length">
+        <div cdkDropList (cdkDropListDropped)="onTopicDrop($event)" [cdkDropListDisabled]="sortOption() !== 'default' || isSearching()" class="space-y-3 relative z-10">
             @for (topic of filteredTopics(); track topic.id) {
-            <div class="animate-slide-up relative" [style.z-index]="9999 - $index">
-                <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id" [subjectName]="sub.name"
-                    (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
-                    (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
-                    (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
-                    (subtopicDeleted)="onSubtopicDeleted($event)" />
+            <div cdkDrag [cdkDragData]="topic" class="relative group/topic" [style.z-index]="9999 - $index">
+                <div *cdkDragPlaceholder class="cdk-drag-placeholder my-2 min-h-[52px]"></div>
+                <div class="flex items-center gap-1.5">
+                    @if (sortOption() === 'default' && !isSearching()) {
+                    <!-- Drag Handle -->
+                    <div cdkDragHandle
+                        class="drag-handle cursor-grab active:cursor-grabbing p-1 text-zinc-300 hover:text-zinc-600 active:text-blue-600 transition-colors flex items-center justify-center rounded-lg hover:bg-zinc-100 touch-none flex-shrink-0"
+                        title="Drag to reorder topic">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="9" cy="6" r="1.5"/>
+                            <circle cx="15" cy="6" r="1.5"/>
+                            <circle cx="9" cy="12" r="1.5"/>
+                            <circle cx="15" cy="12" r="1.5"/>
+                            <circle cx="9" cy="18" r="1.5"/>
+                            <circle cx="15" cy="18" r="1.5"/>
+                        </svg>
+                    </div>
+                    }
+                    <div class="flex-1 min-w-0">
+                        <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id" [subjectName]="sub.name"
+                            (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
+                            (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
+                            (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
+                            (subtopicDeleted)="onSubtopicDeleted($event)" />
+                    </div>
+                </div>
             </div>
             }
 
@@ -102,6 +122,7 @@
             </div>
             }
         </div>
+
 
         <!-- Add Topic -->
         @if (!isSearching()) {
