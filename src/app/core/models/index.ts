@@ -1,4 +1,3 @@
-// src/app/core/models/index.ts
 
 export interface Profile {
     id: string;
@@ -80,3 +79,80 @@ export interface StarredTopic extends TopicWithProgress {
     subject_name: string;
     subject_color: string;
 }
+
+export interface ActivityLogItem {
+    id?: string;
+    user_id?: string;
+    date: string;
+    tasks_completed: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface TopicMediaItem {
+    id?: string;
+    user_id?: string;
+    topic_id: string;
+    subject_id: string;
+    drive_file_id: string;
+    file_name: string;
+    mime_type: string;
+    created_at?: string;
+}
+
+export interface BackupMetadata {
+    version: number;
+    appName: string;
+    exportedAt: string;
+    userId: string;
+    userEmail?: string;
+    summary: {
+        totalSubjects: number;
+        totalTopics: number;
+        totalSubtopics: number;
+        totalProgressRecords: number;
+        totalWeeklyGoals: number;
+        totalWeeklyReviews: number;
+        totalActivityLogs: number;
+        totalMediaAttachments: number;
+    };
+}
+
+export interface BackupData {
+    metadata: BackupMetadata;
+    profile?: Partial<Profile>;
+    subjects: Subject[];
+    topics: Topic[];
+    subtopics: Subtopic[];
+    user_progress: UserProgress[];
+    weekly_goals: WeeklyGoal[];
+    weekly_reviews: WeeklyReview[];
+    activity_logs: ActivityLogItem[];
+    topic_media: TopicMediaItem[];
+}
+
+export interface DriveBackupFile {
+    id: string;
+    name: string;
+    mimeType: string;
+    createdTime: string;
+    size?: string;
+    modifiedTime?: string;
+}
+
+export interface RestoreResult {
+    success: boolean;
+    subjectsRestored: number;
+    topicsRestored: number;
+    subtopicsRestored: number;
+    progressRestored: number;
+    message?: string;
+}
+
+export type BackupStepStatus = 'pending' | 'active' | 'done' | 'error';
+
+export interface BackupStep {
+    id: string;
+    label: string;
+    status: BackupStepStatus;
+}

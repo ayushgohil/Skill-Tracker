@@ -123,10 +123,10 @@ export class GoogleDriveService {
     private async findOrCreateFolder(token: string, name: string, parentId?: string): Promise<string> {
         const q = parentId
             ? `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
-            : `name='${name}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`;
+            : `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
 
         const res = await fetch(
-            `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`,
+            `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,parents)`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error(`Drive folder search failed: ${res.status}`);
@@ -245,4 +245,98 @@ export class GoogleDriveService {
     getDriveDownloadLink(fileId: string): string {
         return `https://drive.google.com/uc?export=download&id=${fileId}`;
     }
+
+    // ── Backup Methods ─────────────────────────────────────────
+
+    /**
+     * Upload JSON backup file to NextLyr SkillTracker/Backups folder
+     */
+    async uploadJsonBackup(fileName: string, jsonContent: string): Promise<DriveUploadResult> {
+        const token = await this.getAccessToken();
+        if (!token) throw new Error('NO_DRIVE_ACCESS');
+
+        const rootId = await this.findOrCreateFolder(token, 'NextLyr SkillTracker');
+        const backupFolderId = await this.findOrCreateFolder(token, 'Backups', rootId);
+
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify({
+            name: fileName,
+            parents: [backupFolderId]
+        })], { type: 'application/json' }));
+        form.append('file', new Blob([jsonContent], { type: 'application/json' }));
+
+        const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: form
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error?.message ?? 'Failed to upload backup to Google Drive');
+        }
+
+        const result = await res.json();
+        return {
+            fileId: result.id,
+            fileName: result.name,
+            mimeType: result.mimeType
+        };
+    }
+
+    /**
+     * List all JSON backup files inside NextLyr SkillTracker/Backups folder
+     */
+    async listBackupFiles(): Promise<any[]> {
+        const token = await this.getAccessToken();
+        if (!token) throw new Error('NO_DRIVE_ACCESS');
+
+        const rootId = await this.findOrCreateFolder(token, 'NextLyr SkillTracker');
+        const backupFolderId = await this.findOrCreateFolder(token, 'Backups', rootId);
+
+        // Query files inside the Backups folder without strict mimeType restriction
+        const q = `'${backupFolderId}' in parents and trashed=false`;
+        const res = await fetch(
+            `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,mimeType,createdTime,size,modifiedTime)&orderBy=createdTime desc`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        let files: any[] = [];
+        if (res.ok) {
+            const data = await res.json();
+            files = data.files ?? [];
+        }
+
+        // Fallback: if no files found inside specific folder, search by filename prefix
+        if (files.length === 0) {
+            const fallbackQuery = `name contains 'skilltracker-backup' and trashed=false`;
+            const fallbackRes = await fetch(
+                `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(fallbackQuery)}&fields=files(id,name,mimeType,createdTime,size,modifiedTime)&orderBy=createdTime desc`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (fallbackRes.ok) {
+                const fallbackData = await fallbackRes.json();
+                files = fallbackData.files ?? [];
+            }
+        }
+
+        return files;
+    }
+
+    /**
+     * Download and read the raw JSON content of a Drive file
+     */
+    async getJsonFileContent(fileId: string): Promise<string> {
+        const token = await this.getAccessToken();
+        if (!token) throw new Error('NO_DRIVE_ACCESS');
+
+        const res = await fetch(
+            `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!res.ok) throw new Error(`Failed to download backup file from Drive (${res.status})`);
+        return await res.text();
+    }
 }
+

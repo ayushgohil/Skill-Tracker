@@ -8,11 +8,18 @@ import { TopicsService } from '../core/services/topics.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
 import { GoogleDriveService } from '../core/services/google-drive.service';
-import { Profile, SubjectWithTopics } from '../core/models';
+import { BackupService } from '../core/services/backup.service';
+import { Profile, SubjectWithTopics, DriveBackupFile, BackupData } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
+import Swal from 'sweetalert2';
 
+export interface ProgressStep {
+    id: string;
+    label: string;
+    status: 'pending' | 'active' | 'done' | 'error';
+}
 
 @Component({
     selector: 'app-profile',
@@ -35,7 +42,26 @@ export class ProfileComponent implements OnInit {
     isDeleting = signal(false);
     deletionProgress = signal<{ table: string, label: string, status: 'pending' | 'deleting' | 'done' | 'error' }[]>([]);
     autoConnectDrive = signal(false);
+    hasDriveAccess = signal(false);
 
+    // ── Backup / Export State ────────────────────────────────
+    showExportModal = signal(false);
+    isExporting = signal(false);
+    exportDestination = signal<'drive' | 'download'>('drive');
+    exportProgress = signal<ProgressStep[]>([]);
+    exportFinished = signal(false);
+
+    // ── Restore / Import State ───────────────────────────────
+    showRestoreModal = signal(false);
+    isRestoring = signal(false);
+    restoreSource = signal<'file' | 'drive'>('file');
+    restoreProgress = signal<ProgressStep[]>([]);
+    restoreFinished = signal(false);
+    driveBackups = signal<DriveBackupFile[]>([]);
+    loadingDriveBackups = signal(false);
+    selectedDriveBackupId = signal<string>('');
+    selectedBackupData = signal<BackupData | null>(null);
+    selectedBackupFileName = signal<string>('');
 
     percent = computed(() =>
         this.totalTopics() ? Math.round((this.totalCompleted() / this.totalTopics()) * 100) : 0
@@ -59,17 +85,21 @@ export class ProfileComponent implements OnInit {
         private topicsService: TopicsService,
         private auth: AuthService,
         private toast: ToastService,
-        private googleDrive: GoogleDriveService
+        private googleDrive: GoogleDriveService,
+        private backupService: BackupService
     ) { }
 
     async ngOnInit() {
         this.loading.set(true);
         try {
-            const [profile, subjects] = await Promise.all([
+            const [profile, subjects, autoConnect, driveAccess] = await Promise.all([
                 this.profileService.getProfile(),
-                this.topicsService.getSubjectsWithTopics()
+                this.topicsService.getSubjectsWithTopics(),
+                this.auth.getAutoConnectDriveSetting(),
+                this.googleDrive.hasDriveAccess()
             ]);
-            this.autoConnectDrive.set(await this.auth.getAutoConnectDriveSetting());
+            this.autoConnectDrive.set(autoConnect);
+            this.hasDriveAccess.set(driveAccess);
             this.profile.set(profile);
             this.displayName = profile.display_name ?? '';
             this.totalSubjects.set(subjects.length);
@@ -103,16 +133,15 @@ export class ProfileComponent implements OnInit {
         this.autoConnectDrive.set(newValue);
 
         if (newValue) {
-            // Check if we already have a stored refresh token
             const hasRefreshToken = await this.auth.hasStoredRefreshToken();
             if (hasRefreshToken) {
-                // Already have a refresh token — Drive will work silently
                 this.toast.success('Drive will connect automatically on login.');
+                this.hasDriveAccess.set(true);
                 return;
             }
 
-            // No refresh token — need to authorize with Google one time
             const hasAccess = await this.googleDrive.hasDriveAccess();
+            this.hasDriveAccess.set(hasAccess);
             if (!hasAccess) {
                 this.toast.success('Drive auto-connect enabled. Redirecting to authorize Google Drive...');
                 setTimeout(async () => {
@@ -121,9 +150,9 @@ export class ProfileComponent implements OnInit {
                 return;
             }
         } else {
-            // Turning off auto-connect — clear stored refresh token
             await this.auth.clearStoredRefreshToken();
             this.googleDrive.clearCachedToken();
+            this.hasDriveAccess.set(false);
         }
 
         this.toast.success(newValue
@@ -132,7 +161,350 @@ export class ProfileComponent implements OnInit {
         );
     }
 
+    async connectDrive() {
+        await this.auth.connectGoogleDrive();
+    }
+
     logout() { this.auth.logout(); }
+
+
+    // ── Backup / Export Logic ────────────────────────────────
+
+    async startExport() {
+        const driveAccess = await this.googleDrive.hasDriveAccess();
+        this.hasDriveAccess.set(driveAccess);
+        this.exportDestination.set(driveAccess ? 'drive' : 'download');
+        this.isExporting.set(false);
+        this.exportFinished.set(false);
+        this.exportProgress.set([]);
+        this.showExportModal.set(true);
+    }
+
+    selectExportDestination(dest: 'drive' | 'download') {
+        if (this.isExporting()) return;
+        this.exportDestination.set(dest);
+    }
+
+    async confirmAndRunExport() {
+        if (this.isExporting()) return;
+
+        const isDrive = this.exportDestination() === 'drive';
+
+        if (isDrive) {
+            const hasAccess = await this.googleDrive.hasDriveAccess();
+            this.hasDriveAccess.set(hasAccess);
+
+            if (!hasAccess) {
+                const result = await Swal.fire({
+                    title: 'Google Drive Access Required',
+                    html: `
+                        <div style="text-align:left; font-size:13px; color:#94a3b8; line-height:1.6">
+                            <p style="margin-bottom:10px">NextLyr needs access to save your backup in your Drive folder (<code>NextLyr SkillTracker/Backups</code>).</p>
+                            <p>Would you like to authorize Google Drive now or download the backup file instead?</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: 'Connect Google Drive',
+                    denyButtonText: 'Download File Instead',
+                    cancelButtonText: 'Cancel',
+                    background: '#0f172a',
+                    color: '#f1f5f9',
+                    confirmButtonColor: '#2563eb',
+                    denyButtonColor: '#4f46e5',
+                    cancelButtonColor: '#3f3f46',
+                    customClass: { popup: 'swal-dark-popup' }
+                });
+
+                if (result.isConfirmed) {
+                    await this.auth.connectGoogleDrive();
+                    return;
+                } else if (result.isDenied) {
+                    this.exportDestination.set('download');
+                } else {
+                    return;
+                }
+            } else {
+                // Confirm dialog for putting data in
+                const confirmDrive = await Swal.fire({
+                    title: 'Confirm Google Drive Backup',
+                    html: `
+                        <div style="text-align:left; font-size:13px; color:#94a3b8; line-height:1.6">
+                            <p style="margin-bottom:10px">Are you sure you want to put data into your Google Drive?</p>
+                            <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:10px; font-size:12px; color:#cbd5e1">
+                                <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px">
+                                    <span style="color:#38bdf8">📁</span> <strong>Folder:</strong> NextLyr SkillTracker / Backups
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px">
+                                    <span style="color:#34d399">📦</span> <strong>Includes:</strong> All subjects, topics, subtopics, checkmarks, notes, weekly goals & heatmap
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Put Data In',
+                    cancelButtonText: 'Cancel',
+                    background: '#0f172a',
+                    color: '#f1f5f9',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#3f3f46',
+                    customClass: { popup: 'swal-dark-popup' }
+                });
+
+                if (!confirmDrive.isConfirmed) return;
+            }
+        }
+
+        this.isExporting.set(true);
+        this.exportFinished.set(false);
+
+        const isDriveExport = this.exportDestination() === 'drive';
+
+        const steps: ProgressStep[] = [
+            { id: 'extract_entities', label: 'Extracting Subjects, Topics & Subtopics', status: 'pending' },
+            { id: 'extract_progress', label: 'Gathering Checkmarks & Notes', status: 'pending' },
+            { id: 'extract_weekly', label: 'Collecting Goals & Consistency Heatmap', status: 'pending' },
+            { id: 'package_json', label: 'Packaging & Formatting JSON Schema', status: 'pending' },
+            {
+                id: 'save_dest',
+                label: isDriveExport ? 'Uploading to Google Drive (NextLyr SkillTracker/Backups)' : 'Generating & Downloading JSON File',
+                status: 'pending'
+            }
+        ];
+
+        this.exportProgress.set(steps);
+
+        const updateStep = (index: number, status: 'pending' | 'active' | 'done' | 'error') => {
+            this.exportProgress.update(prev => {
+                const arr = [...prev];
+                if (arr[index]) arr[index] = { ...arr[index], status };
+                return arr;
+            });
+        };
+
+        const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+        try {
+            // Step 1: Extract entities
+            updateStep(0, 'active');
+            await sleep(350);
+            const backupData = await this.backupService.exportAllUserData();
+            updateStep(0, 'done');
+
+            // Step 2: Checkmarks
+            updateStep(1, 'active');
+            await sleep(300);
+            updateStep(1, 'done');
+
+            // Step 3: Goals & Activity
+            updateStep(2, 'active');
+            await sleep(300);
+            updateStep(2, 'done');
+
+            // Step 4: Packaging
+            updateStep(3, 'active');
+            await sleep(250);
+            updateStep(3, 'done');
+
+            // Step 5: Save
+            updateStep(4, 'active');
+            if (isDriveExport) {
+                await this.backupService.backupToGoogleDrive(backupData);
+            } else {
+                this.backupService.downloadBackupFile(backupData);
+            }
+            await sleep(350);
+            updateStep(4, 'done');
+
+            this.exportFinished.set(true);
+            this.toast.success(isDriveExport
+                ? 'Backup saved to Google Drive successfully!'
+                : 'Backup JSON downloaded successfully!'
+            );
+
+        } catch (err: any) {
+            console.error('Export failed:', err);
+            this.exportProgress.update(prev => prev.map(s => s.status === 'active' ? { ...s, status: 'error' } : s));
+            this.toast.error(err.message || 'Failed to export backup.');
+        } finally {
+            this.isExporting.set(false);
+        }
+    }
+
+    // ── Restore / Import Logic ───────────────────────────────
+
+    async startRestore() {
+        const driveAccess = await this.googleDrive.hasDriveAccess();
+        this.hasDriveAccess.set(driveAccess);
+        this.restoreSource.set('file');
+        this.selectedBackupData.set(null);
+        this.selectedBackupFileName.set('');
+        this.selectedDriveBackupId.set('');
+        this.isRestoring.set(false);
+        this.restoreFinished.set(false);
+        this.restoreProgress.set([]);
+        this.showRestoreModal.set(true);
+
+        if (driveAccess) {
+            this.loadDriveBackups();
+        }
+    }
+
+    async setRestoreSource(source: 'file' | 'drive') {
+        this.restoreSource.set(source);
+        if (source === 'drive') {
+            const driveAccess = await this.googleDrive.hasDriveAccess();
+            this.hasDriveAccess.set(driveAccess);
+            if (driveAccess) {
+                await this.loadDriveBackups();
+            }
+        }
+    }
+
+    async loadDriveBackups() {
+        this.loadingDriveBackups.set(true);
+        try {
+            const files = await this.backupService.listDriveBackups();
+            this.driveBackups.set(files);
+            if (files.length > 0 && !this.selectedDriveBackupId()) {
+                this.onSelectDriveBackup(files[0].id);
+            }
+        } catch (err) {
+            console.error('Failed to list drive backups:', err);
+        } finally {
+            this.loadingDriveBackups.set(false);
+        }
+    }
+
+
+    async onFileSelected(event: any) {
+        const file: File = event.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const data = await this.backupService.parseBackupFile(file);
+            this.selectedBackupData.set(data);
+            this.selectedBackupFileName.set(file.name);
+            this.toast.success(`Backup loaded: ${data.subjects.length} subjects found.`);
+        } catch (err: any) {
+            this.selectedBackupData.set(null);
+            this.selectedBackupFileName.set('');
+            this.toast.error(err.message || 'Invalid backup JSON file.');
+        }
+    }
+
+    async onSelectDriveBackup(fileId: string) {
+        if (!fileId) {
+            this.selectedBackupData.set(null);
+            this.selectedBackupFileName.set('');
+            return;
+        }
+
+        const found = this.driveBackups().find(f => f.id === fileId);
+        this.selectedDriveBackupId.set(fileId);
+        this.selectedBackupFileName.set(found?.name || 'Google Drive Backup');
+
+        try {
+            this.loadingDriveBackups.set(true);
+            const data = await this.backupService.getBackupFromDrive(fileId);
+            this.selectedBackupData.set(data);
+            //this.toast.success(`Drive backup loaded: ${data.subjects.length} subjects found.`);
+        } catch (err: any) {
+            this.selectedBackupData.set(null);
+            this.toast.error(err.message || 'Failed to download backup from Google Drive.');
+        } finally {
+            this.loadingDriveBackups.set(false);
+        }
+    }
+
+    async confirmAndRunRestore() {
+        const backupData = this.selectedBackupData();
+        if (!backupData || this.isRestoring()) return;
+
+        const confirm = await Swal.fire({
+            title: 'Revert & Restore Data?',
+            html: `
+                <div style="text-align:left; font-size:13px; color:#94a3b8; line-height:1.6">
+                    <p style="margin-bottom:12px">
+                        This action will <strong style="color:#ef4444">replace all current subjects, topics, checkmarks, and notes</strong> with the contents of this backup.
+                    </p>
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:12px; margin-bottom:12px">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px; color:#cbd5e1">
+                            <div>📚 <strong>Subjects:</strong> ${backupData.subjects.length}</div>
+                            <div>📝 <strong>Topics:</strong> ${backupData.topics.length}</div>
+                            <div>📌 <strong>Subtopics:</strong> ${backupData.subtopics.length}</div>
+                            <div>✅ <strong>Progress items:</strong> ${backupData.user_progress.length}</div>
+                        </div>
+                    </div>
+                    <p style="font-size:12px; color:#f59e0b">⚠️ Are you sure you want to overwrite and revert to this state?</p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Restore Now',
+            cancelButtonText: 'Cancel',
+            background: '#0f172a',
+            color: '#f1f5f9',
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#3f3f46',
+            customClass: { popup: 'swal-dark-popup' }
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        this.isRestoring.set(true);
+        this.restoreFinished.set(false);
+
+        const steps: ProgressStep[] = [
+            { id: 'clear_existing', label: 'Clearing Current Database Records', status: 'pending' },
+            { id: 'restore_subjects', label: 'Rebuilding Subjects & Color Themes', status: 'pending' },
+            { id: 'restore_topics', label: 'Rebuilding Topics & Depth Levels', status: 'pending' },
+            { id: 'restore_subtopics', label: 'Restoring Subtopics & Checkmarks', status: 'pending' },
+            { id: 'restore_progress', label: 'Restoring Topic Progress & Notes', status: 'pending' },
+            { id: 'restore_weekly', label: 'Restoring Weekly Goals & Reviews', status: 'pending' },
+            { id: 'restore_activity', label: 'Synchronizing Heatmap & Consistency', status: 'pending' },
+            { id: 'finalize', label: 'Finalizing & Refreshing Workspace', status: 'pending' }
+        ];
+
+        this.restoreProgress.set(steps);
+
+        const updateStep = (index: number, status: 'pending' | 'active' | 'done' | 'error') => {
+            this.restoreProgress.update(prev => {
+                const arr = [...prev];
+                if (arr[index]) arr[index] = { ...arr[index], status };
+                return arr;
+            });
+        };
+
+        const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+        try {
+            await this.backupService.restoreData(backupData, (stepIndex) => {
+                if (stepIndex > 0) updateStep(stepIndex - 1, 'done');
+                updateStep(stepIndex, 'active');
+            });
+
+            await sleep(400);
+            updateStep(7, 'done');
+
+            this.restoreFinished.set(true);
+            this.toast.success('Skill-Tracker restored completely!');
+
+            // Re-fetch profile and stats
+            await this.ngOnInit();
+
+        } catch (err: any) {
+            console.error('Restore failed:', err);
+            this.restoreProgress.update(prev => prev.map(s => s.status === 'active' ? { ...s, status: 'error' } : s));
+            this.toast.error(err.message || 'Failed to restore backup.');
+        } finally {
+            this.isRestoring.set(false);
+        }
+    }
+
+    // ── Delete Account Logic ─────────────────────────────────
 
     startDeleteAccount() {
         this.deleteConfirmationEmail = '';
@@ -156,7 +528,6 @@ export class ProfileComponent implements OnInit {
         const steps = this.deletionProgress();
         let currentStep = 0;
 
-        // Simulate progress for UI feedback since edge function handles it in one go
         const progressInterval = setInterval(() => {
             if (currentStep < steps.length - 1) {
                 this.deletionProgress.update(prev => {
@@ -173,8 +544,6 @@ export class ProfileComponent implements OnInit {
             await this.profileService.deleteAccount();
 
             clearInterval(progressInterval);
-
-            // Mark all as done
             this.deletionProgress.update(prev => prev.map(s => ({ ...s, status: 'done' })));
 
             this.toast.success('Account data deleted completely.');
