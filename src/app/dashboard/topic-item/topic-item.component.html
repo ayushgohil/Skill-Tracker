@@ -157,8 +157,7 @@
                 [topicTitle]="topic().title" />
             <quill-editor [(ngModel)]="localNotes" (ngModelChange)="onNotesInput()" (onBlur)="onNotesBlur()"
                 placeholder="Paste resources, write what you learned, note open questions..."
-                [styles]="{height: 'auto', minHeight: '120px'}"
-                class="w-full block bg-white rounded-md border border-zinc-200">
+                class="w-full block bg-white">
             </quill-editor>
 
             <!-- Subtopics -->

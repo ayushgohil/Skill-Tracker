@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideQuillConfig({
       modules: {
         magicUrl: true,
-        syntax: false,
+        syntax: true,
         toolbar: [
           ['bold', 'italic', 'underline', 'strike'],
           [{ 'list': 'ordered' }, { 'list': 'bullet' }],

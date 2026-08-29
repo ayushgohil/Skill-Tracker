@@ -1,6 +1,7 @@
 /* ── Google Font ─────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import 'quill/dist/quill.snow.css';
+@import 'highlight.js/styles/atom-one-dark.min.css';
 
 /* src/styles.css */
 @tailwind base;
@@ -631,6 +632,143 @@ body {
   .ql-editor a {
     max-width: calc(100vw - 48px);
     margin: 2px 0;
+  }
+}
+
+/* ── Quill Code Blocks (syntax highlighted) ──── */
+.ql-editor .ql-code-block-container {
+  background: #282c34;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.ql-editor .ql-code-block {
+  padding: 0.15rem 1rem;
+  color: #abb2bf;
+}
+
+/* Language selector dropdown inside code blocks */
+.ql-code-block-container .ql-ui,
+.ql-code-block-container select {
+  position: absolute !important;
+  right: 8px;
+  top: 6px;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.65rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.ql-code-block-container .ql-ui:hover,
+.ql-code-block-container select:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.ql-code-block-container select option {
+  background: #282c34;
+  color: #abb2bf;
+}
+
+/* Inline code (not code-block) */
+.ql-editor code {
+  background: rgba(19, 27, 46, 0.06);
+  color: #e45649;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.88em;
+}
+
+/* ── Quill Editor – Sticky Toolbar & Scrollable ── */
+/* Border color alignment with design tokens */
+quill-editor .ql-container.ql-snow,
+quill-editor .ql-toolbar.ql-snow {
+  border-color: var(--border) !important;
+}
+
+/* Wrapper: constrain height, flex column, match parent rounded-xl (0.75rem) */
+quill-editor {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 60vh;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* Toolbar: stays pinned at top */
+quill-editor .ql-toolbar.ql-snow {
+  position: sticky !important;
+  top: 0;
+  z-index: 10;
+  background: #ffffff !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-radius: 0.75rem 0.75rem 0 0;
+  flex-shrink: 0;
+}
+
+/* Editor content: scrolls independently */
+quill-editor .ql-container.ql-snow {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  border: none !important;
+  border-radius: 0 0 0.75rem 0.75rem;
+  min-height: 120px;
+}
+
+/* Visible scrollbar inside quill editor (light theme) */
+quill-editor .ql-container.ql-snow::-webkit-scrollbar {
+  width: 6px;
+}
+
+quill-editor .ql-container.ql-snow::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+
+quill-editor .ql-container.ql-snow::-webkit-scrollbar-thumb {
+  background: rgba(19, 27, 46, 0.15);
+  border-radius: 99px;
+}
+
+quill-editor .ql-container.ql-snow::-webkit-scrollbar-thumb:hover {
+  background: rgba(19, 27, 46, 0.3);
+}
+
+/* Firefox scrollbar */
+quill-editor .ql-container.ql-snow {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(19, 27, 46, 0.15) transparent;
+}
+
+/* Responsive max-heights */
+@media (max-width: 640px) {
+  quill-editor {
+    max-height: 50vh;
+  }
+}
+
+@media (min-width: 1280px) {
+  quill-editor {
+    max-height: 70vh;
   }
 }
 

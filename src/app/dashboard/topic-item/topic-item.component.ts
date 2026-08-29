@@ -10,6 +10,12 @@ import { PLATFORM_ID, Inject } from '@angular/core';
 import { MediaGalleryComponent } from '../../shared/media-gallery/media-gallery.component';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import hljs from 'highlight.js';
+
+// Attach highlight.js to window before any Quill instance initializes
+if (typeof window !== 'undefined') {
+    (window as any).hljs = hljs;
+}
 
 export interface ProgressChange {
     topicId: string;
