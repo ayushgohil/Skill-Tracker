@@ -12,6 +12,7 @@ import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
+import { ThemeService } from '../core/services/theme.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -34,6 +35,16 @@ export class DashboardComponent implements OnInit {
             const y = event.clientY - rect.top;
             card.style.setProperty('--mouse-x', `${x}px`);
             card.style.setProperty('--mouse-y', `${y}px`);
+        }
+    }
+
+    // ── Header Collapse on Scroll ─────────────────────
+    headerCollapsed = signal(false);
+
+    @HostListener('window:scroll', [])
+    onWindowScroll() {
+        if (typeof window !== 'undefined') {
+            this.headerCollapsed.set(window.scrollY > 140);
         }
     }
 
@@ -85,7 +96,8 @@ export class DashboardComponent implements OnInit {
         private toast: ToastService,
         private router: Router,
         private el: ElementRef,
-        private profileService: ProfileService
+        private profileService: ProfileService,
+        public themeService: ThemeService
     ) { }
 
     async ngOnInit() {

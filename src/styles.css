@@ -18,12 +18,13 @@
 body {
   font-family: 'Outfit', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #faf8ff;
-  color: #131b2e;
+  background: var(--bg);
+  color: var(--text-1);
   letter-spacing: -0.01em;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* ── Token System ────────────────────────────────── */
+/* ── Token System (Light — default) ─────────────── */
 :root {
   /* Accent — Cyan/Blue Framework */
   --accent: #1a56db;
@@ -37,6 +38,8 @@ body {
   --bg: #faf8ff;
   --surface-0: #ffffff;
   --surface-1: #f2f3ff;
+  --surface-2: #f4f5fc;
+  --surface-3: #e4e6f5;
 
   /* Borders */
   --border: rgba(19, 27, 46, 0.12);
@@ -46,6 +49,23 @@ body {
   --text-1: #131b2e;
   --text-2: #434654;
   --text-3: #737686;
+  --text-4: #a1a1aa;
+
+  /* Interactive */
+  --hover-bg: rgba(19, 27, 46, 0.04);
+  --skeleton: rgba(19, 27, 46, 0.06);
+  --skeleton-shine: rgba(19, 27, 46, 0.03);
+  --input-bg: rgba(19, 27, 46, 0.03);
+  --scrollbar-thumb: rgba(19, 27, 46, 0.12);
+  --scrollbar-hover: rgba(19, 27, 46, 0.25);
+
+  /* Bottom nav */
+  --nav-bg: #070a10;
+  --nav-border: rgba(255, 255, 255, 0.1);
+
+  /* Collapsed header */
+  --header-collapsed-bg: rgba(255, 255, 255, 0.85);
+  --header-collapsed-border: rgba(19, 27, 46, 0.08);
 
   /* Radius */
   --r-sm: 8px;
@@ -68,6 +88,43 @@ body {
   --text-light: #7c6a9a;
   --card-bg: #ffffff;
   --section-bg: #f9f5ff;
+}
+
+/* ── Token System (Dark) ────────────────────────── */
+html.dark {
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-light: #38bdf8;
+  --accent-dim: rgba(59, 130, 246, 0.1);
+  --accent-glow: rgba(59, 130, 246, 0.2);
+  --accent-ring: rgba(59, 130, 246, 0.3);
+
+  --bg: #0a0a0f;
+  --surface-0: #141418;
+  --surface-1: #1c1c24;
+  --surface-2: #22222c;
+  --surface-3: #2a2a36;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.16);
+
+  --text-1: #f4f4f5;
+  --text-2: #a1a1aa;
+  --text-3: #71717a;
+  --text-4: #52525b;
+
+  --hover-bg: rgba(255, 255, 255, 0.04);
+  --skeleton: rgba(255, 255, 255, 0.06);
+  --skeleton-shine: rgba(255, 255, 255, 0.03);
+  --input-bg: rgba(255, 255, 255, 0.04);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-hover: rgba(255, 255, 255, 0.2);
+
+  --nav-bg: #0c0c12;
+  --nav-border: rgba(255, 255, 255, 0.06);
+
+  --header-collapsed-bg: rgba(20, 20, 24, 0.9);
+  --header-collapsed-border: rgba(255, 255, 255, 0.06);
 }
 
 /* ── Page ────────────────────────────────────────── */
@@ -173,7 +230,7 @@ body {
 
 /* ── Skeleton Shimmer ────────────────────────────── */
 .sk {
-  background: rgba(19, 27, 46, 0.04);
+  background: var(--skeleton);
   border-radius: 6px;
   position: relative;
   overflow: hidden;
@@ -185,7 +242,7 @@ body {
   inset: 0;
   background: linear-gradient(105deg,
       transparent 40%,
-      rgba(19, 27, 46, 0.05) 50%,
+      var(--skeleton-shine) 50%,
       transparent 60%);
   animation: sk-sweep 1.8s infinite ease-in-out;
 }
@@ -207,7 +264,7 @@ body {
 /* ── Inputs ──────────────────────────────────────── */
 .input {
   width: 100%;
-  background: rgba(19, 27, 46, 0.03);
+  background: var(--input-bg);
   border: 1px solid var(--border);
   color: var(--text-1);
   border-radius: var(--r-md);
@@ -353,7 +410,7 @@ body {
   width: 1.125rem;
   height: 1.125rem;
   border-radius: 5px;
-  border: 1.5px solid rgba(19, 27, 46, 0.25);
+  border: 1.5px solid var(--border-hover);
   background: transparent;
   display: flex;
   align-items: center;
@@ -417,8 +474,8 @@ body {
 
 /* ── Heatmap ─────────────────────────────────────── */
 .heat-0 {
-  background: #F4F5FC;
-  border: 1px solid rgba(0, 0, 0, 0.03);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
 }
 
 .heat-1 {
@@ -436,6 +493,27 @@ body {
 .heat-4 {
   background: #1D4ED8;
   box-shadow: 0 0 6px rgba(37, 99, 235, 0.2);
+}
+
+html.dark .heat-0 {
+  background: var(--surface-2);
+}
+
+html.dark .heat-1 {
+  background: #1e3a5f;
+}
+
+html.dark .heat-2 {
+  background: #2563EB;
+}
+
+html.dark .heat-3 {
+  background: #3b82f6;
+}
+
+html.dark .heat-4 {
+  background: #60a5fa;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
 }
 
 /* ── Divider ─────────────────────────────────────── */
@@ -456,12 +534,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--scrollbar-thumb);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--scrollbar-hover);
 }
 
 /* ── Mobile Nav ──────────────────────────────────── */
@@ -803,4 +881,166 @@ quill-editor .ql-container.ql-snow {
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
-}
+}
+
+/* ── Collapsed Sticky Header ────────────────────── */
+.collapsed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--header-collapsed-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--header-collapsed-border);
+  transform: translateY(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0 1rem;
+}
+
+.collapsed-header.visible {
+  transform: translateY(0);
+}
+
+.collapsed-header-inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .collapsed-header {
+    padding: 0 1.5rem;
+  }
+  .collapsed-header-inner {
+    height: 52px;
+  }
+}
+
+/* ── Theme Toggle Button ────────────────────────── */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Collapsed header variant */
+.theme-toggle-collapsed {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hover-bg);
+  color: var(--text-2);
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.theme-toggle-collapsed:hover {
+  background: var(--accent-dim);
+  color: var(--accent);
+  transform: scale(1.08);
+}
+
+/* ── Quill Dark Mode ────────────────────────────── */
+html.dark quill-editor {
+  border-color: var(--border) !important;
+}
+
+html.dark quill-editor .ql-toolbar.ql-snow {
+  background: var(--surface-1) !important;
+  border-color: var(--border) !important;
+}
+
+html.dark quill-editor .ql-container.ql-snow {
+  background: var(--surface-0);
+  border-color: var(--border) !important;
+  color: var(--text-1);
+}
+
+html.dark .ql-editor {
+  color: var(--text-1);
+}
+
+html.dark .ql-editor.ql-blank::before {
+  color: var(--text-3) !important;
+}
+
+html.dark .ql-snow .ql-stroke {
+  stroke: var(--text-2) !important;
+}
+
+html.dark .ql-snow .ql-fill {
+  fill: var(--text-2) !important;
+}
+
+html.dark .ql-snow .ql-picker {
+  color: var(--text-2) !important;
+}
+
+html.dark .ql-snow .ql-picker-options {
+  background: var(--surface-1) !important;
+  border-color: var(--border) !important;
+}
+
+html.dark .ql-editor a {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+  color: var(--accent);
+}
+
+html.dark .ql-editor a:hover {
+  background-color: var(--surface-3);
+}
+
+html.dark .ql-editor code {
+  background: var(--surface-2);
+  color: #e06c75;
+}
+
+/* ── CDK Drag Dark Mode ─────────────────────────── */
+html.dark .cdk-drag-preview {
+  background: var(--surface-1) !important;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent-glow);
+}
+
+html.dark .cdk-drag-placeholder {
+  border-color: var(--accent) !important;
+  background: var(--accent-dim) !important;
+}
+
+/* ── SweetAlert2 Theme-Aware ────────────────────── */
+html.dark .swal2-popup {
+  background: var(--surface-1) !important;
+  color: var(--text-1) !important;
+}
+

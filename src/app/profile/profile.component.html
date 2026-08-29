@@ -1,5 +1,44 @@
 <!-- src/app/profile/profile.component.html -->
-<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
+<div class="min-h-screen pb-24 md:pb-8" style="background:var(--bg);color:var(--text-1)">
+
+    <!-- ── Collapsed Sticky Header ─────────────── -->
+    <div class="collapsed-header" [class.visible]="headerCollapsed()">
+        <div class="collapsed-header-inner">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <a routerLink="/dashboard" class="flex items-center gap-2 text-xs font-bold transition-colors"
+                    style="color:var(--text-2)">
+                    <div class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                        style="background:var(--accent);color:white">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <span class="font-black truncate hidden xs:inline" style="color:var(--text-1)">SkillTracker</span>
+                </a>
+                <div class="w-px h-4" style="background:var(--border)"></div>
+                <span class="text-xs font-bold truncate" style="color:var(--text-2)">{{ profile()?.display_name || userEmail() }}</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button (click)="themeService.toggle()" class="theme-toggle-collapsed" title="Toggle theme">
+                    @if (themeService.isDark()) {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    } @else {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    }
+                </button>
+                <button (click)="logout()" class="text-xs font-bold px-2.5 py-1 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors">
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── Header ────────────────────────────── -->
     <header
@@ -15,29 +54,47 @@
                 <span class="font-black tracking-tight text-xs sm:text-sm">SkillTracker</span>
             </div>
 
-            <button (click)="logout()"
-                class="text-white/80 hover:text-white font-bold text-xs bg-white/10 hover:bg-white/20 px-3 sm:px-4 py-2 rounded-full transition-all min-h-[36px] touch-manipulation">
-                Sign Out
-            </button>
+            <div class="flex items-center gap-2">
+                <!-- Theme Toggle in Header -->
+                <button (click)="themeService.toggle()" class="theme-toggle touch-manipulation" title="Toggle theme">
+                    @if (themeService.isDark()) {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    } @else {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    }
+                </button>
+
+                <button (click)="logout()"
+                    class="text-white/80 hover:text-white font-bold text-xs bg-white/10 hover:bg-white/20 px-3 sm:px-4 py-2 rounded-full transition-all min-h-[36px] touch-manipulation">
+                    Sign Out
+                </button>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 sm:px-5 py-6 sm:py-8 space-y-4 sm:space-y-6" [@staggerList]="loading() ? 1 : 2">
+    <main class="max-w-3xl mx-auto px-4 sm:px-5 py-6 sm:py-8 space-y-4 sm:space-y-6 tahoma" [@staggerList]="loading() ? 1 : 2">
 
         @if (loading()) {
-        <div class="bg-white rounded-3xl p-5 sm:p-6 animate-pulse border border-zinc-100 flex items-center gap-4">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 bg-zinc-200 rounded-2xl flex-shrink-0"></div>
+        <div class="rounded-3xl p-5 sm:p-6 animate-pulse flex items-center gap-4"
+            style="background:var(--surface-0);border:1px solid var(--border)">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex-shrink-0" style="background:var(--skeleton)"></div>
             <div class="flex-1 space-y-2">
-                <div class="h-4 bg-zinc-200 rounded w-1/3"></div>
-                <div class="h-3 bg-zinc-100 rounded w-1/2"></div>
+                <div class="h-4 rounded w-1/3" style="background:var(--skeleton)"></div>
+                <div class="h-3 rounded w-1/2" style="background:var(--skeleton)"></div>
             </div>
         </div>
 
         } @else {
 
         <!-- ── Profile Hero ────────────────────────── -->
-        <div
-            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl animate-fade-in">
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-fade-in"
+            style="background:var(--surface-0);border:1px solid var(--border)">
             <div class="flex items-center gap-3 sm:gap-4 md:gap-6">
                 <!-- Avatar -->
                 @if (userAvatar()) {
@@ -57,7 +114,8 @@
                     <div class="flex items-center gap-2 flex-wrap animate-slide-up">
                         <input [(ngModel)]="displayName" (keydown.enter)="saveName()"
                             (keydown.escape)="editingName.set(false)"
-                            class="w-full sm:w-44 h-10 px-3 rounded-xl bg-[#F4F5FC] border border-zinc-200 text-sm font-bold outline-none focus:border-blue-400"
+                            class="w-full sm:w-44 h-10 px-3 rounded-xl text-sm font-bold outline-none"
+                            style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-1)"
                             placeholder="Display name" />
                         <div class="flex gap-2">
                             <button (click)="saveName()" [disabled]="saving()"
@@ -65,16 +123,18 @@
                                 {{ saving() ? '...' : 'Save' }}
                             </button>
                             <button (click)="editingName.set(false)"
-                                class="text-[#737686] hover:text-[#434654] text-xs font-bold px-2 touch-manipulation">Cancel</button>
+                                class="text-xs font-bold px-2 touch-manipulation"
+                                style="color:var(--text-3)">Cancel</button>
                         </div>
                     </div>
                     } @else {
                     <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <h1 class="text-lg sm:text-xl font-black text-[#131B2E] truncate">
+                        <h1 class="text-lg sm:text-xl font-black truncate" style="color:var(--text-1)">
                             {{ profile()?.display_name || 'Set Name' }}
                         </h1>
                         <button (click)="editingName.set(true)"
-                            class="text-[#737686] hover:text-blue-600 transition-colors flex-shrink-0 touch-manipulation">
+                            class="transition-colors flex-shrink-0 touch-manipulation"
+                            style="color:var(--text-3)">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                 stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -83,8 +143,8 @@
                         </button>
                     </div>
                     }
-                    <p class="text-[#737686] text-xs font-bold truncate">{{ userEmail() }}</p>
-                    <p class="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-wider">Joined {{ memberSince()
+                    <p class="text-xs font-bold truncate" style="color:var(--text-3)">{{ userEmail() }}</p>
+                    <p class="text-[10px] font-bold mt-1 uppercase tracking-wider" style="color:var(--text-4)">Joined {{ memberSince()
                         }}</p>
                 </div>
             </div>
@@ -92,40 +152,42 @@
 
         <!-- ── Stats Grid ──────────────────────────── -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 animate-slide-up">
-            <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
-                <span class="block text-xl sm:text-2xl font-black text-[#131B2E]">{{ totalSubjects() }}</span>
-                <span
-                    class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Subjects</span>
+            <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
+                style="background:var(--surface-0);border:1px solid var(--border)">
+                <span class="block text-xl sm:text-2xl font-black" style="color:var(--text-1)">{{ totalSubjects() }}</span>
+                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Subjects</span>
             </div>
-            <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
-                <span class="block text-xl sm:text-2xl font-black text-[#131B2E]">{{ totalTopics() }}</span>
-                <span class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Topics</span>
+            <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
+                style="background:var(--surface-0);border:1px solid var(--border)">
+                <span class="block text-xl sm:text-2xl font-black" style="color:var(--text-1)">{{ totalTopics() }}</span>
+                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Topics</span>
             </div>
-            <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
+            <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
+                style="background:var(--surface-0);border:1px solid var(--border)">
                 <span class="block text-xl sm:text-2xl font-black text-emerald-500">{{ totalCompleted() }}</span>
-                <span
-                    class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Completed</span>
+                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Completed</span>
             </div>
-            <div class="bg-white border border-zinc-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm">
-                <span class="block text-xl sm:text-2xl font-black text-blue-600">{{ percent() }}%</span>
-                <span class="text-[9px] sm:text-[10px] font-bold text-[#737686] uppercase tracking-wider">Mastery</span>
+            <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
+                style="background:var(--surface-0);border:1px solid var(--border)">
+                <span class="block text-xl sm:text-2xl font-black" style="color:var(--accent)">{{ percent() }}%</span>
+                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Mastery</span>
             </div>
         </div>
 
         <!-- ── Activity Heatmap ────────────────────── -->
-        <div
-            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up overflow-hidden">
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up overflow-hidden"
+            style="background:var(--surface-0);border:1px solid var(--border)">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h3 class="text-sm font-black text-[#131B2E]">Learning Activity</h3>
-                    <p class="text-[#737686] text-xs font-bold">Daily knowledge consistency</p>
+                    <h3 class="text-sm font-black" style="color:var(--text-1)">Learning Activity</h3>
+                    <p class="text-xs font-bold" style="color:var(--text-3)">Daily knowledge consistency</p>
                 </div>
-                <div class="flex items-center gap-1.5 sm:gap-3 text-[9px] sm:text-[10px] text-zinc-400 font-bold">
+                <div class="flex items-center gap-1.5 sm:gap-3 text-[9px] sm:text-[10px] font-bold" style="color:var(--text-4)">
                     <div class="flex items-center gap-1">
-                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-[#F4F5FC] border border-zinc-200"></div>
-                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-blue-200"></div>
-                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-blue-400"></div>
-                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-blue-600"></div>
+                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm heat-0"></div>
+                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm heat-1"></div>
+                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm heat-2"></div>
+                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm heat-3"></div>
                     </div>
                     <span>More</span>
                 </div>
@@ -134,35 +196,65 @@
         </div>
 
         <!-- ── Overall Progress ────────────────────── -->
-        <div
-            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up"
+            style="background:var(--surface-0);border:1px solid var(--border)">
             <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-black text-[#131B2E]">Overall Skill Mastery</span>
-                <span class="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-1 rounded-full font-black">{{
+                <span class="text-sm font-black" style="color:var(--text-1)">Overall Skill Mastery</span>
+                <span class="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-1 rounded-full font-black">{{
                     totalCompleted() }}/{{ totalTopics() }}</span>
             </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 sm:h-3">
+            <div class="w-full rounded-full h-2.5 sm:h-3" style="background:var(--surface-2)">
                 <div class="progress-fill bg-gradient-to-r from-cyan-500 to-blue-600 h-2.5 sm:h-3 rounded-full transition-all duration-700"
                     [style.width.%]="percent()"></div>
             </div>
         </div>
 
+        <!-- ── Theme Preference Setting ────────────── -->
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up"
+            style="background:var(--surface-0);border:1px solid var(--border)">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-black" style="color:var(--text-1)">Appearance</h3>
+                    <p class="text-xs font-bold mt-0.5" style="color:var(--text-3)">
+                        Currently using <strong style="color:var(--accent)">{{ themeService.theme() | titlecase }} mode</strong>
+                    </p>
+                </div>
+                <button (click)="themeService.toggle()"
+                    class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all touch-manipulation"
+                    style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-1)">
+                    @if (themeService.isDark()) {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span>Switch to Light</span>
+                    } @else {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <span>Switch to Dark</span>
+                    }
+                </button>
+            </div>
+        </div>
+
         <!-- ── Account Settings ────────────────────── -->
-        <div
-            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
-            <h3 class="text-sm font-black text-[#131B2E] mb-4">Account Details</h3>
-            <div class="divide-y divide-zinc-100">
-                <div class="flex justify-between items-center py-3 gap-4">
-                    <span class="text-[#737686] text-xs font-bold flex-shrink-0">Email Address</span>
-                    <span class="text-[#131B2E] text-xs sm:text-sm font-medium truncate text-right">{{ userEmail()
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up"
+            style="background:var(--surface-0);border:1px solid var(--border)">
+            <h3 class="text-sm font-black mb-4" style="color:var(--text-1)">Account Details</h3>
+            <div class="divide-y" style="border-color:var(--border)">
+                <div class="flex justify-between items-center py-3 gap-4" style="border-color:var(--border)">
+                    <span class="text-xs font-bold flex-shrink-0" style="color:var(--text-3)">Email Address</span>
+                    <span class="text-xs sm:text-sm font-medium truncate text-right" style="color:var(--text-1)">{{ userEmail()
                         }}</span>
                 </div>
-                <div class="flex justify-between items-center py-3">
-                    <span class="text-[#737686] text-xs font-bold">Account Created</span>
-                    <span class="text-[#131B2E] text-xs sm:text-sm font-medium">{{ memberSince() }}</span>
+                <div class="flex justify-between items-center py-3" style="border-color:var(--border)">
+                    <span class="text-xs font-bold" style="color:var(--text-3)">Account Created</span>
+                    <span class="text-xs sm:text-sm font-medium" style="color:var(--text-1)">{{ memberSince() }}</span>
                 </div>
-                <div class="flex justify-between items-center py-3">
-                    <span class="text-[#737686] text-xs font-bold">Authentication</span>
+                <div class="flex justify-between items-center py-3" style="border-color:var(--border)">
+                    <span class="text-xs font-bold" style="color:var(--text-3)">Authentication</span>
                     <button (click)="logout()"
                         class="text-red-500 hover:text-red-600 text-xs font-bold min-h-[32px] touch-manipulation">
                         Sign Out
@@ -172,10 +264,10 @@
         </div>
 
         <!-- Google Drive auto-connect toggle -->
-        <div class="flex items-center justify-between p-4 rounded-xl
-            bg-slate-800/40 border border-slate-700/50">
+        <div class="flex items-center justify-between p-4 rounded-xl"
+            style="background:var(--surface-1);border:1px solid var(--border)">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-slate-700/50 flex items-center justify-center flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--surface-2)">
                     <svg class="w-4 h-4" viewBox="0 0 87.3 78">
                         <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"
                             fill="#0066da" />
@@ -193,8 +285,8 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-slate-300">Auto-connect Google Drive</p>
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-sm font-medium" style="color:var(--text-1)">Auto-connect Google Drive</p>
+                    <p class="text-xs mt-0.5" style="color:var(--text-3)">
                         {{ autoConnectDrive()
                         ? 'Drive connects automatically on every login'
                         : 'Connect Drive manually when needed' }}
@@ -205,28 +297,29 @@
             <!-- Toggle switch -->
             <button (click)="toggleAutoConnectDrive()"
                 class="relative w-10 h-5 rounded-full transition-colors duration-200 flex-shrink-0"
-                [class]="autoConnectDrive() ? 'bg-indigo-500' : 'bg-slate-700'">
-                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow
-             transition-transform duration-200"
-                    [class]="autoConnectDrive() ? 'translate-x-5' : 'translate-x-0'"></span>
+                [style.background]="autoConnectDrive() ? 'var(--accent)' : 'var(--border)'">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+                    [class.translate-x-5]="autoConnectDrive()"
+                    [class.translate-x-0]="!autoConnectDrive()"></span>
             </button>
         </div>
 
         <!-- ── Data Backup & Restore Card ────────────────── -->
-        <div
-            class="bg-white border border-zinc-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up">
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up"
+            style="background:var(--surface-0);border:1px solid var(--border)">
             <div class="flex items-start justify-between gap-3 mb-4">
                 <div>
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style="background:var(--accent-dim);color:var(--accent)">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                         </div>
-                        <h3 class="text-sm font-black text-[#131B2E]">Backup & Revert Data</h3>
+                        <h3 class="text-sm font-black" style="color:var(--text-1)">Backup & Revert Data</h3>
                     </div>
-                    <p class="text-[#737686] text-xs font-bold mt-1">
+                    <p class="text-xs font-bold mt-1" style="color:var(--text-3)">
                         Export a full snapshot of your subjects, topics, checkmarks, and notes or revert your workspace from a backup.
                     </p>
                 </div>
@@ -255,20 +348,22 @@
 
                 <!-- Revert / Restore Button -->
                 <button (click)="startRestore()"
-                    class="group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-[#F8FAFC] hover:bg-zinc-100 border border-zinc-200 text-[#131B2E] shadow-sm hover:shadow transition-all min-h-[56px] touch-manipulation">
+                    class="group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl shadow-sm hover:shadow transition-all min-h-[56px] touch-manipulation"
+                    style="background:var(--surface-1);border:1px solid var(--border)">
                     <div class="flex items-center gap-3 text-left">
-                        <div class="w-9 h-9 rounded-xl bg-zinc-200/70 text-zinc-700 flex items-center justify-center flex-shrink-0">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style="background:var(--surface-2);color:var(--text-2)">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                         </div>
                         <div>
-                            <span class="block text-xs font-black tracking-wide text-[#131B2E]">Revert / Restore</span>
-                            <span class="block text-[10px] text-[#737686] font-medium">Restore from JSON or Google Drive</span>
+                            <span class="block text-xs font-black tracking-wide" style="color:var(--text-1)">Revert / Restore</span>
+                            <span class="block text-[10px] font-medium" style="color:var(--text-3)">Restore from JSON or Google Drive</span>
                         </div>
                     </div>
-                    <svg class="w-4 h-4 text-zinc-400 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style="color:var(--text-4)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
@@ -276,10 +371,10 @@
         </div>
 
         <!-- ── Danger Zone ────────────────────── -->
-        <div
-            class="bg-red-50 border border-red-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up mt-4">
-            <h3 class="text-sm font-black text-red-600 mb-2">Danger Zone</h3>
-            <p class="text-red-500 text-xs font-medium mb-4">Once you delete your account, there is no going back.
+        <div class="rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 shadow-sm animate-slide-up mt-4"
+            style="background:rgba(239, 68, 68, 0.06);border:1px solid rgba(239, 68, 68, 0.15)">
+            <h3 class="text-sm font-black text-red-500 mb-2">Danger Zone</h3>
+            <p class="text-xs font-medium mb-4" style="color:var(--text-3)">Once you delete your account, there is no going back.
                 Please be certain.</p>
             <button (click)="startDeleteAccount()"
                 class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all min-h-[48px] touch-manipulation">
@@ -294,40 +389,42 @@
     @if (showExportModal()) {
     <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in"
         (click)="!isExporting() && showExportModal.set(false)">
-        <div class="bg-white rounded-[24px] p-5 sm:p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in"
+        <div class="rounded-[24px] p-5 sm:p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in"
+            style="background:var(--surface-0);border:1px solid var(--border)"
             (click)="$event.stopPropagation()">
 
-            <div class="flex items-center gap-3 mb-4 text-blue-600">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="flex items-center gap-3 mb-4" style="color:var(--accent)">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style="background:var(--accent-dim);color:var(--accent)">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-lg sm:text-xl font-black text-[#131B2E]">Export & Backup</h2>
-                    <p class="text-xs text-[#737686] font-medium">Create a complete, revertible JSON snapshot</p>
+                    <h2 class="text-lg sm:text-xl font-black" style="color:var(--text-1)">Export & Backup</h2>
+                    <p class="text-xs font-medium" style="color:var(--text-3)">Create a complete, revertible JSON snapshot</p>
                 </div>
             </div>
 
             @if (!isExporting() && !exportFinished()) {
             <div class="space-y-3 mt-2">
-                <p class="text-xs text-[#434654] font-medium">
+                <p class="text-xs font-medium" style="color:var(--text-2)">
                     Choose where you would like to store this backup snapshot:
                 </p>
 
                 <!-- Destination 1: Google Drive -->
                 <div (click)="selectExportDestination('drive')"
                     class="cursor-pointer border-2 rounded-2xl p-4 transition-all flex items-start gap-3"
-                    [class.border-blue-600]="exportDestination() === 'drive'"
-                    [class.bg-blue-50]="exportDestination() === 'drive'"
-                    [class.border-zinc-200]="exportDestination() !== 'drive'"
-                    [class.bg-white]="exportDestination() !== 'drive'">
+                    [style.border-color]="exportDestination() === 'drive' ? 'var(--accent)' : 'var(--border)'"
+                    [style.background]="exportDestination() === 'drive' ? 'var(--accent-dim)' : 'var(--surface-1)'">
                     <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <svg class="w-5 h-5" viewBox="0 0 87.3 78">
                             <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da" />
                             <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.2 49.15A9 9 0 000 53.65h27.5z" fill="#00ac47" />
-                            <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 10.8z" fill="#ea4335" />
+                            <path
+                                d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 10.8z"
+                                fill="#ea4335" />
                             <path d="M43.65 25L57.4 1.2A9.06 9.06 0 0053.65 0H33.65a9 9 0 00-3.75.8z" fill="#00832d" />
                             <path d="M59.8 53.65H27.5L13.75 77.45c1.35.55 2.8.85 4.25.85h50.3c1.45 0 2.9-.3 4.25-.85z" fill="#2684fc" />
                             <path d="M73.4 26.35l-12.8-22.15c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28.65H87.3c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
@@ -335,15 +432,15 @@
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-black text-[#131B2E]">Save to Google Drive</span>
+                            <span class="text-xs font-black" style="color:var(--text-1)">Save to Google Drive</span>
                             @if (hasDriveAccess()) {
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Connected</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500">Connected</span>
                             } @else {
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Needs Auth</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500">Needs Auth</span>
                             }
                         </div>
-                        <p class="text-[11px] text-[#737686] mt-0.5 font-medium">
-                            Puts JSON file inside your <span class="font-bold text-[#131B2E]">NextLyr SkillTracker / Backups</span> Drive folder.
+                        <p class="text-[11px] mt-0.5 font-medium" style="color:var(--text-3)">
+                            Puts JSON file inside your <span class="font-bold" style="color:var(--text-1)">NextLyr SkillTracker / Backups</span> Drive folder.
                         </p>
                     </div>
                 </div>
@@ -351,27 +448,27 @@
                 <!-- Destination 2: Download JSON File -->
                 <div (click)="selectExportDestination('download')"
                     class="cursor-pointer border-2 rounded-2xl p-4 transition-all flex items-start gap-3"
-                    [class.border-blue-600]="exportDestination() === 'download'"
-                    [class.bg-blue-50]="exportDestination() === 'download'"
-                    [class.border-zinc-200]="exportDestination() !== 'download'"
-                    [class.bg-white]="exportDestination() !== 'download'">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    [style.border-color]="exportDestination() === 'download' ? 'var(--accent)' : 'var(--border)'"
+                    [style.background]="exportDestination() === 'download' ? 'var(--accent-dim)' : 'var(--surface-1)'">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                        style="background:var(--accent-dim);color:var(--accent)">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <span class="text-xs font-black text-[#131B2E]">Download Backup File</span>
-                        <p class="text-[11px] text-[#737686] mt-0.5 font-medium">
-                            Saves a formatted <span class="font-bold text-[#131B2E]">.json</span> file directly to your local computer.
+                        <span class="text-xs font-black" style="color:var(--text-1)">Download Backup File</span>
+                        <p class="text-[11px] mt-0.5 font-medium" style="color:var(--text-3)">
+                            Saves a formatted <span class="font-bold" style="color:var(--text-1)">.json</span> file directly to your local computer.
                         </p>
                     </div>
                 </div>
 
                 <div class="flex gap-3 mt-5">
                     <button (click)="showExportModal.set(false)"
-                        class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-[#434654] font-bold py-3.5 rounded-xl transition-all text-xs">
+                        class="flex-1 font-bold py-3.5 rounded-xl transition-all text-xs"
+                        style="background:var(--surface-2);color:var(--text-2)">
                         Cancel
                     </button>
                     <button (click)="confirmAndRunExport()"
@@ -387,26 +484,27 @@
             <!-- Animated Progress UI -->
             <div class="mt-4 space-y-3 animate-fade-in">
                 <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-wider">
+                    <h4 class="text-[10px] font-black uppercase tracking-wider" style="color:var(--text-4)">
                         {{ exportFinished() ? 'Backup Completed' : 'Backing Up Data...' }}
                     </h4>
                     @if (exportFinished()) {
-                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">100% Done</span>
+                    <span class="text-[10px] font-black text-emerald-500 bg-emerald-500/15 px-2 py-0.5 rounded-full">100% Done</span>
                     }
                 </div>
 
                 @for (step of exportProgress(); track step.id) {
-                <div class="flex items-center justify-between text-xs sm:text-sm py-1.5 border-b border-zinc-50 last:border-0">
+                <div class="flex items-center justify-between text-xs sm:text-sm py-1.5 border-b last:border-0"
+                    style="border-color:var(--border)">
                     <span class="font-bold transition-colors"
-                        [class.text-zinc-400]="step.status === 'pending'"
                         [class.text-blue-600]="step.status === 'active'"
-                        [class.text-emerald-600]="step.status === 'done'"
-                        [class.text-red-500]="step.status === 'error'">
+                        [class.text-emerald-500]="step.status === 'done'"
+                        [class.text-red-500]="step.status === 'error'"
+                        [style.color]="step.status === 'pending' ? 'var(--text-4)' : null">
                         {{ step.label }}
                     </span>
 
                     @if (step.status === 'pending') {
-                    <span class="w-5 h-5 border-2 border-zinc-200 rounded-full flex-shrink-0"></span>
+                    <span class="w-5 h-5 border-2 rounded-full flex-shrink-0" style="border-color:var(--border)"></span>
                     } @else if (step.status === 'active') {
                     <svg class="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -447,57 +545,59 @@
     @if (showRestoreModal()) {
     <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in"
         (click)="!isRestoring() && showRestoreModal.set(false)">
-        <div class="bg-white rounded-[24px] p-5 sm:p-6 w-full max-w-lg shadow-2xl relative overflow-hidden animate-scale-in"
+        <div class="rounded-[24px] p-5 sm:p-6 w-full max-w-lg shadow-2xl relative overflow-hidden animate-scale-in"
+            style="background:var(--surface-0);border:1px solid var(--border)"
             (click)="$event.stopPropagation()">
 
-            <div class="flex items-center gap-3 mb-4 text-indigo-600">
-                <div class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="flex items-center gap-3 mb-4" style="color:var(--accent)">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style="background:var(--accent-dim);color:var(--accent)">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-lg sm:text-xl font-black text-[#131B2E]">Revert & Restore Data</h2>
-                    <p class="text-xs text-[#737686] font-medium">Revert Skill-Tracker from a previous JSON backup</p>
+                    <h2 class="text-lg sm:text-xl font-black" style="color:var(--text-1)">Revert & Restore Data</h2>
+                    <p class="text-xs font-medium" style="color:var(--text-3)">Revert Skill-Tracker from a previous JSON backup</p>
                 </div>
             </div>
 
             @if (!isRestoring() && !restoreFinished()) {
             <div class="space-y-4">
                 <!-- Source Tabs -->
-                <div class="flex bg-zinc-100 p-1 rounded-xl gap-1">
+                <div class="flex p-1 rounded-xl gap-1" style="background:var(--surface-2)">
                     <button (click)="setRestoreSource('file')"
                         class="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
-                        [class.bg-white]="restoreSource() === 'file'"
-                        [class.text-[#131B2E]]="restoreSource() === 'file'"
-                        [class.shadow-sm]="restoreSource() === 'file'"
-                        [class.text-[#737686]]="restoreSource() !== 'file'">
+                        [style.background]="restoreSource() === 'file' ? 'var(--surface-0)' : 'transparent'"
+                        [style.color]="restoreSource() === 'file' ? 'var(--text-1)' : 'var(--text-3)'"
+                        [class.shadow-sm]="restoreSource() === 'file'">
                         📁 Upload JSON File
                     </button>
                     <button (click)="setRestoreSource('drive')"
                         class="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
-                        [class.bg-white]="restoreSource() === 'drive'"
-                        [class.text-[#131B2E]]="restoreSource() === 'drive'"
-                        [class.shadow-sm]="restoreSource() === 'drive'"
-                        [class.text-[#737686]]="restoreSource() !== 'drive'">
+                        [style.background]="restoreSource() === 'drive' ? 'var(--surface-0)' : 'transparent'"
+                        [style.color]="restoreSource() === 'drive' ? 'var(--text-1)' : 'var(--text-3)'"
+                        [class.shadow-sm]="restoreSource() === 'drive'">
                         ☁️ Google Drive
                     </button>
                 </div>
 
                 <!-- Tab 1: Upload File -->
                 @if (restoreSource() === 'file') {
-                <div class="border-2 border-dashed border-zinc-200 hover:border-indigo-400 rounded-2xl p-6 text-center transition-colors bg-[#FAF8FF] relative cursor-pointer">
+                <div class="border-2 border-dashed rounded-2xl p-6 text-center transition-colors relative cursor-pointer"
+                    style="border-color:var(--border);background:var(--surface-1)">
                     <input type="file" accept=".json,application/json" (change)="onFileSelected($event)"
                         class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-                    <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-2">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2"
+                        style="background:var(--accent-dim);color:var(--accent)">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                     </div>
-                    <p class="text-xs font-bold text-[#131B2E]">Click or drag a <span class="text-indigo-600">.json backup</span> file here</p>
-                    <p class="text-[10px] text-[#737686] mt-1">SkillTracker exported JSON files are supported</p>
+                    <p class="text-xs font-bold" style="color:var(--text-1)">Click or drag a <span style="color:var(--accent)">.json backup</span> file here</p>
+                    <p class="text-[10px] mt-1" style="color:var(--text-3)">SkillTracker exported JSON files are supported</p>
                 </div>
                 }
 
@@ -505,24 +605,24 @@
                 @if (restoreSource() === 'drive') {
                 <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
                     <div class="flex items-center justify-between px-1 mb-1">
-                        <span class="text-[10px] font-bold text-[#737686] uppercase tracking-wider">Drive Backups</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Drive Backups</span>
                         @if (hasDriveAccess() && !loadingDriveBackups()) {
-                        <button (click)="loadDriveBackups()" class="text-[10px] text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1">
+                        <button (click)="loadDriveBackups()" class="text-[10px] font-bold flex items-center gap-1" style="color:var(--accent)">
                             <span>↻ Refresh</span>
                         </button>
                         }
                     </div>
 
                     @if (!hasDriveAccess()) {
-                    <div class="text-center py-6 bg-zinc-50 rounded-2xl p-4 border border-zinc-200">
-                        <p class="text-xs text-[#737686] font-medium mb-3">Google Drive is not authorized in this session.</p>
+                    <div class="text-center py-6 rounded-2xl p-4" style="background:var(--surface-1);border:1px solid var(--border)">
+                        <p class="text-xs font-medium mb-3" style="color:var(--text-3)">Google Drive is not authorized in this session.</p>
                         <button (click)="connectDrive()"
                             class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
                             Connect Google Drive
                         </button>
                     </div>
                     } @else if (loadingDriveBackups()) {
-                    <div class="text-center py-6 text-xs text-[#737686] flex items-center justify-center gap-2">
+                    <div class="text-center py-6 text-xs flex items-center justify-center gap-2" style="color:var(--text-3)">
                         <svg class="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor"
@@ -531,9 +631,10 @@
                         <span>Loading backups from Google Drive...</span>
                     </div>
                     } @else if (driveBackups().length === 0) {
-                    <div class="text-center py-6 bg-zinc-50 rounded-2xl border border-zinc-200 p-4">
-                        <p class="text-xs text-[#737686] font-medium">No backup files found in <code>NextLyr SkillTracker/Backups</code>.</p>
-                        <button (click)="loadDriveBackups()" class="mt-3 text-xs text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+                    <div class="text-center py-6 rounded-2xl p-4" style="background:var(--surface-1);border:1px solid var(--border)">
+                        <p class="text-xs font-medium" style="color:var(--text-3)">No backup files found in <code>NextLyr SkillTracker/Backups</code>.</p>
+                        <button (click)="loadDriveBackups()" class="mt-3 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+                            style="background:var(--accent-dim);color:var(--accent)">
                             ↻ Re-check Drive
                         </button>
                     </div>
@@ -541,18 +642,16 @@
                     @for (file of driveBackups(); track file.id) {
                     <div (click)="onSelectDriveBackup(file.id)"
                         class="p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between"
-                        [class.border-indigo-600]="selectedDriveBackupId() === file.id"
-                        [class.bg-indigo-50]="selectedDriveBackupId() === file.id"
-                        [class.border-zinc-200]="selectedDriveBackupId() !== file.id"
-                        [class.bg-white]="selectedDriveBackupId() !== file.id">
+                        [style.border-color]="selectedDriveBackupId() === file.id ? 'var(--accent)' : 'var(--border)'"
+                        [style.background]="selectedDriveBackupId() === file.id ? 'var(--accent-dim)' : 'var(--surface-1)'">
                         <div class="flex items-center gap-2.5 truncate">
                             <span class="text-base">📄</span>
                             <div class="truncate">
-                                <p class="text-xs font-bold text-[#131B2E] truncate">{{ file.name }}</p>
-                                <p class="text-[10px] text-[#737686]">{{ file.createdTime | date:'medium' }}</p>
+                                <p class="text-xs font-bold truncate" style="color:var(--text-1)">{{ file.name }}</p>
+                                <p class="text-[10px]" style="color:var(--text-3)">{{ file.createdTime | date:'medium' }}</p>
                             </div>
                         </div>
-                        <input type="radio" [checked]="selectedDriveBackupId() === file.id" class="text-indigo-600" />
+                        <input type="radio" [checked]="selectedDriveBackupId() === file.id" class="text-blue-600" />
                     </div>
                     }
                     }
@@ -562,11 +661,11 @@
 
                 <!-- Selected Backup Preview -->
                 @if (selectedBackupData()) {
-                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs animate-fade-in">
-                    <div class="flex items-center justify-between font-bold text-emerald-800 mb-1.5">
+                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3.5 text-xs animate-fade-in">
+                    <div class="flex items-center justify-between font-bold text-emerald-500 mb-1.5">
                         <span class="truncate">✓ Ready to restore: {{ selectedBackupFileName() }}</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-[11px] text-emerald-700 font-medium pt-1">
+                    <div class="grid grid-cols-2 gap-2 text-[11px] text-emerald-500/90 font-medium pt-1">
                         <div>📚 <strong>Subjects:</strong> {{ selectedBackupData()?.subjects?.length }}</div>
                         <div>📝 <strong>Topics:</strong> {{ selectedBackupData()?.topics?.length }}</div>
                         <div>📌 <strong>Subtopics:</strong> {{ selectedBackupData()?.subtopics?.length }}</div>
@@ -577,7 +676,8 @@
 
                 <div class="flex gap-3 mt-5">
                     <button (click)="showRestoreModal.set(false)"
-                        class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-[#434654] font-bold py-3.5 rounded-xl transition-all text-xs">
+                        class="flex-1 font-bold py-3.5 rounded-xl transition-all text-xs"
+                        style="background:var(--surface-2);color:var(--text-2)">
                         Cancel
                     </button>
                     <button (click)="confirmAndRunRestore()" [disabled]="!selectedBackupData()"
@@ -590,28 +690,29 @@
             <!-- Animated Restoration Progress -->
             <div class="mt-4 space-y-3 animate-fade-in">
                 <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-wider">
+                    <h4 class="text-[10px] font-black uppercase tracking-wider" style="color:var(--text-4)">
                         {{ restoreFinished() ? 'Restoration Completed' : 'Reverting Database State...' }}
                     </h4>
                     @if (restoreFinished()) {
-                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">100% Reverted</span>
+                    <span class="text-[10px] font-black text-emerald-500 bg-emerald-500/15 px-2 py-0.5 rounded-full">100% Reverted</span>
                     }
                 </div>
 
                 @for (step of restoreProgress(); track step.id) {
-                <div class="flex items-center justify-between text-xs sm:text-sm py-1.5 border-b border-zinc-50 last:border-0">
+                <div class="flex items-center justify-between text-xs sm:text-sm py-1.5 border-b last:border-0"
+                    style="border-color:var(--border)">
                     <span class="font-bold transition-colors"
-                        [class.text-zinc-400]="step.status === 'pending'"
-                        [class.text-indigo-600]="step.status === 'active'"
-                        [class.text-emerald-600]="step.status === 'done'"
-                        [class.text-red-500]="step.status === 'error'">
+                        [class.text-blue-600]="step.status === 'active'"
+                        [class.text-emerald-500]="step.status === 'done'"
+                        [class.text-red-500]="step.status === 'error'"
+                        [style.color]="step.status === 'pending' ? 'var(--text-4)' : null">
                         {{ step.label }}
                     </span>
 
                     @if (step.status === 'pending') {
-                    <span class="w-5 h-5 border-2 border-zinc-200 rounded-full flex-shrink-0"></span>
+                    <span class="w-5 h-5 border-2 rounded-full flex-shrink-0" style="border-color:var(--border)"></span>
                     } @else if (step.status === 'active') {
-                    <svg class="w-5 h-5 text-indigo-600 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -650,24 +751,24 @@
     @if (showDeleteModal()) {
     <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in"
         (click)="!isDeleting() && showDeleteModal.set(false)">
-        <div class="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in"
+        <div class="rounded-[24px] p-6 w-full max-w-md shadow-2xl relative overflow-hidden animate-scale-in"
+            style="background:var(--surface-0);border:1px solid var(--border)"
             (click)="$event.stopPropagation()">
-
 
             <div class="flex items-center gap-3 mb-4 text-red-600">
                 <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <h2 class="text-xl font-black">Are you sure?</h2>
+                <h2 class="text-xl font-black text-red-500">Are you sure?</h2>
             </div>
 
             <div class="space-y-4">
-                <p class="text-sm text-[#434654] font-medium">
-                    This action <span class="font-bold text-red-600">cannot</span> be undone. This will permanently
+                <p class="text-sm font-medium" style="color:var(--text-2)">
+                    This action <span class="font-bold text-red-500">cannot</span> be undone. This will permanently
                     delete your profile and wipe out all of your progress, including:
                 </p>
-                <ul class="text-xs text-[#737686] font-bold list-disc pl-5 space-y-1">
+                <ul class="text-xs font-bold list-disc pl-5 space-y-1" style="color:var(--text-3)">
                     <li>All {{ totalSubjects() }} subjects</li>
                     <li>All {{ totalTopics() }} topics and subtopics</li>
                     <li>Your learning progress and statistics</li>
@@ -675,16 +776,18 @@
                 </ul>
 
                 @if (!isDeleting() && deletionProgress()[0].status === 'pending') {
-                <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-200 mt-4">
-                    <label class="block text-xs font-bold text-[#737686] mb-2">Please type <span
-                            class="font-black text-[#131B2E] select-all">{{ userEmail() }}</span> to confirm.</label>
+                <div class="p-4 rounded-xl mt-4" style="background:var(--surface-1);border:1px solid var(--border)">
+                    <label class="block text-xs font-bold mb-2" style="color:var(--text-3)">Please type <span
+                            class="font-black select-all" style="color:var(--text-1)">{{ userEmail() }}</span> to confirm.</label>
                     <input [(ngModel)]="deleteConfirmationEmail" type="text"
-                        class="w-full h-11 rounded-lg border border-zinc-300 px-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-200 outline-none transition-all" />
+                        class="w-full h-11 rounded-lg px-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-200 outline-none transition-all"
+                        style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)" />
                 </div>
 
                 <div class="flex gap-3 mt-6">
                     <button (click)="showDeleteModal.set(false)"
-                        class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-[#434654] font-bold py-3.5 rounded-xl transition-all">
+                        class="flex-1 font-bold py-3.5 rounded-xl transition-all"
+                        style="background:var(--surface-2);color:var(--text-2)">
                         Cancel
                     </button>
                     <button (click)="confirmDeleteAccount()" [disabled]="deleteConfirmationEmail !== userEmail()"
@@ -695,19 +798,19 @@
                 } @else {
                 <!-- Progress UI -->
                 <div class="mt-6 space-y-3">
-                    <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Deletion Progress
+                    <h4 class="text-[10px] font-black uppercase tracking-wider mb-2" style="color:var(--text-4)">Deletion Progress
                     </h4>
                     @for (step of deletionProgress(); track step.table) {
                     <div class="flex items-center justify-between text-sm py-1">
-                        <span class="font-bold" [class.text-zinc-400]="step.status === 'pending'"
-                            [class.text-blue-600]="step.status === 'deleting'"
+                        <span class="font-bold" [class.text-blue-600]="step.status === 'deleting'"
                             [class.text-emerald-500]="step.status === 'done'"
-                            [class.text-red-500]="step.status === 'error'">
+                            [class.text-red-500]="step.status === 'error'"
+                            [style.color]="step.status === 'pending' ? 'var(--text-4)' : null">
                             {{ step.label }}
                         </span>
 
                         @if (step.status === 'pending') {
-                        <span class="w-5 h-5 border-2 border-zinc-200 rounded-full"></span>
+                        <span class="w-5 h-5 border-2 rounded-full" style="border-color:var(--border)"></span>
                         } @else if (step.status === 'deleting') {
                         <svg class="w-5 h-5 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
@@ -737,8 +840,8 @@
     }
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav
-        class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-50 w-[92%] max-w-sm">
+    <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-50 w-[92%] max-w-sm"
+        style="background:var(--nav-bg);border:1px solid var(--nav-border)">
         <a routerLink="/dashboard"
             class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -753,7 +856,7 @@
             </svg>
             <span class="text-[8px] sm:text-[9px] font-bold tahoma">Weekly</span>
         </a>
-        <a routerLink="/profile" class="tahoma flex flex-col items-center gap-0 text-white transition-all touch-manipulation">
+        <a routerLink="/profile" class="tahoma flex flex-col items-center gap-0 text-cyan-400 transition-all touch-manipulation">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path
                     d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />

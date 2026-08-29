@@ -1,45 +1,102 @@
 <!-- src/app/subjects/subject-detail/subject-detail.component.html -->
-<div class="min-h-screen bg-[#FAF8FF] text-[#131B2E] pb-24 md:pb-8">
+<div class="min-h-screen pb-24 md:pb-8" style="background:var(--bg);color:var(--text-1)">
+
+    <!-- ── Collapsed Sticky Header ─────────────── -->
+    <div class="collapsed-header" [class.visible]="headerCollapsed()">
+        <div class="collapsed-header-inner">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <button (click)="goBack()" class="flex items-center gap-1 text-xs font-bold transition-colors"
+                    style="color:var(--text-2)">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span class="hidden xs:inline">Back</span>
+                </button>
+
+                @if (subject(); as sub) {
+                <div class="w-px h-4" style="background:var(--border)"></div>
+                <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" [style.background-color]="sub.color"></div>
+                <span class="text-xs sm:text-sm font-bold truncate" style="color:var(--text-1)">{{ sub.name }}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full hidden sm:inline-flex"
+                    style="background:var(--accent-dim);color:var(--accent)">{{ percent() }}%</span>
+                }
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button (click)="themeService.toggle()" class="theme-toggle-collapsed" title="Toggle theme">
+                    @if (themeService.isDark()) {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    } @else {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── Header Area ────────────────────────────── -->
     <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-8 text-white rounded-b-[32px] shadow-lg animate-fade-in relative">
         <div class="max-w-3xl mx-auto flex flex-col gap-4 relative z-10">
-            <!-- Back & Title row -->
+            <!-- Back, Progress & Theme Toggle row -->
             <div class="flex items-center justify-between">
-                <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white text-sm font-bold group">
+                <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white text-sm font-bold group touch-manipulation">
                     <svg class="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
                     <span>Back</span>
                 </button>
 
-                @if (subject(); as sub) {
-                <div class="flex items-center gap-2 text-xs font-bold bg-white/15 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
-                    <span class="text-white">{{ percent() }}% Mastered</span>
+                <div class="flex items-center gap-2.5">
+                    @if (subject(); as sub) {
+                    <div class="flex items-center gap-2 text-xs font-bold bg-white/15 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
+                        <span class="text-white">{{ percent() }}% Mastered</span>
+                    </div>
+                    }
+
+                    <!-- Theme Toggle in Header -->
+                    <button (click)="themeService.toggle()" class="theme-toggle touch-manipulation" title="Toggle theme">
+                        @if (themeService.isDark()) {
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        } @else {
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        }
+                    </button>
                 </div>
-                }
             </div>
 
             <!-- Subject Title Block -->
             @if (subject(); as sub) {
             <div class="flex items-center gap-3 mt-1">
                 <div class="w-4 h-4 rounded-full flex-shrink-0 border-2 border-white" [style.background-color]="sub.color"></div>
-                <h1 class="text-2xl font-black tracking-tight truncate flex-1">{{ sub.name }}</h1>
+                <h1 class="text-2xl font-black tracking-tight truncate flex-1 tahoma">{{ sub.name }}</h1>
             </div>
             }
         </div>
     </header>
 
     <!-- ── Main Content ───────────────────────────── -->
-    <main class="max-w-3xl mx-auto px-5 py-8">
+    <main class="max-w-3xl mx-auto px-4 sm:px-5 py-6 sm:py-8 tahoma">
 
         @if (loading()) {
         <!-- Loading state -->
         <div class="space-y-3">
             @for (_ of [1,2,3]; track $index) {
-            <div class="bg-white border border-zinc-100 rounded-2xl p-5 animate-pulse flex items-center gap-3">
-                <div class="w-5 h-5 bg-zinc-200 rounded-md"></div>
-                <div class="h-4 bg-zinc-100 rounded w-1/2"></div>
+            <div class="rounded-2xl p-5 animate-pulse flex items-center gap-3"
+                style="background:var(--surface-0);border:1px solid var(--border)">
+                <div class="w-5 h-5 rounded-md" style="background:var(--skeleton)"></div>
+                <div class="h-4 rounded w-1/2" style="background:var(--skeleton)"></div>
             </div>
             }
         </div>
@@ -47,14 +104,16 @@
         } @else if (subject(); as sub) {
 
         <!-- Search & Sort Panel -->
-        <div class="flex items-center gap-3 mb-6 relative z-[200]">
+        <div class="flex items-center gap-2 sm:gap-3 mb-5 sm:mb-6 relative z-[200]">
             <div class="relative flex-1">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style="color:var(--text-4)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text" placeholder="Search topics..." class="w-full h-12 pl-11 pr-4 rounded-xl bg-white border border-zinc-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" />
+                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text" placeholder="Search topics..."
+                    class="w-full h-11 sm:h-12 pl-11 pr-4 rounded-xl text-sm outline-none transition-all"
+                    style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)" />
                 @if (isSearching()) {
-                <button (click)="searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                <button (click)="searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-100 transition-opacity" style="color:var(--text-3)">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 }
@@ -62,16 +121,20 @@
 
             <!-- Sort Menu -->
             <div class="relative sort-menu-container">
-                <button (click)="showSortMenu.update(v => !v)" class="h-12 px-4 rounded-xl bg-white border border-zinc-200 flex items-center gap-2 text-zinc-600 hover:text-blue-600 font-bold text-xs transition-all">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/></svg>
-                    <span>{{ sortLabels[sortOption()] }}</span>
+                <button (click)="showSortMenu.update(v => !v)"
+                    class="h-11 sm:h-12 px-3 sm:px-4 rounded-xl flex items-center gap-1.5 sm:gap-2 font-bold text-xs transition-all touch-manipulation"
+                    style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-2)">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/></svg>
+                    <span class="truncate max-w-[110px] sm:max-w-none">{{ sortLabels[sortOption()] }}</span>
                 </button>
 
                 @if (showSortMenu()) {
-                <div class="absolute right-0 top-full mt-2 w-48 bg-white border border-zinc-100 rounded-2xl shadow-xl z-30 py-1.5 overflow-hidden animate-scale-in"
-                    style="background-color: #ffffff !important;">
+                <div class="absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-xl z-30 py-1.5 overflow-hidden animate-scale-in"
+                    style="background:var(--surface-0);border:1px solid var(--border)">
                     @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
-                    <button (click)="setSort(entry[0])" class="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center justify-between hover:bg-[#F4F5FC]" [class.text-blue-600]="sortOption() === entry[0]" [class.text-[#434654]]="sortOption() !== entry[0]">
+                    <button (click)="setSort(entry[0])"
+                        class="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center justify-between hover:bg-white/[0.04]"
+                        [style.color]="sortOption() === entry[0] ? 'var(--accent)' : 'var(--text-2)'">
                         {{ entry[1] }}
                         @if (sortOption() === entry[0]) {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -92,7 +155,8 @@
                     @if (sortOption() === 'default' && !isSearching()) {
                     <!-- Drag Handle -->
                     <div cdkDragHandle
-                        class="drag-handle cursor-grab active:cursor-grabbing p-1 text-zinc-300 hover:text-zinc-600 active:text-blue-600 transition-colors flex items-center justify-center rounded-lg hover:bg-zinc-100 touch-none flex-shrink-0"
+                        class="drag-handle cursor-grab active:cursor-grabbing p-1 transition-colors flex items-center justify-center rounded-lg touch-none flex-shrink-0"
+                        style="color:var(--text-4)"
                         title="Drag to reorder topic">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="9" cy="6" r="1.5"/>
@@ -117,36 +181,42 @@
 
             <!-- Empty state -->
             @if (filteredTopics().length === 0 && !isSearching()) {
-            <div class="text-center py-16 bg-white border border-dashed border-zinc-200 rounded-3xl animate-fade-in">
-                <p class="text-zinc-400 text-xs">No topics yet — add something to learn below!</p>
+            <div class="text-center py-16 rounded-3xl animate-fade-in"
+                style="background:var(--surface-0);border:1px dashed var(--border)">
+                <p class="text-xs" style="color:var(--text-3)">No topics yet — add something to learn below!</p>
             </div>
             }
         </div>
-
 
         <!-- Add Topic -->
         @if (!isSearching()) {
         <div class="mt-4">
             @if (showAddTopic()) {
-            <div class="bg-white border border-blue-100 rounded-2xl p-5 space-y-3 shadow-lg animate-slide-up">
-                <h4 class="text-xs font-bold text-[#737686] uppercase tracking-wider">New Topic</h4>
-                <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic Title" (input)="newTopicTitle = toTitleCase(newTopicTitle)" (keydown.enter)="addTopic()" class="w-full h-12 px-4 rounded-xl bg-white border border-zinc-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" />
+            <div class="rounded-2xl p-5 space-y-3 shadow-lg animate-slide-up"
+                style="background:var(--surface-0);border:1px solid var(--border)">
+                <h4 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-3)">New Topic</h4>
+                <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic Title" (input)="newTopicTitle = toTitleCase(newTopicTitle)" (keydown.enter)="addTopic()"
+                    class="w-full h-12 px-4 rounded-xl text-sm outline-none"
+                    style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-1)" />
                 
                 <div class="flex items-center gap-3">
-                    <select [(ngModel)]="newTopicDepth" class="h-12 px-4 rounded-xl border border-zinc-200 bg-white text-sm outline-none focus:border-blue-400 flex-1">
+                    <select [(ngModel)]="newTopicDepth" class="h-12 px-4 rounded-xl text-sm outline-none flex-1"
+                        style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-1)">
                         <option value="shallow">Shallow (Overview)</option>
                         <option value="medium">Medium (Core Competency)</option>
                         <option value="deep">Deep (Expertise)</option>
                     </select>
                     
-                    <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-3.5 rounded-xl disabled:opacity-50 flex-shrink-0">
+                    <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-3.5 rounded-xl disabled:opacity-50 flex-shrink-0 touch-manipulation">
                         {{ savingTopic() ? 'Adding...' : 'Add Topic' }}
                     </button>
                 </div>
-                <button (click)="showAddTopic.set(false)" class="w-full text-center text-xs font-bold text-[#737686] hover:text-[#434654] py-1">Cancel</button>
+                <button (click)="showAddTopic.set(false)" class="w-full text-center text-xs font-bold py-1 touch-manipulation" style="color:var(--text-3)">Cancel</button>
             </div>
             } @else {
-            <button (click)="showAddTopic.set(true)" class="w-full border border-dashed border-zinc-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600 text-sm font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
+            <button (click)="showAddTopic.set(true)"
+                class="w-full text-sm font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 touch-manipulation"
+                style="border:1px dashed var(--border);color:var(--accent);background:var(--surface-0)">
                 + Add Topic
             </button>
             }
@@ -157,8 +227,8 @@
     </main>
 
     <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav
-        class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#070A10] border border-white/10 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm">
+    <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm"
+        style="background:var(--nav-bg);border:1px solid var(--nav-border)">
         <a routerLink="/dashboard"
             class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">

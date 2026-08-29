@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
 import { GoogleDriveService } from '../core/services/google-drive.service';
 import { BackupService } from '../core/services/backup.service';
+import { ThemeService } from '../core/services/theme.service';
 import { Profile, SubjectWithTopics, DriveBackupFile, BackupData } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -29,6 +30,17 @@ export interface ProgressStep {
     animations: [staggerList, fadeSlideInOut]
 })
 export class ProfileComponent implements OnInit {
+
+    // ── Header Collapse on Scroll ─────────────────────
+    headerCollapsed = signal(false);
+
+    @HostListener('window:scroll', [])
+    onWindowScroll() {
+        if (typeof window !== 'undefined') {
+            this.headerCollapsed.set(window.scrollY > 80);
+        }
+    }
+
     profile = signal<Profile | null>(null);
     loading = signal(true);
     saving = signal(false);
@@ -86,7 +98,8 @@ export class ProfileComponent implements OnInit {
         private auth: AuthService,
         private toast: ToastService,
         private googleDrive: GoogleDriveService,
-        private backupService: BackupService
+        private backupService: BackupService,
+        public themeService: ThemeService
     ) { }
 
     async ngOnInit() {

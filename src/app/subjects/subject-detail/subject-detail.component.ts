@@ -16,6 +16,7 @@ import {
     SubtopicDeleteEvent
 } from '../../dashboard/topic-item/topic-item.component';
 import { ToastComponent } from '../../shared/toast/toast.component';
+import { ThemeService } from '../../core/services/theme.service';
 import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
@@ -33,6 +34,16 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
 export class SubjectDetailComponent implements OnInit, OnDestroy {
 
     protected readonly Object = Object;
+
+    // ── Header Collapse on Scroll ─────────────────────
+    headerCollapsed = signal(false);
+
+    @HostListener('window:scroll', [])
+    onWindowScroll() {
+        if (typeof window !== 'undefined') {
+            this.headerCollapsed.set(window.scrollY > 100);
+        }
+    }
 
     // ── State ──────────────────────────────────────────
     subject = signal<Subject | null>(null);
@@ -106,7 +117,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private subjectsService: SubjectsService,
         private topicsService: TopicsService,
         private subtopicsService: SubtopicsService,
-        private toast: ToastService
+        private toast: ToastService,
+        public themeService: ThemeService
     ) { }
 
     async ngOnInit() {
