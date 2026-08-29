@@ -19,6 +19,7 @@ import { ToastComponent } from '../../shared/toast/toast.component';
 import { ThemeService } from '../../core/services/theme.service';
 import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Title } from '@angular/platform-browser';
 
 export type SortOption = 'default' | 'depth-asc' | 'depth-desc' | 'completed-last' | 'completed-first';
 
@@ -118,7 +119,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private topicsService: TopicsService,
         private subtopicsService: SubtopicsService,
         private toast: ToastService,
-        public themeService: ThemeService
+        public themeService: ThemeService,
+        private titleService: Title
     ) { }
 
     async ngOnInit() {
@@ -158,6 +160,9 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             ]);
             this.subject.set(subject);
             this.topics.set(topics);
+            if (subject?.name) {
+                this.titleService.setTitle(`${subject.name} | Nextlyr Skill Tracker`);
+            }
         } catch {
             this.toast.error('Failed to load subject.');
             this.router.navigate(['/dashboard']);

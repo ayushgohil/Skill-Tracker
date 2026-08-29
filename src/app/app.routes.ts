@@ -2,15 +2,18 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+
 export const routes: Routes = [
     {
         path: '',
+        title: 'Home',
         canActivate: [guestGuard],
         loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent)
     },
     // OAuth callback — must be BEFORE the guarded 'auth' route so guestGuard doesn't interfere
     {
         path: 'auth/callback',
+        title: 'Authenticating',
         loadComponent: () => import('./auth/callback/callback.component').then(m => m.CallbackComponent)
     },
     {
@@ -20,27 +23,32 @@ export const routes: Routes = [
     },
     {
         path: 'reset-password',
+        title: 'Reset Password',
         loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
     },
     {
         path: 'dashboard',
+        title: 'Dashboard',
         canActivate: [authGuard],
         loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
     },
     {
         path: 'subjects/:id',
+        title: 'Subject',
         canActivate: [authGuard],
         loadComponent: () => import('./subjects/subject-detail/subject-detail.component').then(m => m.SubjectDetailComponent)
     },
     {
         path: 'profile',
+        title: 'Profile',
         canActivate: [authGuard],
         loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent)
     },
     {
         path: 'weekly',
+        title: 'Weekly Focus Review',
         canActivate: [authGuard],
         loadComponent: () => import('./weekly/weekly.component').then(m => m.WeeklyComponent)
     },
     { path: '**', redirectTo: 'dashboard' }
-];
+];
