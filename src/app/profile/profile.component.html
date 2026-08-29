@@ -5,15 +5,10 @@
     <div class="collapsed-header" [class.visible]="headerCollapsed()">
         <div class="collapsed-header-inner">
             <div class="flex items-center gap-2.5 min-w-0">
-                <a routerLink="/dashboard" class="flex items-center gap-2 text-xs font-bold transition-colors"
+                <a routerLink="/dashboard" class="flex items-center gap-2 text-xs font-bold transition-colors hover:opacity-80"
                     style="color:var(--text-2)">
-                    <div class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
-                        style="background:var(--accent);color:white">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <span class="font-black truncate hidden xs:inline" style="color:var(--text-1)">SkillTracker</span>
+                    <img src="favicon.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
+                    <span class="font-black truncate hidden xs:inline" style="color:var(--text-1)">Nextlyr</span>
                 </a>
                 <div class="w-px h-4" style="background:var(--border)"></div>
                 <span class="text-xs font-bold truncate" style="color:var(--text-2)">{{ profile()?.display_name || userEmail() }}</span>
@@ -44,15 +39,11 @@
     <header
         class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-5 sm:py-8 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in">
         <div class="max-w-3xl mx-auto flex items-center justify-between">
-            <div
-                class="flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl">
-                <div class="w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-md flex items-center justify-center flex-shrink-0">
-                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="font-black tracking-tight text-xs sm:text-sm">SkillTracker</span>
-            </div>
+            <a routerLink="/dashboard"
+                class="flex items-center gap-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl hover:bg-white/25 transition-all touch-manipulation">
+                <img src="favicon.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
+                <span class="font-black tracking-tight text-xs sm:text-sm text-white">Nextlyr</span>
+            </a>
 
             <div class="flex items-center gap-2">
                 <!-- Theme Toggle in Header -->
