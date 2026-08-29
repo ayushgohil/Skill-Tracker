@@ -1,5 +1,5 @@
-/* ── Google Font ─────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+/* ── Professional Typography (Plus Jakarta Sans + Inter) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 @import 'quill/dist/quill.snow.css';
 @import 'highlight.js/styles/atom-one-dark.min.css';
 
@@ -8,6 +8,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Typography Architecture (Configure fonts app-wide here) ── */
+:root {
+  /*
+   * PRIMARY APP FONT
+   * To change the font across the entire app, simply update this single variable:
+   */
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 /* ── Base ────────────────────────────────────────── */
 *,
 *::before,
@@ -15,13 +26,27 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
   background: var(--bg);
   color: var(--text-1);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em;
 }
 
 /* ── Token System (Light — default) ─────────────── */
@@ -620,7 +645,7 @@ html.dark .heat-4 {
 
 
 .tahoma {
-  font-family: Tahoma, sans-serif;
+  font-family: var(--font-sans) !important;
 }
 
 /* ── Rich Text Editor Custom Links ──────────────── */
