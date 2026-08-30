@@ -1,7 +1,11 @@
 import {
-    Component, Input, OnInit, signal, inject
+    Component, Input, OnInit, OnDestroy, signal, inject,
+    ViewChild, TemplateRef, ViewContainerRef, ApplicationRef,
+    Injector, PLATFORM_ID
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TopicMedia, TopicMediaService } from '../../core/services/topic-media.service';
 import { GoogleDriveService } from '../../core/services/google-drive.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -15,15 +19,25 @@ import Swal from 'sweetalert2';
     imports: [CommonModule],
     templateUrl: './media-gallery.component.html'
 })
-export class MediaGalleryComponent implements OnInit {
+export class MediaGalleryComponent implements OnInit, OnDestroy {
     @Input() topicId!: string;
     @Input() subjectId!: string;
     @Input() subjectName!: string;
     @Input() topicTitle!: string;
 
+    @ViewChild('driveModalTemplate') driveModalTemplate!: TemplateRef<any>;
+    @ViewChild('lightboxTemplate') lightboxTemplate!: TemplateRef<any>;
+
     mediaService = inject(TopicMediaService);
     private drive = inject(GoogleDriveService);
     private auth = inject(AuthService);
+    private vcr = inject(ViewContainerRef);
+    private appRef = inject(ApplicationRef);
+    private injector = inject(Injector);
+    private platformId = inject(PLATFORM_ID);
+    private sanitizer = inject(DomSanitizer);
+
+    private portalOutlet?: DomPortalOutlet;
 
 
     media = signal<TopicMedia[]>([]);
@@ -39,13 +53,32 @@ export class MediaGalleryComponent implements OnInit {
     totalFiles = signal(0);
     completedFiles = signal(0);
 
+    // Lightbox & Transform State
     lightboxOpen = signal(false);
     lightboxIndex = signal(0);
     lightboxUrl = signal<string | null>(null);
+    safeLightboxUrl = signal<SafeResourceUrl | null>(null);
     lightboxLoading = signal(false);
+    zoomLevel = signal<number>(1);
+    panOffset = signal<{ x: number; y: number }>({ x: 0, y: 0 });
+    rotation = signal<number>(0);
+    isFullscreen = signal<boolean>(false);
+    showControls = signal<boolean>(true);
+    isDragging = signal<boolean>(false);
+    touchSwipeY = signal<number>(0);
 
     copiedId = signal<string | null>(null);
     showLinkMenu = signal<string | null>(null);
+
+    // Touch & Mouse Drag Tracking
+    private dragStart = { x: 0, y: 0 };
+    private initialPan = { x: 0, y: 0 };
+    private touchStartDist = 0;
+    private initialTouchZoom = 1;
+    private touchStartX = 0;
+    private touchStartY = 0;
+    private lastTapTime = 0;
+    readonly Math = Math;
 
     objectEntries(obj: Record<string, any>) {
         return Object.entries(obj);
@@ -54,6 +87,15 @@ export class MediaGalleryComponent implements OnInit {
     async ngOnInit() {
         this.hasDriveAccess.set(await this.drive.hasDriveAccess());
         if (this.hasDriveAccess()) await this.loadMedia();
+    }
+
+    ngOnDestroy() {
+        if (isPlatformBrowser(this.platformId)) {
+            document.removeEventListener('keydown', this.onKey);
+            document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+        }
+        this.detachModal();
+        this.portalOutlet?.dispose();
     }
 
     async loadMedia() {
@@ -239,8 +281,36 @@ export class MediaGalleryComponent implements OnInit {
         input.value = '';
     }
 
+    private attachModal(template: TemplateRef<any>) {
+        if (!isPlatformBrowser(this.platformId)) return;
+        this.detachModal();
+        if (!this.portalOutlet) {
+            this.portalOutlet = new DomPortalOutlet(
+                document.body,
+                this.appRef,
+                this.injector
+            );
+        }
+        const portal = new TemplatePortal(template, this.vcr);
+        this.portalOutlet.attach(portal);
+    }
+
+    private detachModal() {
+        if (this.portalOutlet?.hasAttached()) {
+            this.portalOutlet.detach();
+        }
+    }
+
     connectDrive() {
         this.showDriveModal.set(true);
+        if (isPlatformBrowser(this.platformId) && this.driveModalTemplate) {
+            this.attachModal(this.driveModalTemplate);
+        }
+    }
+
+    closeDriveModal() {
+        this.showDriveModal.set(false);
+        this.detachModal();
     }
 
     async copyLink(fileId: string, itemId: string, type: 'view' | 'download', event: Event) {
@@ -274,21 +344,244 @@ export class MediaGalleryComponent implements OnInit {
     }
 
     async confirmConnectDrive() {
-        this.showDriveModal.set(false);
+        this.closeDriveModal();
         await this.auth.connectGoogleDrive();
     }
 
     openLightbox(index: number) {
         this.lightboxIndex.set(index);
         this.lightboxOpen.set(true);
+        this.resetTransform();
         this.loadLightboxFile(index);
-        document.addEventListener('keydown', this.onKey);
+        if (isPlatformBrowser(this.platformId)) {
+            document.addEventListener('keydown', this.onKey);
+            document.addEventListener('fullscreenchange', this.onFullscreenChange);
+            if (this.lightboxTemplate) {
+                this.attachModal(this.lightboxTemplate);
+            }
+        }
     }
 
     closeLightbox() {
         this.lightboxOpen.set(false);
         this.lightboxUrl.set(null);
-        document.removeEventListener('keydown', this.onKey);
+        this.safeLightboxUrl.set(null);
+        this.resetTransform();
+        if (isPlatformBrowser(this.platformId)) {
+            document.removeEventListener('keydown', this.onKey);
+            document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+            if (document.fullscreenElement) {
+                document.exitFullscreen?.().catch(() => {});
+            }
+        }
+        this.detachModal();
+    }
+
+    resetTransform() {
+        this.zoomLevel.set(1);
+        this.panOffset.set({ x: 0, y: 0 });
+        this.rotation.set(0);
+        this.touchSwipeY.set(0);
+        this.isDragging.set(false);
+    }
+
+    zoomIn() {
+        this.zoomLevel.update(z => Math.min(5, +(z + 0.25).toFixed(2)));
+    }
+
+    zoomOut() {
+        this.zoomLevel.update(z => {
+            const next = Math.max(0.5, +(z - 0.25).toFixed(2));
+            if (next <= 1) this.panOffset.set({ x: 0, y: 0 });
+            return next;
+        });
+    }
+
+    setZoom(level: number) {
+        this.zoomLevel.set(level);
+        if (level <= 1) this.panOffset.set({ x: 0, y: 0 });
+    }
+
+    rotateLeft() {
+        this.rotation.update(r => (r - 90 + 360) % 360);
+    }
+
+    rotateRight() {
+        this.rotation.update(r => (r + 90) % 360);
+    }
+
+    toggleFullscreen() {
+        if (!isPlatformBrowser(this.platformId)) return;
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen?.().catch(() => {});
+            this.isFullscreen.set(true);
+        } else {
+            document.exitFullscreen?.().catch(() => {});
+            this.isFullscreen.set(false);
+        }
+    }
+
+    private onFullscreenChange = () => {
+        this.isFullscreen.set(!!document.fullscreenElement);
+    };
+
+    toggleControls() {
+        this.showControls.update(s => !s);
+    }
+
+    // ── Mouse Event Handlers ────────────────────────────────────
+
+    onWheel(event: WheelEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        const delta = event.deltaY < 0 ? 0.2 : -0.2;
+        this.zoomLevel.update(z => {
+            const next = Math.max(0.5, Math.min(5, +(z + delta).toFixed(2)));
+            if (next <= 1) this.panOffset.set({ x: 0, y: 0 });
+            return next;
+        });
+    }
+
+    onMouseDown(event: MouseEvent) {
+        if (this.zoomLevel() <= 1) return;
+        event.preventDefault();
+        this.isDragging.set(true);
+        this.dragStart = { x: event.clientX, y: event.clientY };
+        this.initialPan = { ...this.panOffset() };
+    }
+
+    onMouseMove(event: MouseEvent) {
+        if (!this.isDragging()) return;
+        event.preventDefault();
+        const dx = event.clientX - this.dragStart.x;
+        const dy = event.clientY - this.dragStart.y;
+        this.panOffset.set({
+            x: this.initialPan.x + dx,
+            y: this.initialPan.y + dy
+        });
+    }
+
+    onMouseUp() {
+        this.isDragging.set(false);
+    }
+
+    onImageDoubleClick(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.zoomLevel() > 1) {
+            this.resetTransform();
+        } else {
+            this.zoomLevel.set(2.5);
+        }
+    }
+
+    // ── Touch Gesture Handlers (Mobile) ──────────────────────────
+
+    onTouchStart(event: TouchEvent) {
+        if (event.touches.length === 2) {
+            // Pinch to zoom start
+            const t1 = event.touches[0];
+            const t2 = event.touches[1];
+            this.touchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            this.initialTouchZoom = this.zoomLevel();
+        } else if (event.touches.length === 1) {
+            const touch = event.touches[0];
+            this.touchStartX = touch.clientX;
+            this.touchStartY = touch.clientY;
+            this.dragStart = { x: touch.clientX, y: touch.clientY };
+            this.initialPan = { ...this.panOffset() };
+
+            // Double tap detection
+            const now = Date.now();
+            if (now - this.lastTapTime < 300) {
+                if (this.zoomLevel() > 1) {
+                    this.resetTransform();
+                } else {
+                    this.zoomLevel.set(2.5);
+                }
+                this.lastTapTime = 0;
+            } else {
+                this.lastTapTime = now;
+            }
+        }
+    }
+
+    onTouchMove(event: TouchEvent) {
+        if (event.touches.length === 2) {
+            event.preventDefault();
+            const t1 = event.touches[0];
+            const t2 = event.touches[1];
+            const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            if (this.touchStartDist > 0) {
+                const scale = (dist / this.touchStartDist) * this.initialTouchZoom;
+                const clamped = Math.max(0.5, Math.min(5, +scale.toFixed(2)));
+                this.zoomLevel.set(clamped);
+                if (clamped <= 1) this.panOffset.set({ x: 0, y: 0 });
+            }
+        } else if (event.touches.length === 1) {
+            const touch = event.touches[0];
+            const dx = touch.clientX - this.touchStartX;
+            const dy = touch.clientY - this.touchStartY;
+
+            if (this.zoomLevel() > 1) {
+                event.preventDefault();
+                this.panOffset.set({
+                    x: this.initialPan.x + dx,
+                    y: this.initialPan.y + dy
+                });
+            } else {
+                // Swipe down to dismiss on mobile
+                if (dy > 0 && Math.abs(dy) > Math.abs(dx) * 1.2) {
+                    event.preventDefault();
+                    this.touchSwipeY.set(dy);
+                }
+            }
+        }
+    }
+
+    onTouchEnd(event: TouchEvent) {
+        if (this.touchSwipeY() > 120) {
+            this.closeLightbox();
+            return;
+        }
+        this.touchSwipeY.set(0);
+
+        if (event.changedTouches.length === 1 && this.zoomLevel() <= 1) {
+            const touch = event.changedTouches[0];
+            const dx = touch.clientX - this.touchStartX;
+            const dy = touch.clientY - this.touchStartY;
+
+            // Horizontal swipe to navigate photos
+            if (Math.abs(dx) > 60 && Math.abs(dy) < 40) {
+                if (dx < 0) {
+                    this.nextSlide();
+                } else {
+                    this.prevSlide();
+                }
+            }
+        }
+    }
+
+    // ── File actions ───────────────────────────────────────────
+
+    downloadCurrentFile() {
+        const item = this.media()[this.lightboxIndex()];
+        if (!item) return;
+        const dlUrl = this.drive.getDriveDownloadLink(item.drive_file_id);
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.download = item.file_name;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    openInDrive() {
+        const item = this.media()[this.lightboxIndex()];
+        if (!item) return;
+        const viewUrl = this.drive.getDriveViewLink(item.drive_file_id);
+        window.open(viewUrl, '_blank');
     }
 
     async loadLightboxFile(index: number) {
@@ -296,37 +589,67 @@ export class MediaGalleryComponent implements OnInit {
         if (!item) return;
         this.lightboxLoading.set(true);
         this.lightboxUrl.set(null);
+        this.safeLightboxUrl.set(null);
         try {
             const url = await this.drive.getFileUrl(item.drive_file_id);
             this.lightboxUrl.set(url);
+            this.safeLightboxUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
         } finally {
             this.lightboxLoading.set(false);
         }
     }
 
-
-
     prevSlide() {
+        this.resetTransform();
         const i = (this.lightboxIndex() - 1 + this.media().length) % this.media().length;
         this.lightboxIndex.set(i);
         this.loadLightboxFile(i);
     }
 
     nextSlide() {
+        this.resetTransform();
         const i = (this.lightboxIndex() + 1) % this.media().length;
         this.lightboxIndex.set(i);
         this.loadLightboxFile(i);
     }
 
     goToSlide(i: number) {
+        if (i === this.lightboxIndex()) return;
+        this.resetTransform();
         this.lightboxIndex.set(i);
         this.loadLightboxFile(i);
     }
 
     onKey = (e: KeyboardEvent) => {
-        if (e.key === 'ArrowLeft') this.prevSlide();
-        if (e.key === 'ArrowRight') this.nextSlide();
-        if (e.key === 'Escape') this.closeLightbox();
+        if (!this.lightboxOpen()) return;
+        switch (e.key) {
+            case 'ArrowLeft':
+                this.prevSlide();
+                break;
+            case 'ArrowRight':
+                this.nextSlide();
+                break;
+            case 'Escape':
+                this.closeLightbox();
+                break;
+            case '+':
+            case '=':
+                this.zoomIn();
+                break;
+            case '-':
+            case '_':
+                this.zoomOut();
+                break;
+            case '0':
+            case 'r':
+            case 'R':
+                this.resetTransform();
+                break;
+            case 'f':
+            case 'F':
+                this.toggleFullscreen();
+                break;
+        }
     };
 
     isImage(mime: string) { return mime.startsWith('image/'); }
