@@ -17,6 +17,7 @@ import {
 } from '../../dashboard/topic-item/topic-item.component';
 import { ToastComponent } from '../../shared/toast/toast.component';
 import { ThemeService } from '../../core/services/theme.service';
+import { AnimationService } from '../../core/services/animation.service';
 import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Title } from '@angular/platform-browser';
@@ -120,7 +121,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private subtopicsService: SubtopicsService,
         private toast: ToastService,
         public themeService: ThemeService,
-        private titleService: Title
+        private titleService: Title,
+        private anim: AnimationService
     ) { }
 
     async ngOnInit() {
@@ -223,7 +225,16 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             t.id === event.topicId ? { ...t, completed: event.completed, notes: event.notes } : t
         ));
 
-        // 2. Fire-and-forget background save
+        // 2. Micro-interaction animation
+        if (event.completed) {
+            if (this.percent() === 100) {
+                this.anim.celebrateSuccess();
+            } else {
+                this.anim.miniSparkle();
+            }
+        }
+
+        // 3. Fire-and-forget background save
         this.topicsService.upsertProgress(event.topicId, event.completed, event.notes)
             .catch(() => {
                 this.toast.error('Failed to save progress.');
@@ -322,14 +333,23 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         const updatedTopic = this.topics().find(t => t.id === event.topicId);
         const nowComplete = updatedTopic?.completed ?? false;
 
-        // 3. Fire-and-forget background saves
+        // 3. Animation feedback
+        if (event.completed) {
+            if (this.percent() === 100) {
+                this.anim.celebrateSuccess();
+            } else {
+                this.anim.miniSparkle();
+            }
+        }
+
+        // 4. Fire-and-forget background saves
         this.subtopicsService.toggleSubtopic(event.subtopicId, event.completed)
             .catch(() => {
                 this.toast.error('Failed to update subtopic.');
                 this.load();
             });
 
-        // 4. Sync topic-level progress if auto-complete state changed
+        // 5. Sync topic-level progress if auto-complete state changed
         if (nowComplete !== wasCompleted) {
             this.subtopicsService.updateTopicProgress(event.topicId, nowComplete)
                 .catch(() => {

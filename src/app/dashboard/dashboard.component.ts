@@ -13,6 +13,7 @@ import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
 import { ThemeService } from '../core/services/theme.service';
+import { AnimationService } from '../core/services/animation.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -73,6 +74,11 @@ export class DashboardComponent implements OnInit {
     editSubjectName = '';
     editSubjectColor = '';
 
+    // ── Animated Metrics (GSAP) ──────────────────────
+    displayedPercent = signal(0);
+    displayedStreak = signal(0);
+    displayedXP = signal(0);
+
     // ── Computed ───────────────────────────────────────
     totalTopics = computed(() => this.subjects().reduce((s, c) => s + c.totalCount, 0));
     totalCompleted = computed(() => this.subjects().reduce((s, c) => s + c.completedCount, 0));
@@ -97,7 +103,8 @@ export class DashboardComponent implements OnInit {
         private router: Router,
         private el: ElementRef,
         private profileService: ProfileService,
-        public themeService: ThemeService
+        public themeService: ThemeService,
+        private anim: AnimationService
     ) { }
 
     async ngOnInit() {
@@ -115,7 +122,9 @@ export class DashboardComponent implements OnInit {
     async load() {
         this.loading.set(true);
         try {
-            this.subjects.set(await this.topicsService.getSubjectsWithTopics());
+            const subs = await this.topicsService.getSubjectsWithTopics();
+            this.subjects.set(subs);
+            this.triggerMetricAnimations();
         } catch {
             this.toast.error('Failed to load subjects.');
         } finally {
@@ -123,18 +132,43 @@ export class DashboardComponent implements OnInit {
         }
     }
 
+    private triggerMetricAnimations() {
+        // Animate Percent
+        this.anim.animateNumber(
+            { value: this.displayedPercent() },
+            this.overallPercent(),
+            (val: number) => this.displayedPercent.set(val),
+            1.2
+        );
+
+        // Animate XP
+        const targetXP = this.totalCompleted() * 100;
+        this.anim.animateNumber(
+            { value: this.displayedXP() },
+            targetXP,
+            (val: number) => this.displayedXP.set(val),
+            1.4
+        );
+    }
+
     private async loadWeeklyData() {
         try {
             const [isDue, starred, logs] = await Promise.all([
                 this.weeklyService.isReviewDue(),
                 this.weeklyService.getAllStarredTopics(),
-                // Use getRecentActivityLogs() instead of getActivityLogsForYear() so that
-                // cross-year streaks (e.g. Dec 31 → Jan 1) are calculated correctly (Bug #3 fix)
                 this.activityService.getRecentActivityLogs()
             ]);
             this.reviewDue.set(isDue);
             this.starredTopics.set(starred);
             this.calculateStreak(logs);
+
+            // Animate Streak
+            this.anim.animateNumber(
+                { value: this.displayedStreak() },
+                this.currentStreak(),
+                (val: number) => this.displayedStreak.set(val),
+                1.0
+            );
         } catch {
             // Non-critical — silently ignore
         } finally {

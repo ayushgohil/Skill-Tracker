@@ -10,6 +10,7 @@ import { ToastService } from '../core/services/toast.service';
 import { GoogleDriveService } from '../core/services/google-drive.service';
 import { BackupService } from '../core/services/backup.service';
 import { ThemeService } from '../core/services/theme.service';
+import { AnimationService } from '../core/services/animation.service';
 import { Profile, SubjectWithTopics, DriveBackupFile, BackupData } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -49,6 +50,13 @@ export class ProfileComponent implements OnInit {
     totalTopics = signal(0);
     totalCompleted = signal(0);
     totalSubjects = signal(0);
+
+    // ── Animated Metrics ──────────────────────────────
+    displayedSubjects = signal(0);
+    displayedTopics = signal(0);
+    displayedCompleted = signal(0);
+    displayedPercent = signal(0);
+
     showDeleteModal = signal(false);
     deleteConfirmationEmail = '';
     isDeleting = signal(false);
@@ -99,7 +107,8 @@ export class ProfileComponent implements OnInit {
         private toast: ToastService,
         private googleDrive: GoogleDriveService,
         private backupService: BackupService,
-        public themeService: ThemeService
+        public themeService: ThemeService,
+        private anim: AnimationService
     ) { }
 
     async ngOnInit() {
@@ -115,9 +124,21 @@ export class ProfileComponent implements OnInit {
             this.hasDriveAccess.set(driveAccess);
             this.profile.set(profile);
             this.displayName = profile.display_name ?? '';
-            this.totalSubjects.set(subjects.length);
-            this.totalTopics.set(subjects.reduce((s: number, c: SubjectWithTopics) => s + c.totalCount, 0));
-            this.totalCompleted.set(subjects.reduce((s: number, c: SubjectWithTopics) => s + c.completedCount, 0));
+
+            const subCount = subjects.length;
+            const topCount = subjects.reduce((s: number, c: SubjectWithTopics) => s + c.totalCount, 0);
+            const compCount = subjects.reduce((s: number, c: SubjectWithTopics) => s + c.completedCount, 0);
+            const pct = topCount ? Math.round((compCount / topCount) * 100) : 0;
+
+            this.totalSubjects.set(subCount);
+            this.totalTopics.set(topCount);
+            this.totalCompleted.set(compCount);
+
+            // Animate metrics smoothly with GSAP
+            this.anim.animateNumber({ value: 0 }, subCount, (v: number) => this.displayedSubjects.set(v), 0.8);
+            this.anim.animateNumber({ value: 0 }, topCount, (v: number) => this.displayedTopics.set(v), 1.0);
+            this.anim.animateNumber({ value: 0 }, compCount, (v: number) => this.displayedCompleted.set(v), 1.2);
+            this.anim.animateNumber({ value: 0 }, pct, (v: number) => this.displayedPercent.set(v), 1.2);
         } catch {
             this.toast.error('Failed to load profile.');
         } finally {

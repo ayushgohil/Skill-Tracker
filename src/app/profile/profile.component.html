@@ -145,22 +145,22 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 animate-slide-up">
             <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
                 style="background:var(--surface-0);border:1px solid var(--border)">
-                <span class="block text-xl sm:text-2xl font-black" style="color:var(--text-1)">{{ totalSubjects() }}</span>
+                <span class="block text-xl sm:text-2xl font-black" style="color:var(--text-1)">{{ displayedSubjects() }}</span>
                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Subjects</span>
             </div>
             <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
                 style="background:var(--surface-0);border:1px solid var(--border)">
-                <span class="block text-xl sm:text-2xl font-black" style="color:var(--text-1)">{{ totalTopics() }}</span>
+                <span class="block text-xl sm:text-2xl font-black" style="color:var(--text-1)">{{ displayedTopics() }}</span>
                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Topics</span>
             </div>
             <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
                 style="background:var(--surface-0);border:1px solid var(--border)">
-                <span class="block text-xl sm:text-2xl font-black text-emerald-500">{{ totalCompleted() }}</span>
+                <span class="block text-xl sm:text-2xl font-black text-emerald-500">{{ displayedCompleted() }}</span>
                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Completed</span>
             </div>
             <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm"
                 style="background:var(--surface-0);border:1px solid var(--border)">
-                <span class="block text-xl sm:text-2xl font-black" style="color:var(--accent)">{{ percent() }}%</span>
+                <span class="block text-xl sm:text-2xl font-black" style="color:var(--accent)">{{ displayedPercent() }}%</span>
                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-3)">Mastery</span>
             </div>
         </div>
@@ -192,11 +192,11 @@
             <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-black" style="color:var(--text-1)">Overall Skill Mastery</span>
                 <span class="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-1 rounded-full font-black">{{
-                    totalCompleted() }}/{{ totalTopics() }}</span>
+                    displayedCompleted() }}/{{ displayedTopics() }}</span>
             </div>
             <div class="w-full rounded-full h-2.5 sm:h-3" style="background:var(--surface-2)">
                 <div class="progress-fill bg-gradient-to-r from-cyan-500 to-blue-600 h-2.5 sm:h-3 rounded-full transition-all duration-700"
-                    [style.width.%]="percent()"></div>
+                    [style.width.%]="displayedPercent()"></div>
             </div>
         </div>
 

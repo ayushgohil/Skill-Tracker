@@ -7,6 +7,7 @@ import { TopicsService } from '../core/services/topics.service';
 import { ToastService } from '../core/services/toast.service';
 import { TopicWithProgress, StarredTopic, Subject, Depth } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
+import { AnimationService } from '../core/services/animation.service';
 
 @Component({
     selector: 'app-weekly',
@@ -71,17 +72,18 @@ export class WeeklyComponent implements OnInit {
         private weeklyService: WeeklyService,
         private topicsService: TopicsService,
         private toast: ToastService,
-        private router: Router
+        private router: Router,
+        private anim: AnimationService
     ) { }
 
     async ngOnInit() {
+        this.loading.set(true);
         try {
             const [completed, incomplete, subjectsWithTopics] = await Promise.all([
                 this.weeklyService.getCompletedThisWeek(),
                 this.weeklyService.getIncompleteTopicsAllSubjects(),
                 this.topicsService.getSubjectsWithTopics()
             ]);
-
             this.completedThisWeek.set(completed);
             this.allIncompleteTopics.set(incomplete);
             this.weakestSubject.set(this.weeklyService.getWeakestSubject(subjectsWithTopics));
@@ -93,7 +95,7 @@ export class WeeklyComponent implements OnInit {
             }
             this.selectedTopicIds.set(preSelected);
         } catch {
-            this.toast.error('Failed to load weekly review data.');
+            this.toast.error('Failed to load weekly review.');
         } finally {
             this.loading.set(false);
         }
@@ -124,6 +126,7 @@ export class WeeklyComponent implements OnInit {
         try {
             await this.weeklyService.saveWeeklyReview([...this.selectedTopicIds()]);
             this.step.set(3);
+            this.anim.celebrateSuccess();
             this.toast.success('Weekly review saved!');
         } catch {
             this.toast.error('Failed to save review.');
