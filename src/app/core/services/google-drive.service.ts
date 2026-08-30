@@ -20,6 +20,11 @@ export class GoogleDriveService {
     // ── Blob URL tracking (prevents memory leaks) ─────────────
     private activeBlobUrls = new Set<string>();
 
+    // ── Folder ID cache (avoids repeated Drive API lookups) ───
+    // Key: "parentId/folderName", Value: { id, expiresAt }
+    private folderCache = new Map<string, { id: string; expiresAt: number }>();
+    private static FOLDER_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
     /**
      * Get a valid Google access token.
      *
@@ -119,8 +124,14 @@ export class GoogleDriveService {
         return !!token;
     }
 
-    // Find or create a folder by name under a parent
+    // Find or create a folder by name under a parent (with caching)
     private async findOrCreateFolder(token: string, name: string, parentId?: string): Promise<string> {
+        const cacheKey = `${parentId ?? 'root'}/${name}`;
+        const cached = this.folderCache.get(cacheKey);
+        if (cached && Date.now() < cached.expiresAt) {
+            return cached.id;
+        }
+
         const q = parentId
             ? `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
             : `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
@@ -131,7 +142,11 @@ export class GoogleDriveService {
         );
         if (!res.ok) throw new Error(`Drive folder search failed: ${res.status}`);
         const data = await res.json();
-        if (data.files?.length > 0) return data.files[0].id;
+        if (data.files?.length > 0) {
+            const id = data.files[0].id;
+            this.folderCache.set(cacheKey, { id, expiresAt: Date.now() + GoogleDriveService.FOLDER_CACHE_TTL });
+            return id;
+        }
 
         const body: any = { name, mimeType: 'application/vnd.google-apps.folder' };
         if (parentId) body.parents = [parentId];
@@ -143,6 +158,7 @@ export class GoogleDriveService {
         });
         if (!create.ok) throw new Error(`Drive folder creation failed: ${create.status}`);
         const folder = await create.json();
+        this.folderCache.set(cacheKey, { id: folder.id, expiresAt: Date.now() + GoogleDriveService.FOLDER_CACHE_TTL });
         return folder.id;
     }
 

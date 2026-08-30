@@ -152,11 +152,13 @@ export class MediaGalleryComponent implements OnInit {
             return tempId;
         });
 
-        // Upload files one by one
-        for (let i = 0; i < valid.length; i++) {
-            const file = valid[i];
-            const tempId = tempIds[i];
+        // Upload files in parallel (up to 3 concurrent)
+        const MAX_CONCURRENT = 3;
+        let activeUploads = 0;
+        const queue = valid.map((file, i) => ({ file, tempId: tempIds[i], index: i }));
+        let queueIndex = 0;
 
+        const uploadOne = async (file: File, tempId: string): Promise<void> => {
             try {
                 const saved = await this.mediaService.upload(
                     file, this.topicId, this.topicTitle, this.subjectId, this.subjectName, userId,
@@ -166,10 +168,12 @@ export class MediaGalleryComponent implements OnInit {
                             ...u,
                             [tempId]: { name: file.name, percent }
                         }));
-                        // Update overall progress
+                        // Recalculate overall progress from all files
+                        const allFiles = this.uploadingFiles();
+                        const perFileContribution = Object.values(allFiles).reduce((s, f) => s + f.percent, 0);
                         const base = (this.completedFiles() / this.totalFiles()) * 100;
-                        const current = (percent / this.totalFiles());
-                        this.overallProgress.set(Math.round(base + current));
+                        const active = perFileContribution / this.totalFiles();
+                        this.overallProgress.set(Math.min(99, Math.round(base + active)));
                     }
                 );
 
@@ -204,7 +208,26 @@ export class MediaGalleryComponent implements OnInit {
                     confirmButtonColor: '#6366f1',
                 });
             }
-        }
+        };
+
+        // Run uploads with concurrency limit
+        const runPool = (): Promise<void[]> => {
+            const workers: Promise<void>[] = [];
+            for (let w = 0; w < Math.min(MAX_CONCURRENT, queue.length); w++) {
+                workers.push(runWorker());
+            }
+            return Promise.all(workers);
+        };
+
+        const runWorker = async (): Promise<void> => {
+            while (queueIndex < queue.length) {
+                const idx = queueIndex++;
+                const { file, tempId } = queue[idx];
+                await uploadOne(file, tempId);
+            }
+        };
+
+        await runPool();
 
         // Reset overall progress after short delay
         setTimeout(() => {
