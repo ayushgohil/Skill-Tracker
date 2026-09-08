@@ -16,11 +16,11 @@ export class LandingComponent {
             // Heatmap cells generation
             const makeCells = (container: Element, cols: number, rows: number) => {
                 const colors = [
-                    'rgba(124,58,237,.06)',
-                    'rgba(124,58,237,.2)',
-                    'rgba(124,58,237,.4)',
-                    'rgba(124,58,237,.65)',
-                    'rgba(124,58,237,.9)',
+                    '#F4F5FC',
+                    '#BFDBFE',
+                    '#60A5FA',
+                    '#2563EB',
+                    '#1D4ED8',
                 ];
                 const weights = [.3, .25, .22, .14, .09];
                 const total = cols * rows;

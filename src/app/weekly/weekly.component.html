@@ -52,7 +52,7 @@
 
     <!-- ── Header ──────────────────────────────── -->
     <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-6 text-white rounded-b-[32px] shadow-lg sticky top-0 z-20">
-        <div class="max-w-2xl mx-auto flex items-center justify-between">
+        <div class="responsive-container-narrow flex items-center justify-between">
             <button (click)="goToDashboard()" class="flex items-center gap-1.5 text-white/80 hover:text-white font-bold text-xs group touch-manipulation">
                 <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -80,7 +80,7 @@
     <!-- STEP 1 — RECAP                             -->
     <!-- ═══════════════════════════════════════════ -->
     @if (step() === 1) {
-    <main class="max-w-2xl mx-auto px-5 py-6 animate-fade-in tahoma">
+    <main class="responsive-container-narrow py-6 animate-fade-in tahoma">
         <h1 class="text-2xl font-black tracking-tight" style="color:var(--text-1)">Last week's recap</h1>
         <p class="text-sm" style="color:var(--text-3)">Here is what you accomplished!</p>
 
@@ -157,7 +157,7 @@
     <!-- STEP 2 — PICK FOCUS TOPICS                 -->
     <!-- ═══════════════════════════════════════════ -->
     @if (step() === 2) {
-    <main class="max-w-2xl mx-auto px-5 py-6 animate-fade-in pb-32 tahoma">
+    <main class="responsive-container-narrow py-6 animate-fade-in pb-32 tahoma">
         <h1 class="text-2xl font-black tracking-tight" style="color:var(--text-1)">Pick your focus</h1>
         <p class="text-sm" style="color:var(--text-3)">Choose up to 3 topics to focus on this week</p>
 
@@ -232,7 +232,7 @@
         <!-- Bottom actions -->
         <div class="fixed bottom-0 left-0 right-0 px-5 py-4 z-20 shadow-lg backdrop-blur-md"
             style="background:var(--header-collapsed-bg);border-top:1px solid var(--border)">
-            <div class="max-w-2xl mx-auto flex gap-3">
+            <div class="responsive-container-narrow flex gap-3">
                 <button (click)="step.set(1)" class="font-bold rounded-xl px-6 py-3.5 text-sm transition-all touch-manipulation"
                     style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-2)">
                     ← Back

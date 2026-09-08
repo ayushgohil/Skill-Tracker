@@ -158,6 +158,47 @@ html.dark {
   background: var(--bg);
 }
 
+/* ── Responsive Container ───────────────────────── */
+.responsive-container {
+  width: 100%;
+  max-width: 80rem; /* 1280px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Narrower variant for form-heavy / wizard pages */
+.responsive-container-narrow {
+  width: 100%;
+  max-width: 56rem; /* 896px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-container-narrow {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
 /* ── Navbar ──────────────────────────────────────── */
 .navbar {
   position: sticky;
@@ -929,7 +970,7 @@ quill-editor .ql-container.ql-snow {
 }
 
 .collapsed-header-inner {
-  max-width: 64rem;
+  max-width: 80rem;
   margin: 0 auto;
   display: flex;
   align-items: center;
