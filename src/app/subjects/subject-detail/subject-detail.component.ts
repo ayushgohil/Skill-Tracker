@@ -20,6 +20,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Title } from '@angular/platform-browser';
+import { ShareModalComponent } from '../share-modal/share-modal.component';
 
 export type SortOption = 'default' | 'depth-asc' | 'depth-desc' | 'completed-last' | 'completed-first';
 
@@ -28,7 +29,7 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
 @Component({
     selector: 'app-subject-detail',
     standalone: true,
-    imports: [TopicItemComponent, ToastComponent, FormsModule, RouterLink, DragDropModule],
+    imports: [TopicItemComponent, ToastComponent, FormsModule, RouterLink, DragDropModule, ShareModalComponent],
     templateUrl: './subject-detail.component.html',
     animations: [staggerList, fadeSlideInOut]
 })
@@ -62,6 +63,21 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     newTopicTitle = '';
     newTopicDepth: Depth = 'medium';
     savingTopic = signal(false);
+
+    // ── Study Partner Modal & Progress ─────────────────
+    showShareModal = signal(false);
+
+    partnerCompletedCount = computed(() => {
+        return this.topics().reduce((sum, t) => sum + (t.partner_completed ? 1 : 0), 0);
+    });
+
+    partnerPercent = computed(() => {
+        return this.topics().length ? Math.round((this.partnerCompletedCount() / this.topics().length) * 100) : 0;
+    });
+
+    async onPartnerChanged() {
+        await this.load(true);
+    }
 
     // ── Computed (subtopic-aware progress) ─────────────
     totalCount = computed(() => {
@@ -151,12 +167,12 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         document.removeEventListener('click', this.clickOutsideHandler);
     }
 
-    async load() {
+    async load(force = false) {
         this.loading.set(true);
         try {
             const [subject, topics] = await Promise.all([
-                this.subjectsService.getSubjectById(this.subjectId),
-                this.subjectsService.getTopicsForSubject(this.subjectId)
+                this.subjectsService.getSubjectById(this.subjectId, force),
+                this.subjectsService.getTopicsForSubject(this.subjectId, force)
             ]);
             this.subject.set(subject);
             this.topics.set(topics);

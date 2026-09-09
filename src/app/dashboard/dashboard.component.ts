@@ -13,6 +13,7 @@ import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
 import { ThemeService } from '../core/services/theme.service';
+import { CollaborationService } from '../core/services/collaboration.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -97,7 +98,8 @@ export class DashboardComponent implements OnInit {
         private router: Router,
         private el: ElementRef,
         private profileService: ProfileService,
-        public themeService: ThemeService
+        public themeService: ThemeService,
+        private collabService: CollaborationService
     ) { }
 
     async ngOnInit() {
@@ -262,12 +264,39 @@ export class DashboardComponent implements OnInit {
         }
     }
 
-    // ── Delete Subject ────────────────────────────────
-    async deleteSubject(event: Event, id: string, name: string) {
+    // ── Delete Subject / Leave Shared Subject ─────────
+    async deleteSubject(event: Event, sub: SubjectWithTopics) {
         event.stopPropagation();
+        if (sub.is_shared && !sub.is_owner) {
+            const result = await Swal.fire({
+                title: 'Leave Shared Subject?',
+                text: `"${sub.name}" will be removed from your dashboard.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, leave subject',
+                cancelButtonText: 'Cancel',
+                background: '#18181b',
+                color: '#f4f4f5',
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#3f3f46'
+            });
+            if (!result.isConfirmed) return;
+            this.subjects.update(subs => subs.filter(s => s.id !== sub.id));
+            try {
+                await this.collabService.leaveSubject(sub.id);
+                this.toast.success(`Left "${sub.name}".`);
+            } catch {
+                this.toast.error('Failed to leave subject.');
+                await this.load();
+            }
+            return;
+        }
+
         const result = await Swal.fire({
             title: 'Delete Subject?',
-            text: `"${name}" and all its topics will be permanently removed.`,
+            text: sub.is_shared
+                ? `"${sub.name}" and all its topics will be permanently removed. Your study partner will also lose access.`
+                : `"${sub.name}" and all its topics will be permanently removed.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it',
@@ -278,10 +307,10 @@ export class DashboardComponent implements OnInit {
             cancelButtonColor: '#3f3f46'
         });
         if (!result.isConfirmed) return;
-        this.subjects.update(subs => subs.filter(s => s.id !== id));
+        this.subjects.update(subs => subs.filter(s => s.id !== sub.id));
         try {
-            await this.subjectsService.delete(id);
-            this.toast.success(`"${name}" deleted.`);
+            await this.subjectsService.delete(sub.id);
+            this.toast.success(`"${sub.name}" deleted.`);
         } catch {
             this.toast.error('Failed to delete subject.');
             await this.load();

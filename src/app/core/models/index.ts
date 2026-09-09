@@ -5,6 +5,43 @@ export interface Profile {
     created_at: string;
 }
 
+export interface SubjectPartnerInfo {
+    id: string;
+    display_name: string;
+    role: 'owner' | 'partner';
+    joined_at?: string;
+}
+
+export interface SubjectMember {
+    id: string;
+    subject_id: string;
+    user_id: string;
+    role: 'owner' | 'partner';
+    joined_at: string;
+    profile?: Profile;
+}
+
+export interface SubjectInvite {
+    id: string;
+    subject_id: string;
+    inviter_id: string;
+    invite_code: string;
+    status: 'active' | 'accepted' | 'revoked' | 'expired';
+    created_at: string;
+    expires_at: string;
+}
+
+export interface InvitePreview {
+    invite_code: string;
+    subject_id: string;
+    subject_name: string;
+    subject_color: string;
+    inviter_name: string;
+    topic_count: number;
+    expires_at: string;
+    error?: string;
+}
+
 export interface Subject {
     id: string;
     user_id: string;
@@ -14,6 +51,10 @@ export interface Subject {
     created_at: string;
     // joined
     topics?: TopicWithProgress[];
+    is_shared?: boolean;
+    is_owner?: boolean;
+    partner?: SubjectPartnerInfo | null;
+    partner_percent?: number;
 }
 
 export type Depth = 'shallow' | 'medium' | 'deep';
@@ -54,6 +95,8 @@ export interface TopicWithProgress extends Topic {
     completed: boolean;
     notes: string;
     subtopics: Subtopic[];
+    partner_completed?: boolean;
+    partner_notes?: string;
 }
 
 export interface SubjectWithTopics extends Subject {

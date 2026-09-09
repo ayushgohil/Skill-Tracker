@@ -39,26 +39,95 @@ export class TopicsService {
             .eq('user_id', user!.id);
         if (progErr) throw progErr;
 
-        // Batch-fetch ALL subtopics for this user in one query
+        const topicIds = (topics ?? []).map(t => t.id);
+
+        // Batch-fetch all subtopics for these topics (for both users if shared)
         this.cacheService.incrementDbCall('getSubjectsWithTopics_subtopics');
-        const { data: allSubtopics, error: subTopErr } = await supabase
-            .from('subtopics')
-            .select('*')
-            .eq('user_id', user!.id)
-            .order('order', { ascending: true });
+        const { data: allSubtopics, error: subTopErr } = topicIds.length > 0
+            ? await supabase
+                .from('subtopics')
+                .select('*')
+                .in('topic_id', topicIds)
+                .order('order', { ascending: true })
+            : { data: [], error: null };
         if (subTopErr) throw subTopErr;
 
+        // Fetch subject_members to identify study partners
+        const subjectIds = (subjects ?? []).map(s => s.id);
+        const { data: members } = subjectIds.length > 0
+            ? await supabase
+                .from('subject_members')
+                .select('subject_id, user_id, role, joined_at')
+                .in('subject_id', subjectIds)
+            : { data: [] };
+
+        // Collect partner user IDs to fetch their display names and progress
+        const partnerUserIds = new Set<string>();
+        const subjectPartnerMap = new Map<string, { partnerId: string; role: 'owner' | 'partner' }>();
+
+        for (const sub of (subjects ?? [])) {
+            const isOwner = sub.user_id === user!.id;
+            if (isOwner) {
+                const partnerMember = (members ?? []).find(m => m.subject_id === sub.id && m.role === 'partner');
+                if (partnerMember) {
+                    partnerUserIds.add(partnerMember.user_id);
+                    subjectPartnerMap.set(sub.id, { partnerId: partnerMember.user_id, role: 'partner' });
+                }
+            } else {
+                // Current user is the partner, so the other person is the owner
+                partnerUserIds.add(sub.user_id);
+                subjectPartnerMap.set(sub.id, { partnerId: sub.user_id, role: 'owner' });
+            }
+        }
+
+        // Fetch partner profiles securely via RPC (never exposes private tokens)
+        const partnerProfileMap = new Map<string, string>();
+        if (partnerUserIds.size > 0) {
+            const { data: profiles } = await supabase.rpc('get_partner_profiles', {
+                p_partner_ids: Array.from(partnerUserIds)
+            });
+            for (const p of (profiles ?? [])) {
+                partnerProfileMap.set(p.id, p.display_name);
+            }
+        }
+
+        // Fetch partner progress for all topics in these subjects
+        const partnerProgressMap = new Map<string, boolean>();
+        if (partnerUserIds.size > 0 && topicIds.length > 0) {
+            const { data: partnerProgs } = await supabase
+                .from('user_progress')
+                .select('user_id, topic_id, completed')
+                .in('user_id', Array.from(partnerUserIds))
+                .in('topic_id', topicIds);
+            for (const pp of (partnerProgs ?? [])) {
+                partnerProgressMap.set(`${pp.user_id}_${pp.topic_id}`, !!pp.completed);
+            }
+        }
+
         const result = (subjects ?? []).map(sub => {
+            const isOwner = sub.user_id === user!.id;
+            const partnerInfo = subjectPartnerMap.get(sub.id);
+            const isShared = !!partnerInfo;
+
+            const partnerObj = isShared ? {
+                id: partnerInfo.partnerId,
+                display_name: partnerProfileMap.get(partnerInfo.partnerId) || (isOwner ? 'Study Partner' : 'Subject Creator'),
+                role: partnerInfo.role
+            } : null;
+
             const subTopics: TopicWithProgress[] = (topics ?? [])
                 .filter(t => t.subject_id === sub.id)
                 .map(t => {
                     const p = (progress ?? []).find(pr => pr.topic_id === t.id);
                     const topicSubtopics = (allSubtopics ?? []).filter(st => st.topic_id === t.id);
+                    const partnerDone = isShared ? partnerProgressMap.get(`${partnerInfo.partnerId}_${t.id}`) ?? false : undefined;
+
                     return {
                         ...t,
                         completed: p?.completed ?? false,
                         notes: p?.notes ?? '',
-                        subtopics: topicSubtopics as Subtopic[]
+                        subtopics: topicSubtopics as Subtopic[],
+                        partner_completed: partnerDone
                     };
                 });
 
@@ -72,8 +141,21 @@ export class TopicsService {
                 return sum + (t.completed ? 1 : 0);
             }, 0);
 
+            // Partner percent (partner progress is tracked at the topic level)
+            let partnerPercent = 0;
+            if (isShared && subTopics.length > 0) {
+                const partnerCompletedCount = subTopics.reduce((sum, t) => {
+                    return sum + (t.partner_completed ? 1 : 0);
+                }, 0);
+                partnerPercent = Math.round((partnerCompletedCount / subTopics.length) * 100);
+            }
+
             return {
                 ...sub,
+                is_shared: isShared,
+                is_owner: isOwner,
+                partner: partnerObj,
+                partner_percent: partnerPercent,
                 topics: subTopics,
                 completedCount,
                 totalCount,
@@ -89,12 +171,11 @@ export class TopicsService {
         this.cacheService.incrementDbCall('addTopic');
         const { data: { user } } = await supabase.auth.getUser();
 
-        // Get current topic count in this subject for ordering
+        // Get current topic count in this subject for ordering across both partners
         const { count } = await supabase
             .from('topics')
             .select('*', { count: 'exact', head: true })
-            .eq('subject_id', subjectId)
-            .eq('user_id', user!.id);
+            .eq('subject_id', subjectId);
 
         const { data, error } = await supabase
             .from('topics')

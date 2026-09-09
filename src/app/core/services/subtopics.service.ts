@@ -16,12 +16,10 @@ export class SubtopicsService {
         if (cached) return cached;
 
         this.cacheService.incrementDbCall('getSubtopicsForTopic');
-        const { data: { user } } = await supabase.auth.getUser();
         const { data, error } = await supabase
             .from('subtopics')
             .select('*')
             .eq('topic_id', topicId)
-            .eq('user_id', user!.id)
             .order('order', { ascending: true });
         if (error) throw error;
 
@@ -32,12 +30,11 @@ export class SubtopicsService {
     async addSubtopic(topicId: string, title: string): Promise<Subtopic> {
         const { data: { user } } = await supabase.auth.getUser();
 
-        // Get current count for ordering
+        // Get current count for ordering across all subtopics in this topic
         const { count, error: countErr } = await supabase
             .from('subtopics')
             .select('*', { count: 'exact', head: true })
-            .eq('topic_id', topicId)
-            .eq('user_id', user!.id);
+            .eq('topic_id', topicId);
         if (countErr) throw countErr;
 
         const { data, error } = await supabase

@@ -39,6 +39,11 @@ export const routes: Routes = [
         loadComponent: () => import('./subjects/subject-detail/subject-detail.component').then(m => m.SubjectDetailComponent)
     },
     {
+        path: 'join/:code',
+        title: 'Join Study Subject',
+        loadComponent: () => import('./subjects/join-invite/join-invite.component').then(m => m.JoinInviteComponent)
+    },
+    {
         path: 'profile',
         title: 'Profile',
         canActivate: [authGuard],

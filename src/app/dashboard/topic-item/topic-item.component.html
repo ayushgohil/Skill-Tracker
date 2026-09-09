@@ -61,6 +61,21 @@
             {{ depthConfig[topic().depth].label }}
         </span>
 
+        <!-- Study Partner Completion Badge -->
+        @if (partnerName()) {
+        <span class="badge flex-shrink-0 text-[10px] sm:text-xs flex items-center gap-1 cursor-default"
+            [class.badge-green]="topic().partner_completed"
+            [class.badge-zinc]="!topic().partner_completed"
+            [attr.title]="partnerName() + (topic().partner_completed ? ' has completed this topic' : ' has not completed this topic yet')">
+            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                [class.bg-emerald-400]="topic().partner_completed"
+                [class.bg-zinc-500]="!topic().partner_completed"></span>
+            <span class="hidden sm:inline truncate max-w-[80px]">{{ partnerName() }}:</span>
+            <span class="sm:hidden font-bold">{{ partnerName()?.charAt(0) }}:</span>
+            <span>{{ topic().partner_completed ? '✓' : '○' }}</span>
+        </span>
+        }
+
         <!-- Starred -->
         @if (topic().starred) {
         <span class="text-sm flex-shrink-0">⭐</span>
@@ -137,32 +152,77 @@
     <div style="overflow: hidden;">
         <div class="px-3 sm:px-4 pb-4 pt-3 border-t" style="border-color:var(--border)" (click)="$event.stopPropagation()">
 
-            <!-- Notes -->
-            <label class="text-xs block mb-2 flex items-center gap-2" style="color:var(--text-2)">
-                Notes
-                @if (saveStatus() === 'saving') {
-                <span class="text-amber-500 text-xs flex items-center gap-1 transition-opacity">
-                    <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    Saving…
-                </span>
-                } @else if (saveStatus() === 'saved') {
-                <span class="text-emerald-500 text-xs flex items-center gap-1 transition-opacity">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Saved
-                </span>
+            <!-- Notes header & tabs -->
+            <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <label class="text-xs flex items-center gap-2" style="color:var(--text-2)">
+                        Notes
+                        @if (saveStatus() === 'saving') {
+                        <span class="text-amber-500 text-xs flex items-center gap-1 transition-opacity">
+                            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Saving…
+                        </span>
+                        } @else if (saveStatus() === 'saved') {
+                        <span class="text-emerald-500 text-xs flex items-center gap-1 transition-opacity">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Saved
+                        </span>
+                        }
+                    </label>
+                </div>
+
+                @if (partnerName()) {
+                <div class="flex items-center gap-1 p-0.5 rounded-lg border text-xs"
+                     style="background: var(--surface-1); border-color: var(--border);">
+                    <button type="button" (click)="activeNotesTab.set('mine')"
+                        class="px-2 py-0.5 rounded-md font-medium transition-colors"
+                        [style.background]="activeNotesTab() === 'mine' ? 'var(--surface-2)' : 'transparent'"
+                        [style.color]="activeNotesTab() === 'mine' ? 'var(--text-1)' : 'var(--text-3)'">
+                        My Notes
+                    </button>
+                    <button type="button" (click)="activeNotesTab.set('partner')"
+                        class="px-2 py-0.5 rounded-md font-medium transition-colors flex items-center gap-1"
+                        [style.background]="activeNotesTab() === 'partner' ? 'var(--surface-2)' : 'transparent'"
+                        [style.color]="activeNotesTab() === 'partner' ? 'var(--text-1)' : 'var(--text-3)'">
+                        <span class="truncate max-w-[100px] sm:max-w-none">{{ partnerName() }}'s Notes</span>
+                        @if (topic().partner_notes) {
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></span>
+                        }
+                    </button>
+                </div>
                 }
-            </label>
+            </div>
+
             <app-media-gallery [topicId]="topic().id" [subjectId]="topic().subject_id" [subjectName]="subjectName()"
                 [topicTitle]="topic().title" />
-            <quill-editor [(ngModel)]="localNotes" (ngModelChange)="onNotesInput()" (onBlur)="onNotesBlur()"
-                placeholder="Paste resources, write what you learned, note open questions..."
-                class="w-full block">
-            </quill-editor>
+
+            @if (activeNotesTab() === 'mine') {
+                <quill-editor [(ngModel)]="localNotes" (ngModelChange)="onNotesInput()" (onBlur)="onNotesBlur()"
+                    placeholder="Paste resources, write what you learned, note open questions..."
+                    class="w-full block">
+                </quill-editor>
+            } @else {
+                <div class="p-3 sm:p-4 rounded-xl border text-sm min-h-[120px] transition-all"
+                     style="background: var(--surface-1); border-color: var(--border); color: var(--text-2);">
+                    @if (topic().partner_notes) {
+                        <div class="text-xs font-semibold mb-2 flex items-center gap-2 pb-2 border-b"
+                             style="color: var(--text-3); border-color: var(--border);">
+                            <span>👁 Read-only notes by {{ partnerName() }}</span>
+                        </div>
+                        <div class="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed"
+                             [innerHTML]="topic().partner_notes"></div>
+                    } @else {
+                        <div class="py-8 text-center text-xs italic" style="color: var(--text-4);">
+                            {{ partnerName() }} hasn't added notes for this topic yet.
+                        </div>
+                    }
+                </div>
+            }
 
             <!-- Subtopics -->
             <div class="border-t mt-3 pt-3" style="border-color:var(--border)">

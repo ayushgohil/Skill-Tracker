@@ -88,6 +88,10 @@ export class TopicItemComponent implements OnDestroy, OnInit {
     // ── Google Drive ───────────────────────────────────
     subjectName = input.required<string>();
 
+    // ── Study Partner Collaboration ────────────────────
+    partnerName = input<string | undefined>(undefined);
+    activeNotesTab = signal<'mine' | 'partner'>('mine');
+
     // Kebab menu
     static openMenuId = signal<string | null>(null);
     showMenu = computed(() => TopicItemComponent.openMenuId() === this.topic().id);

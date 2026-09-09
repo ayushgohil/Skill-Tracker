@@ -26,10 +26,14 @@ export class SubjectsService {
         return data as Subject[];
     }
 
-    async getSubjectById(id: string): Promise<Subject> {
+    async getSubjectById(id: string, forceRefresh = false): Promise<Subject> {
         const cacheKey = `subject_${id}`;
-        const cached = this.cacheService.get(cacheKey);
-        if (cached) return cached;
+        if (!forceRefresh) {
+            const cached = this.cacheService.get(cacheKey);
+            if (cached) return cached;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
 
         this.cacheService.incrementDbCall('getSubjectById');
         const { data, error } = await supabase
@@ -39,14 +43,62 @@ export class SubjectsService {
             .single();
         if (error) throw error;
 
-        this.cacheService.set(cacheKey, data as Subject);
-        return data as Subject;
+        const subject = data as Subject;
+        const isOwner = user ? subject.user_id === user.id : true;
+
+        // Check if this subject has a study partner
+        let partnerObj = null;
+        if (user) {
+            if (isOwner) {
+                const { data: member } = await supabase
+                    .from('subject_members')
+                    .select('user_id, role, joined_at')
+                    .eq('subject_id', id)
+                    .eq('role', 'partner')
+                    .maybeSingle();
+
+                if (member) {
+                    const { data: profiles } = await supabase.rpc('get_partner_profiles', {
+                        p_partner_ids: [member.user_id]
+                    });
+
+                    partnerObj = {
+                        id: member.user_id,
+                        display_name: profiles?.[0]?.display_name || 'Study Partner',
+                        role: 'partner' as const,
+                        joined_at: member.joined_at
+                    };
+                }
+            } else {
+                const { data: profiles } = await supabase.rpc('get_partner_profiles', {
+                    p_partner_ids: [subject.user_id]
+                });
+
+                partnerObj = {
+                    id: subject.user_id,
+                    display_name: profiles?.[0]?.display_name || 'Subject Creator',
+                    role: 'owner' as const
+                };
+            }
+        }
+
+        const enrichedSubject: Subject = {
+            ...subject,
+            is_owner: isOwner,
+            is_shared: !!partnerObj,
+            partner: partnerObj
+        };
+
+        this.cacheService.set(cacheKey, enrichedSubject);
+        return enrichedSubject;
     }
 
-    async getTopicsForSubject(subjectId: string): Promise<TopicWithProgress[]> {
+    async getTopicsForSubject(subjectId: string, forceRefresh = false): Promise<TopicWithProgress[]> {
         const cacheKey = `topics_for_subject_${subjectId}`;
-        const cached = this.cacheService.get(cacheKey);
-        if (cached) return cached;
+        if (!forceRefresh) {
+            const cached = this.cacheService.get(cacheKey);
+            if (cached) return cached;
+        }
 
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -62,8 +114,10 @@ export class SubjectsService {
         const topicIds = (topics ?? []).map(t => t.id);
         let progress: any[] = [];
         let allSubtopics: any[] = [];
+        let partnerProgressMap = new Map<string, { completed: boolean; notes: string }>();
 
         if (topicIds.length > 0) {
+            // Fetch current user's progress
             this.cacheService.incrementDbCall('getTopicsForSubject_progress');
             const { data: prog, error: progErr } = await supabase
                 .from('user_progress')
@@ -73,26 +127,68 @@ export class SubjectsService {
             if (progErr) throw progErr;
             progress = prog ?? [];
 
-            // Batch-fetch all subtopics for these topics in one query
+            // Batch-fetch all subtopics for these topics (for both partners)
             this.cacheService.incrementDbCall('getTopicsForSubject_subtopics');
             const { data: subs, error: subErr } = await supabase
                 .from('subtopics')
                 .select('*')
-                .eq('user_id', user!.id)
                 .in('topic_id', topicIds)
                 .order('order', { ascending: true });
             if (subErr) throw subErr;
             allSubtopics = subs ?? [];
+
+            // Check if there is a partner to fetch partner's progress and notes
+            const { data: subjectData } = await supabase
+                .from('subjects')
+                .select('user_id')
+                .eq('id', subjectId)
+                .single();
+
+            if (subjectData) {
+                let partnerUserId: string | null = null;
+                if (subjectData.user_id === user!.id) {
+                    // Current user is owner, look up partner member
+                    const { data: partnerMember } = await supabase
+                        .from('subject_members')
+                        .select('user_id')
+                        .eq('subject_id', subjectId)
+                        .eq('role', 'partner')
+                        .maybeSingle();
+                    if (partnerMember) partnerUserId = partnerMember.user_id;
+                } else {
+                    // Current user is partner, other person is owner
+                    partnerUserId = subjectData.user_id;
+                }
+
+                if (partnerUserId) {
+                    const { data: partnerProgs } = await supabase
+                        .from('user_progress')
+                        .select('topic_id, completed, notes')
+                        .eq('user_id', partnerUserId)
+                        .in('topic_id', topicIds);
+
+                    for (const pp of (partnerProgs ?? [])) {
+                        partnerProgressMap.set(pp.topic_id, {
+                            completed: !!pp.completed,
+                            notes: pp.notes || ''
+                        });
+                    }
+                }
+            }
         }
 
         const result = (topics ?? []).map(t => {
             const p = progress.find(pr => pr.topic_id === t.id);
             const topicSubtopics = allSubtopics.filter(st => st.topic_id === t.id);
+            const partnerP = partnerProgressMap.get(t.id);
+
             return {
                 ...t,
                 completed: p?.completed ?? false,
                 notes: p?.notes ?? '',
-                subtopics: topicSubtopics as Subtopic[]
+                subtopics: topicSubtopics as Subtopic[],
+                partner_completed: partnerP?.completed,
+                partner_notes: partnerP?.notes
             };
         });
 

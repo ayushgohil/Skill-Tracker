@@ -54,6 +54,19 @@
 
                 <div class="flex items-center gap-2.5">
                     @if (subject(); as sub) {
+                    <!-- Study Partner Button -->
+                    <button (click)="showShareModal.set(true)" 
+                            class="flex items-center gap-1.5 text-xs font-bold bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 px-2.5 sm:px-3 py-1.5 rounded-full transition-all touch-manipulation flex-shrink-0"
+                            title="Collaborate with a Study Partner">
+                        <span>👥</span>
+                        @if (sub.partner) {
+                            <span class="text-white truncate max-w-[70px] sm:max-w-[110px]">{{ sub.partner.display_name }}</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+                        } @else {
+                            <span class="hidden xs:inline text-white">Study </span><span class="text-white">Partner</span>
+                        }
+                    </button>
+
                     <div class="flex items-center gap-2 text-xs font-bold bg-white/15 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
                         <span class="text-white">{{ percent() }}% Mastered</span>
                     </div>
@@ -82,6 +95,15 @@
                 <div class="w-4 h-4 rounded-full flex-shrink-0 border-2 border-white" [style.background-color]="sub.color"></div>
                 <h1 class="text-2xl font-black tracking-tight truncate flex-1 tahoma">{{ sub.name }}</h1>
             </div>
+
+            @if (sub.partner; as p) {
+            <div class="flex items-center gap-2 text-xs bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 w-fit max-w-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></span>
+                <span class="font-medium text-white/90 truncate max-w-[130px] sm:max-w-none">Partner: {{ p.display_name }}</span>
+                <span class="text-white/60">•</span>
+                <span class="text-white/80 flex-shrink-0">{{ partnerPercent() }}% Done</span>
+            </div>
+            }
             }
         </div>
     </header>
@@ -170,6 +192,7 @@
                     }
                     <div class="flex-1 min-w-0">
                         <app-topic-item [topic]="topic" [isOpen]="expandedTopicId() === topic.id" [subjectName]="sub.name"
+                            [partnerName]="sub.partner?.display_name"
                             (toggleOpen)="onToggleTopic($event)" (progressChanged)="onProgressChanged($event)"
                             (topicEdited)="onTopicEdited($event)" (topicDeleted)="onTopicDeleted($event)"
                             (subtopicToggled)="onSubtopicToggled($event)" (subtopicAdded)="onSubtopicAdded($event)"
@@ -256,3 +279,9 @@
 </div>
 
 <app-toast />
+
+@if (showShareModal() && subject(); as sub) {
+<app-share-modal [subject]="sub" [partner]="sub.partner ?? null"
+    [partnerPercent]="partnerPercent()" [isOwner]="sub.is_owner ?? true"
+    (close)="showShareModal.set(false)" (partnerChanged)="onPartnerChanged()" />
+}
