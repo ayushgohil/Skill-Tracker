@@ -10,6 +10,7 @@ import { ToastService } from '../core/services/toast.service';
 import { GoogleDriveService } from '../core/services/google-drive.service';
 import { BackupService } from '../core/services/backup.service';
 import { ThemeService } from '../core/services/theme.service';
+import { CacheService } from '../core/services/cache.service';
 import { Profile, SubjectWithTopics, DriveBackupFile, BackupData } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -99,29 +100,67 @@ export class ProfileComponent implements OnInit {
         private toast: ToastService,
         private googleDrive: GoogleDriveService,
         private backupService: BackupService,
-        public themeService: ThemeService
+        public themeService: ThemeService,
+        private cacheService: CacheService
     ) { }
 
     async ngOnInit() {
+        // 1. Instant 0ms cache hydration
+        const cachedProfile = this.profileService.userProfile();
+        const cachedSubjects = this.cacheService.get('subjects_with_topics') as SubjectWithTopics[] | null;
+
+        if (cachedProfile) {
+            this.profile.set(cachedProfile);
+            this.displayName = cachedProfile.display_name ?? '';
+            this.autoConnectDrive.set(cachedProfile.auto_connect_drive ?? false);
+        }
+
+        if (cachedSubjects) {
+            this.totalSubjects.set(cachedSubjects.length);
+            this.totalTopics.set(cachedSubjects.reduce((s: number, c: SubjectWithTopics) => s + c.totalCount, 0));
+            this.totalCompleted.set(cachedSubjects.reduce((s: number, c: SubjectWithTopics) => s + c.completedCount, 0));
+        }
+
+        // If data is already in memory from dashboard, display page immediately with 0ms delay and no DB round-trip!
+        if (cachedProfile && cachedSubjects) {
+            this.loading.set(false);
+            this.loadDriveAccess();
+            return;
+        }
+
         this.loading.set(true);
+
+        // 2. Fetch fresh profile and subjects in parallel if not cached
         try {
-            const [profile, subjects, autoConnect, driveAccess] = await Promise.all([
+            const [profile, subjects] = await Promise.all([
                 this.profileService.getProfile(),
-                this.topicsService.getSubjectsWithTopics(),
-                this.auth.getAutoConnectDriveSetting(),
-                this.googleDrive.hasDriveAccess()
+                this.topicsService.getSubjectsWithTopics()
             ]);
-            this.autoConnectDrive.set(autoConnect);
-            this.hasDriveAccess.set(driveAccess);
+
             this.profile.set(profile);
             this.displayName = profile.display_name ?? '';
+            this.autoConnectDrive.set(profile.auto_connect_drive ?? false);
             this.totalSubjects.set(subjects.length);
             this.totalTopics.set(subjects.reduce((s: number, c: SubjectWithTopics) => s + c.totalCount, 0));
             this.totalCompleted.set(subjects.reduce((s: number, c: SubjectWithTopics) => s + c.completedCount, 0));
         } catch {
-            this.toast.error('Failed to load profile.');
+            if (!this.profile()) {
+                this.toast.error('Failed to load profile.');
+            }
         } finally {
             this.loading.set(false);
+        }
+
+        // 3. Check Google Drive access in background without blocking UI
+        this.loadDriveAccess();
+    }
+
+    private async loadDriveAccess() {
+        try {
+            const driveAccess = await this.googleDrive.hasDriveAccess();
+            this.hasDriveAccess.set(driveAccess);
+        } catch {
+            this.hasDriveAccess.set(false);
         }
     }
 

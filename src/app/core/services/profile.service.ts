@@ -3,15 +3,40 @@ import { supabase } from '../supabase.client';
 import { Profile } from '../models';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { CacheService } from './cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
     userProfile = signal<Profile | null>(null);
 
-    constructor(private auth: AuthService) {}
+    constructor(
+        private auth: AuthService,
+        private cacheService: CacheService
+    ) {
+        this.cacheService.onClear(() => {
+            this.userProfile.set(null);
+        });
+    }
 
-    async getProfile(): Promise<Profile> {
-        if (this.userProfile()) return this.userProfile()!;
+    clearProfile(): void {
+        this.userProfile.set(null);
+        this.cacheService.clear('user_profile');
+    }
+
+    async getProfile(forceRefresh = false): Promise<Profile> {
+        if (!forceRefresh) {
+            const current = this.userProfile();
+            const currentUserId = this.auth.currentUser()?.id;
+            if (current && (!currentUserId || current.id === currentUserId)) {
+                return current;
+            }
+
+            const cached = this.cacheService.get('user_profile') as Profile | null;
+            if (cached && (!currentUserId || cached.id === currentUserId)) {
+                this.userProfile.set(cached);
+                return cached;
+            }
+        }
 
         const userId = await this.auth.ensureUserId();
 
@@ -24,6 +49,7 @@ export class ProfileService {
 
         const profile = data as Profile;
         this.userProfile.set(profile);
+        this.cacheService.set('user_profile', profile);
         return profile;
     }
 
@@ -36,7 +62,11 @@ export class ProfileService {
             .eq('id', userId);
         if (error) throw error;
 
-        this.userProfile.update(p => p ? { ...p, display_name: name } : { id: userId, display_name: name, created_at: new Date().toISOString() });
+        this.userProfile.update(p => {
+            const updated = p ? { ...p, display_name: name } : { id: userId, display_name: name, created_at: new Date().toISOString() };
+            this.cacheService.set('user_profile', updated);
+            return updated;
+        });
     }
 
     async deleteAccount(): Promise<void> {

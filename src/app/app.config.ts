@@ -1,5 +1,5 @@
 import { ApplicationConfig } from '@angular/core';
-import { TitleStrategy, provideRouter } from '@angular/router';
+import { TitleStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideQuillConfig } from 'ngx-quill/config';
 import { routes } from './app.routes';
@@ -7,7 +7,10 @@ import { AppTitleStrategy } from './core/services/title.strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })
+    ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideAnimationsAsync(),
     provideQuillConfig({

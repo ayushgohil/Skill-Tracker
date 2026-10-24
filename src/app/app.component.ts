@@ -1,6 +1,7 @@
 // src/app/app.component.ts
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { PomodoroComponent } from './shared/pomodoro/pomodoro.component';
 
 @Component({
@@ -12,4 +13,16 @@ import { PomodoroComponent } from './shared/pomodoro/pomodoro.component';
         <app-pomodoro />
     `
 })
-export class AppComponent { }
+export class AppComponent {
+    private router = inject(Router);
+
+    constructor() {
+        this.router.events.pipe(
+            filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+        ).subscribe(() => {
+            if (typeof window !== 'undefined') {
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            }
+        });
+    }
+}

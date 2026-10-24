@@ -17,8 +17,10 @@ export class AuthService {
         });
 
         supabase.auth.onAuthStateChange((event, session) => {
+            const prevId = this.currentUser()?.id;
+            const newId = session?.user?.id;
             this.currentUser.set(session?.user ?? null);
-            if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+            if (event === 'SIGNED_OUT' || event === 'SIGNED_IN' || (prevId && newId && prevId !== newId)) {
                 this.cacheService.clear();
             }
             if (event === 'PASSWORD_RECOVERY') {
@@ -28,6 +30,7 @@ export class AuthService {
     }
 
     async register(email: string, password: string) {
+        this.cacheService.clear();
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
 
@@ -38,11 +41,13 @@ export class AuthService {
     }
 
     async login(email: string, password: string) {
+        this.cacheService.clear();
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         if (data?.user) {
             this.currentUser.set(data.user);
         }
+        this.cacheService.clear();
     }
 
     async ensureUser(): Promise<User> {
@@ -67,6 +72,7 @@ export class AuthService {
     }
 
     async loginWithGoogle() {
+        this.cacheService.clear();
         // Check if user previously enabled auto-connect Drive
         const autoConnect = await this.getAutoConnectDrivePref();
 
@@ -184,7 +190,9 @@ export class AuthService {
     }
 
     async logout() {
+        this.cacheService.clear();
         await supabase.auth.signOut();
+        this.currentUser.set(null);
         this.router.navigate(['/auth/login']);
     }
 

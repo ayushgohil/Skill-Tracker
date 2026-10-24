@@ -1,7 +1,7 @@
-// src/app/core/services/activity.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { AuthService } from './auth.service';
+import { CacheService } from './cache.service';
 
 export interface ActivityLog {
     id: string;
@@ -15,7 +15,10 @@ export interface ActivityLog {
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
 
-    constructor(private auth: AuthService) {}
+    constructor(
+        private auth: AuthService,
+        private cacheService: CacheService
+    ) {}
 
     /**
      * Returns today's date as a YYYY-MM-DD string using LOCAL time (not UTC).
@@ -58,7 +61,12 @@ export class ActivityService {
      * Used for streak calculation so it correctly handles cross-year streaks
      * (e.g. a streak spanning Dec 31 → Jan 1).
      */
-    async getRecentActivityLogs(): Promise<ActivityLog[]> {
+    async getRecentActivityLogs(forceRefresh = false): Promise<ActivityLog[]> {
+        if (!forceRefresh) {
+            const cached = this.cacheService.get('recent_activity_logs');
+            if (cached) return cached;
+        }
+
         const userId = await this.auth.ensureUserId();
 
         const endDate = this.getLocalDateStr();
@@ -78,7 +86,9 @@ export class ActivityService {
             console.error('Error fetching recent activity logs:', error);
             return [];
         }
-        return data as ActivityLog[];
+        const result = data as ActivityLog[];
+        this.cacheService.set('recent_activity_logs', result);
+        return result;
     }
 
     /**
@@ -119,6 +129,7 @@ export class ActivityService {
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'user_id,date' });
 
+            this.cacheService.clear('recent_activity_logs');
         } catch (e) {
             console.error('Failed to sync activity log:', e);
         }

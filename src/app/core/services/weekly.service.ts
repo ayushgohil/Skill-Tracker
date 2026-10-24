@@ -1,7 +1,7 @@
-// src/app/core/services/weekly.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { AuthService } from './auth.service';
+import { CacheService } from './cache.service';
 import {
     WeeklyReview,
     TopicWithProgress,
@@ -14,7 +14,10 @@ import {
 @Injectable({ providedIn: 'root' })
 export class WeeklyService {
 
-    constructor(private auth: AuthService) {}
+    constructor(
+        private auth: AuthService,
+        private cacheService: CacheService
+    ) {}
 
     // ── Helpers ───────────────────────────────────────
     getWeekStart(date: Date = new Date()): string {
@@ -39,10 +42,16 @@ export class WeeklyService {
     }
 
     // ── Is review due? ────────────────────────────────
-    async isReviewDue(): Promise<boolean> {
+    async isReviewDue(forceRefresh = false): Promise<boolean> {
+        if (!forceRefresh) {
+            const cached = this.cacheService.get('weekly_review_due');
+            if (cached !== undefined && cached !== null) return cached;
+        }
+
         const last = await this.getLastReview();
-        if (!last) return true;
-        return last.week_start !== this.getWeekStart();
+        const isDue = !last ? true : last.week_start !== this.getWeekStart();
+        this.cacheService.set('weekly_review_due', isDue);
+        return isDue;
     }
 
     // ── Topics completed this week ────────────────────
@@ -124,7 +133,12 @@ export class WeeklyService {
     }
 
     // ── All starred topics (for dashboard) ────────────
-    async getAllStarredTopics(): Promise<StarredTopic[]> {
+    async getAllStarredTopics(forceRefresh = false): Promise<StarredTopic[]> {
+        if (!forceRefresh) {
+            const cached = this.cacheService.get('weekly_starred_topics');
+            if (cached) return cached;
+        }
+
         const userId = await this.auth.ensureUserId();
 
         const { data: topics, error: topErr } = await supabase
@@ -133,7 +147,10 @@ export class WeeklyService {
             .eq('user_id', userId)
             .eq('starred', true);
         if (topErr) throw topErr;
-        if (!topics || topics.length === 0) return [];
+        if (!topics || topics.length === 0) {
+            this.cacheService.set('weekly_starred_topics', []);
+            return [];
+        }
 
         const topicIds = topics.map(t => t.id);
 
@@ -148,7 +165,7 @@ export class WeeklyService {
         const subjects = subjectsRes.data ?? [];
         const progress = progressRes.data ?? [];
 
-        return topics
+        const result = topics
             .map(t => {
                 const sub = subjects.find(s => s.id === t.subject_id);
                 const p = progress.find(pr => pr.topic_id === t.id);
@@ -162,6 +179,9 @@ export class WeeklyService {
                 };
             })
             .filter(t => !t.completed);
+
+        this.cacheService.set('weekly_starred_topics', result);
+        return result;
     }
 
     // ── Incomplete topics across all subjects ─────────
@@ -260,6 +280,10 @@ export class WeeklyService {
                 completed_at: new Date().toISOString()
             }, { onConflict: 'user_id,week_start' });
         if (revErr) throw revErr;
+
+        // Invalidate weekly cache and subjects cache so dashboard loads fresh data from DB
+        this.cacheService.clearWeekly();
+        this.cacheService.clearSubjects();
     }
 
     // ── Weakest subject (pure computation) ────────────

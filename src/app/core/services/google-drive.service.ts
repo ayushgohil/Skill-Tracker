@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { environment } from '../../../environments/environment';
+import { CacheService } from './cache.service';
 
 export interface DriveUploadResult {
     fileId: string;
@@ -10,6 +11,12 @@ export interface DriveUploadResult {
 
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
+
+    constructor(private cacheService: CacheService) {
+        this.cacheService.onClear(() => {
+            this.clearCachedToken();
+        });
+    }
 
     // ── In-memory token cache ──────────────────────────────────
     // Avoids calling the edge function on every Drive API request.
@@ -109,19 +116,26 @@ export class GoogleDriveService {
         }
     }
 
+    private driveAccessStatus: boolean | null = null;
+
     /** Clear the in-memory token cache */
     clearCachedToken(): void {
         this.cachedAccessToken = null;
         this.tokenExpiresAt = 0;
+        this.driveAccessStatus = null;
     }
 
     /**
      * Check if user has Drive access.
      * Tries all token sources — if any works, Drive is accessible.
      */
-    async hasDriveAccess(): Promise<boolean> {
+    async hasDriveAccess(forceRefresh = false): Promise<boolean> {
+        if (!forceRefresh && this.driveAccessStatus !== null) {
+            return this.driveAccessStatus;
+        }
         const token = await this.getAccessToken();
-        return !!token;
+        this.driveAccessStatus = !!token;
+        return this.driveAccessStatus;
     }
 
     // Find or create a folder by name under a parent (with caching)

@@ -186,8 +186,7 @@ export class TopicsService {
             .select()
             .single();
         if (error) throw error;
-        this.cacheService.clear('subjects_with_topics');
-        this.cacheService.clear(`topics_for_subject_${subjectId}`);
+        this.cacheService.clearSubjects();
         return data as Topic;
     }
 
@@ -204,22 +203,17 @@ export class TopicsService {
             if (res.error) throw res.error;
         }
 
-        this.cacheService.clear();
+        this.cacheService.clearSubjects();
     }
 
     async updateTopic(id: string, title: string, depth: Depth): Promise<void> {
-
         this.cacheService.incrementDbCall('updateTopic');
         const { error } = await supabase
             .from('topics')
             .update({ title, depth })
             .eq('id', id);
         if (error) throw error;
-        this.cacheService.clear('subjects_with_topics');
-        // Might also need to clear topics_for_subject_*, but since we don't know subject_id here,
-        // we could just clear all or assume it's handled by subjects_with_topics.
-        // Or we can just clear everything to be safe.
-        this.cacheService.clear();
+        this.cacheService.clearSubjects();
     }
 
     async deleteTopic(id: string): Promise<void> {
@@ -229,7 +223,7 @@ export class TopicsService {
             .delete()
             .eq('id', id);
         if (error) throw error;
-        this.cacheService.clear(); // Clearing all to be safe since we don't have subjectId
+        this.cacheService.clearSubjects();
     }
 
     async upsertProgress(topicId: string, completed: boolean, notes: string): Promise<void> {
@@ -246,8 +240,7 @@ export class TopicsService {
             }, { onConflict: 'user_id,topic_id' });
         if (error) throw error;
         
-        this.cacheService.clear('subjects_with_topics');
-        this.cacheService.clear();
+        this.cacheService.clearSubjects();
 
         // Sync activity after every toggle — syncActivity SETs the real count from DB,
         // so it's idempotent and accurate regardless of how many times a topic is toggled.

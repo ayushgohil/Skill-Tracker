@@ -14,6 +14,7 @@ import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
 import { ThemeService } from '../core/services/theme.service';
 import { CollaborationService } from '../core/services/collaboration.service';
+import { CacheService } from '../core/services/cache.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -99,7 +100,8 @@ export class DashboardComponent implements OnInit {
         private el: ElementRef,
         private profileService: ProfileService,
         public themeService: ThemeService,
-        private collabService: CollaborationService
+        private collabService: CollaborationService,
+        private cacheService: CacheService
     ) { }
 
     ngOnInit() {
@@ -118,6 +120,13 @@ export class DashboardComponent implements OnInit {
     }
 
     async load() {
+        const cached = this.cacheService.get('subjects_with_topics');
+        if (cached) {
+            this.subjects.set(cached);
+            this.loading.set(false);
+            return;
+        }
+
         this.loading.set(true);
         try {
             this.subjects.set(await this.topicsService.getSubjectsWithTopics());
@@ -129,6 +138,18 @@ export class DashboardComponent implements OnInit {
     }
 
     private async loadWeeklyData() {
+        const cachedDue = this.cacheService.get('weekly_review_due');
+        const cachedStarred = this.cacheService.get('weekly_starred_topics');
+        const cachedLogs = this.cacheService.get('recent_activity_logs');
+
+        if (cachedDue !== undefined && cachedDue !== null && cachedStarred && cachedLogs) {
+            this.reviewDue.set(cachedDue);
+            this.starredTopics.set(cachedStarred);
+            this.calculateStreak(cachedLogs);
+            this.loadingWeekly.set(false);
+            return;
+        }
+
         try {
             const [isDue, starred, logs] = await Promise.all([
                 this.weeklyService.isReviewDue(),

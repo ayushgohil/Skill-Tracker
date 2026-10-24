@@ -51,7 +51,7 @@ export class SubtopicsService {
             .single();
         if (error) throw error;
         
-        this.cacheService.clear(); // Clear all cache to refresh subjects list and subtopics
+        this.cacheService.clearSubjects();
         return data as Subtopic;
     }
 
@@ -63,9 +63,7 @@ export class SubtopicsService {
             .eq('id', id);
         if (error) throw error;
         
-        this.cacheService.clear();
-
-        // Sync activity after every toggle — syncActivity SETs the real count from DB,
+        this.cacheService.clearSubjects();
         // so it's idempotent and accurate regardless of how many times a topic is toggled.
         this.activityService.syncActivity();
     }
@@ -77,7 +75,7 @@ export class SubtopicsService {
             .update({ notes })
             .eq('id', id);
         if (error) throw error;
-        this.cacheService.clear();
+        this.cacheService.clearSubjects();
     }
 
     async deleteSubtopic(id: string): Promise<void> {
@@ -87,7 +85,7 @@ export class SubtopicsService {
             .delete()
             .eq('id', id);
         if (error) throw error;
-        this.cacheService.clear();
+        this.cacheService.clearSubjects();
     }
 
     async updateTopicProgress(topicId: string, completed: boolean): Promise<void> {
@@ -102,6 +100,7 @@ export class SubtopicsService {
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id,topic_id' });
         if (error) throw error;
-        this.cacheService.clear();
+        this.cacheService.clearSubjects();
     }
 }
+

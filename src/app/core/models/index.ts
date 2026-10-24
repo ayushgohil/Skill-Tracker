@@ -3,6 +3,7 @@ export interface Profile {
     id: string;
     display_name: string;
     created_at: string;
+    auto_connect_drive?: boolean;
 }
 
 export interface SubjectPartnerInfo {
