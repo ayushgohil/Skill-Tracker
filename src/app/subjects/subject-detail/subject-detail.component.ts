@@ -22,6 +22,8 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { Title } from '@angular/platform-browser';
 import { ShareModalComponent } from '../share-modal/share-modal.component';
 
+import { CacheService } from '../../core/services/cache.service';
+
 export type SortOption = 'default' | 'depth-asc' | 'depth-desc' | 'completed-last' | 'completed-first';
 
 const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
@@ -136,7 +138,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private subtopicsService: SubtopicsService,
         private toast: ToastService,
         public themeService: ThemeService,
-        private titleService: Title
+        private titleService: Title,
+        private cacheService: CacheService
     ) { }
 
     async ngOnInit() {
@@ -144,6 +147,15 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         if (!this.subjectId) {
             this.router.navigate(['/dashboard']);
             return;
+        }
+
+        // Instantly render cached subject header at 0ms if user navigated from dashboard
+        const cachedSubject = this.cacheService.get(`subject_${this.subjectId}`);
+        if (cachedSubject) {
+            this.subject.set(cachedSubject);
+            if (cachedSubject.name) {
+                this.titleService.setTitle(`${cachedSubject.name} | Nextlyr Skill Tracker`);
+            }
         }
 
         const searchParam = this.route.snapshot.queryParamMap.get('search');

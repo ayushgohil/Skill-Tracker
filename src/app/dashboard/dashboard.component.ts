@@ -102,11 +102,14 @@ export class DashboardComponent implements OnInit {
         private collabService: CollaborationService
     ) { }
 
-    async ngOnInit() {
-        await this.load();
+    ngOnInit() {
+        // Fire all dashboard data loaders concurrently so UI hydrates immediately in parallel
+        this.load();
         this.loadWeeklyData();
+        this.loadProfile();
+    }
 
-        // Hydrate profile signal
+    private async loadProfile() {
         try {
             await this.profileService.getProfile();
         } catch (err) {

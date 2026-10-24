@@ -3,11 +3,12 @@ import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { Subject, TopicWithProgress, Subtopic } from '../models';
 import { CacheService } from './cache.service';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class SubjectsService {
 
-    constructor(private cacheService: CacheService) {}
+    constructor(private cacheService: CacheService, private auth: AuthService) {}
 
     async getAll(): Promise<Subject[]> {
         const cacheKey = 'subjects_all';
@@ -33,7 +34,7 @@ export class SubjectsService {
             if (cached) return cached;
         }
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
 
         this.cacheService.incrementDbCall('getSubjectById');
         const { data, error } = await supabase
@@ -44,42 +45,40 @@ export class SubjectsService {
         if (error) throw error;
 
         const subject = data as Subject;
-        const isOwner = user ? subject.user_id === user.id : true;
+        const isOwner = subject.user_id === userId;
 
         // Check if this subject has a study partner
         let partnerObj = null;
-        if (user) {
-            if (isOwner) {
-                const { data: member } = await supabase
-                    .from('subject_members')
-                    .select('user_id, role, joined_at')
-                    .eq('subject_id', id)
-                    .eq('role', 'partner')
-                    .maybeSingle();
+        if (isOwner) {
+            const { data: member } = await supabase
+                .from('subject_members')
+                .select('user_id, role, joined_at')
+                .eq('subject_id', id)
+                .eq('role', 'partner')
+                .maybeSingle();
 
-                if (member) {
-                    const { data: profiles } = await supabase.rpc('get_partner_profiles', {
-                        p_partner_ids: [member.user_id]
-                    });
-
-                    partnerObj = {
-                        id: member.user_id,
-                        display_name: profiles?.[0]?.display_name || 'Study Partner',
-                        role: 'partner' as const,
-                        joined_at: member.joined_at
-                    };
-                }
-            } else {
+            if (member) {
                 const { data: profiles } = await supabase.rpc('get_partner_profiles', {
-                    p_partner_ids: [subject.user_id]
+                    p_partner_ids: [member.user_id]
                 });
 
                 partnerObj = {
-                    id: subject.user_id,
-                    display_name: profiles?.[0]?.display_name || 'Subject Creator',
-                    role: 'owner' as const
+                    id: member.user_id,
+                    display_name: profiles?.[0]?.display_name || 'Study Partner',
+                    role: 'partner' as const,
+                    joined_at: member.joined_at
                 };
             }
+        } else {
+            const { data: profiles } = await supabase.rpc('get_partner_profiles', {
+                p_partner_ids: [subject.user_id]
+            });
+
+            partnerObj = {
+                id: subject.user_id,
+                display_name: profiles?.[0]?.display_name || 'Subject Creator',
+                role: 'owner' as const
+            };
         }
 
         const enrichedSubject: Subject = {
@@ -100,7 +99,7 @@ export class SubjectsService {
             if (cached) return cached;
         }
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
 
         this.cacheService.incrementDbCall('getTopicsForSubject');
         const { data: topics, error: topErr } = await supabase
@@ -117,46 +116,40 @@ export class SubjectsService {
         let partnerProgressMap = new Map<string, { completed: boolean; notes: string }>();
 
         if (topicIds.length > 0) {
-            // Fetch current user's progress
-            this.cacheService.incrementDbCall('getTopicsForSubject_progress');
-            const { data: prog, error: progErr } = await supabase
-                .from('user_progress')
-                .select('*')
-                .eq('user_id', user!.id)
-                .in('topic_id', topicIds);
-            if (progErr) throw progErr;
-            progress = prog ?? [];
+            // Batch-fetch progress, subtopics, subject info, and partner membership in PARALLEL
+            const [progRes, subsRes, subjectRes, partnerMemberRes] = await Promise.all([
+                supabase
+                    .from('user_progress')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .in('topic_id', topicIds),
+                supabase
+                    .from('subtopics')
+                    .select('*')
+                    .in('topic_id', topicIds)
+                    .order('order', { ascending: true }),
+                supabase
+                    .from('subjects')
+                    .select('user_id')
+                    .eq('id', subjectId)
+                    .single(),
+                supabase
+                    .from('subject_members')
+                    .select('user_id')
+                    .eq('subject_id', subjectId)
+                    .eq('role', 'partner')
+                    .maybeSingle()
+            ]);
 
-            // Batch-fetch all subtopics for these topics (for both partners)
-            this.cacheService.incrementDbCall('getTopicsForSubject_subtopics');
-            const { data: subs, error: subErr } = await supabase
-                .from('subtopics')
-                .select('*')
-                .in('topic_id', topicIds)
-                .order('order', { ascending: true });
-            if (subErr) throw subErr;
-            allSubtopics = subs ?? [];
+            progress = progRes.data ?? [];
+            allSubtopics = subsRes.data ?? [];
 
-            // Check if there is a partner to fetch partner's progress and notes
-            const { data: subjectData } = await supabase
-                .from('subjects')
-                .select('user_id')
-                .eq('id', subjectId)
-                .single();
-
+            const subjectData = subjectRes.data;
             if (subjectData) {
                 let partnerUserId: string | null = null;
-                if (subjectData.user_id === user!.id) {
-                    // Current user is owner, look up partner member
-                    const { data: partnerMember } = await supabase
-                        .from('subject_members')
-                        .select('user_id')
-                        .eq('subject_id', subjectId)
-                        .eq('role', 'partner')
-                        .maybeSingle();
-                    if (partnerMember) partnerUserId = partnerMember.user_id;
+                if (subjectData.user_id === userId) {
+                    if (partnerMemberRes.data) partnerUserId = partnerMemberRes.data.user_id;
                 } else {
-                    // Current user is partner, other person is owner
                     partnerUserId = subjectData.user_id;
                 }
 

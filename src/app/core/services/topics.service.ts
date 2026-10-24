@@ -3,72 +3,72 @@ import { supabase } from '../supabase.client';
 import { Topic, TopicWithProgress, Depth, SubjectWithTopics, Subtopic } from '../models';
 import { ActivityService } from './activity.service';
 import { CacheService } from './cache.service';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class TopicsService {
 
-    constructor(private activityService: ActivityService, private cacheService: CacheService) {}
+    constructor(
+        private activityService: ActivityService,
+        private cacheService: CacheService,
+        private auth: AuthService
+    ) {}
 
     async getSubjectsWithTopics(): Promise<SubjectWithTopics[]> {
         const cacheKey = 'subjects_with_topics';
         const cached = this.cacheService.get(cacheKey);
         if (cached) return cached;
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
 
-        this.cacheService.incrementDbCall('getSubjectsWithTopics_subjects');
-        const { data: subjects, error: subErr } = await supabase
-            .from('subjects')
-            .select('*')
-            .order('order', { ascending: true, nullsFirst: false })
-            .order('created_at', { ascending: true });
-        if (subErr) throw subErr;
+        this.cacheService.incrementDbCall('getSubjectsWithTopics_batch');
 
-        this.cacheService.incrementDbCall('getSubjectsWithTopics_topics');
-        const { data: topics, error: topErr } = await supabase
-            .from('topics')
-            .select('*')
-            .order('order', { ascending: true, nullsFirst: false })
-            .order('created_at', { ascending: true });
-        if (topErr) throw topErr;
-
-        this.cacheService.incrementDbCall('getSubjectsWithTopics_progress');
-        const { data: progress, error: progErr } = await supabase
-            .from('user_progress')
-            .select('*')
-            .eq('user_id', user!.id);
-        if (progErr) throw progErr;
-
-        const topicIds = (topics ?? []).map(t => t.id);
-
-        // Batch-fetch all subtopics for these topics (for both users if shared)
-        this.cacheService.incrementDbCall('getSubjectsWithTopics_subtopics');
-        const { data: allSubtopics, error: subTopErr } = topicIds.length > 0
-            ? await supabase
-                .from('subtopics')
+        // Batch-fetch subjects, topics, progress, subtopics, and members in PARALLEL
+        const [subjectsRes, topicsRes, progRes, subTopRes, membersRes] = await Promise.all([
+            supabase
+                .from('subjects')
                 .select('*')
-                .in('topic_id', topicIds)
-                .order('order', { ascending: true })
-            : { data: [], error: null };
-        if (subTopErr) throw subTopErr;
-
-        // Fetch subject_members to identify study partners
-        const subjectIds = (subjects ?? []).map(s => s.id);
-        const { data: members } = subjectIds.length > 0
-            ? await supabase
+                .order('order', { ascending: true, nullsFirst: false })
+                .order('created_at', { ascending: true }),
+            supabase
+                .from('topics')
+                .select('id, user_id, subject_id, title, depth, starred, order, created_at')
+                .order('order', { ascending: true, nullsFirst: false })
+                .order('created_at', { ascending: true }),
+            supabase
+                .from('user_progress')
+                .select('topic_id, completed')
+                .eq('user_id', userId),
+            supabase
+                .from('subtopics')
+                .select('id, topic_id, completed')
+                .order('order', { ascending: true }),
+            supabase
                 .from('subject_members')
                 .select('subject_id, user_id, role, joined_at')
-                .in('subject_id', subjectIds)
-            : { data: [] };
+        ]);
+
+        if (subjectsRes.error) throw subjectsRes.error;
+        if (topicsRes.error) throw topicsRes.error;
+        if (progRes.error) throw progRes.error;
+        if (subTopRes.error) throw subTopRes.error;
+
+        const subjects = subjectsRes.data ?? [];
+        const topics = topicsRes.data ?? [];
+        const progress = progRes.data ?? [];
+        const allSubtopics = subTopRes.data ?? [];
+        const members = membersRes.data ?? [];
+
+        const topicIds = topics.map(t => t.id);
 
         // Collect partner user IDs to fetch their display names and progress
         const partnerUserIds = new Set<string>();
         const subjectPartnerMap = new Map<string, { partnerId: string; role: 'owner' | 'partner' }>();
 
-        for (const sub of (subjects ?? [])) {
-            const isOwner = sub.user_id === user!.id;
+        for (const sub of subjects) {
+            const isOwner = sub.user_id === userId;
             if (isOwner) {
-                const partnerMember = (members ?? []).find(m => m.subject_id === sub.id && m.role === 'partner');
+                const partnerMember = members.find((m: any) => m.subject_id === sub.id && m.role === 'partner');
                 if (partnerMember) {
                     partnerUserIds.add(partnerMember.user_id);
                     subjectPartnerMap.set(sub.id, { partnerId: partnerMember.user_id, role: 'partner' });
@@ -80,32 +80,31 @@ export class TopicsService {
             }
         }
 
-        // Fetch partner profiles securely via RPC (never exposes private tokens)
+        // Fetch partner profiles and progress in parallel if shared subjects exist
         const partnerProfileMap = new Map<string, string>();
-        if (partnerUserIds.size > 0) {
-            const { data: profiles } = await supabase.rpc('get_partner_profiles', {
-                p_partner_ids: Array.from(partnerUserIds)
-            });
-            for (const p of (profiles ?? [])) {
+        const partnerProgressMap = new Map<string, boolean>();
+
+        if (partnerUserIds.size > 0 && topicIds.length > 0) {
+            const partnerIds = Array.from(partnerUserIds);
+            const [profilesRes, partnerProgRes] = await Promise.all([
+                supabase.rpc('get_partner_profiles', { p_partner_ids: partnerIds }),
+                supabase
+                    .from('user_progress')
+                    .select('user_id, topic_id, completed')
+                    .in('user_id', partnerIds)
+                    .in('topic_id', topicIds)
+            ]);
+
+            for (const p of (profilesRes.data ?? [])) {
                 partnerProfileMap.set(p.id, p.display_name);
             }
-        }
-
-        // Fetch partner progress for all topics in these subjects
-        const partnerProgressMap = new Map<string, boolean>();
-        if (partnerUserIds.size > 0 && topicIds.length > 0) {
-            const { data: partnerProgs } = await supabase
-                .from('user_progress')
-                .select('user_id, topic_id, completed')
-                .in('user_id', Array.from(partnerUserIds))
-                .in('topic_id', topicIds);
-            for (const pp of (partnerProgs ?? [])) {
+            for (const pp of (partnerProgRes.data ?? [])) {
                 partnerProgressMap.set(`${pp.user_id}_${pp.topic_id}`, !!pp.completed);
             }
         }
 
-        const result = (subjects ?? []).map(sub => {
-            const isOwner = sub.user_id === user!.id;
+        const result = subjects.map(sub => {
+            const isOwner = sub.user_id === userId;
             const partnerInfo = subjectPartnerMap.get(sub.id);
             const isShared = !!partnerInfo;
 
@@ -115,17 +114,17 @@ export class TopicsService {
                 role: partnerInfo.role
             } : null;
 
-            const subTopics: TopicWithProgress[] = (topics ?? [])
+            const subTopics: TopicWithProgress[] = topics
                 .filter(t => t.subject_id === sub.id)
                 .map(t => {
-                    const p = (progress ?? []).find(pr => pr.topic_id === t.id);
-                    const topicSubtopics = (allSubtopics ?? []).filter(st => st.topic_id === t.id);
+                    const p = progress.find(pr => pr.topic_id === t.id);
+                    const topicSubtopics = allSubtopics.filter(st => st.topic_id === t.id);
                     const partnerDone = isShared ? partnerProgressMap.get(`${partnerInfo.partnerId}_${t.id}`) ?? false : undefined;
 
                     return {
                         ...t,
                         completed: p?.completed ?? false,
-                        notes: p?.notes ?? '',
+                        notes: '',
                         subtopics: topicSubtopics as Subtopic[],
                         partner_completed: partnerDone
                     };
@@ -164,12 +163,16 @@ export class TopicsService {
         });
 
         this.cacheService.set(cacheKey, result);
+        // Pre-warm individual subject caches so navigating to any subject is instant (0ms)
+        for (const sub of result) {
+            this.cacheService.set(`subject_${sub.id}`, sub);
+        }
         return result;
     }
 
     async addTopic(subjectId: string, title: string, depth: Depth): Promise<Topic> {
         this.cacheService.incrementDbCall('addTopic');
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
 
         // Get current topic count in this subject for ordering across both partners
         const { count } = await supabase
@@ -179,7 +182,7 @@ export class TopicsService {
 
         const { data, error } = await supabase
             .from('topics')
-            .insert({ subject_id: subjectId, title, depth, user_id: user!.id, order: count ?? 0 })
+            .insert({ subject_id: subjectId, title, depth, user_id: userId, order: count ?? 0 })
             .select()
             .single();
         if (error) throw error;
@@ -231,11 +234,11 @@ export class TopicsService {
 
     async upsertProgress(topicId: string, completed: boolean, notes: string): Promise<void> {
         this.cacheService.incrementDbCall('upsertProgress');
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
         const { error } = await supabase
             .from('user_progress')
             .upsert({
-                user_id: user!.id,
+                user_id: userId,
                 topic_id: topicId,
                 completed,
                 notes,

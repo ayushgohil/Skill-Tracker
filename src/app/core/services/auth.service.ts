@@ -38,8 +38,32 @@ export class AuthService {
     }
 
     async login(email: string, password: string) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (data?.user) {
+            this.currentUser.set(data.user);
+        }
+    }
+
+    async ensureUser(): Promise<User> {
+        const current = this.currentUser();
+        if (current) return current;
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            this.currentUser.set(session.user);
+            return session.user;
+        }
+
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) throw error || new Error('Not authenticated');
+        this.currentUser.set(user);
+        return user;
+    }
+
+    async ensureUserId(): Promise<string> {
+        const user = await this.ensureUser();
+        return user.id;
     }
 
     async loginWithGoogle() {

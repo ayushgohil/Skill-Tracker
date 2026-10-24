@@ -2,19 +2,23 @@ import { Injectable, signal } from '@angular/core';
 import { supabase } from '../supabase.client';
 import { Profile } from '../models';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
     userProfile = signal<Profile | null>(null);
 
+    constructor(private auth: AuthService) {}
+
     async getProfile(): Promise<Profile> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Not authenticated');
+        if (this.userProfile()) return this.userProfile()!;
+
+        const userId = await this.auth.ensureUserId();
 
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
+            .eq('id', userId)
             .single();
         if (error) throw error;
 
@@ -24,16 +28,15 @@ export class ProfileService {
     }
 
     async updateDisplayName(name: string): Promise<void> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Not authenticated');
+        const userId = await this.auth.ensureUserId();
 
         const { error } = await supabase
             .from('profiles')
             .update({ display_name: name })
-            .eq('id', user.id);
+            .eq('id', userId);
         if (error) throw error;
 
-        this.userProfile.update(p => p ? { ...p, display_name: name } : { id: user.id, display_name: name, created_at: new Date().toISOString(), email: user.email ?? '' });
+        this.userProfile.update(p => p ? { ...p, display_name: name } : { id: userId, display_name: name, created_at: new Date().toISOString() });
     }
 
     async deleteAccount(): Promise<void> {

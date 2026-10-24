@@ -1,6 +1,7 @@
 // src/app/core/services/weekly.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { AuthService } from './auth.service';
 import {
     WeeklyReview,
     TopicWithProgress,
@@ -13,6 +14,8 @@ import {
 @Injectable({ providedIn: 'root' })
 export class WeeklyService {
 
+    constructor(private auth: AuthService) {}
+
     // ── Helpers ───────────────────────────────────────
     getWeekStart(date: Date = new Date()): string {
         const d = new Date(date);
@@ -24,11 +27,11 @@ export class WeeklyService {
 
     // ── Last review ───────────────────────────────────
     async getLastReview(): Promise<WeeklyReview | null> {
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
         const { data, error } = await supabase
             .from('weekly_reviews')
             .select('*')
-            .eq('user_id', user!.id)
+            .eq('user_id', userId)
             .order('completed_at', { ascending: false })
             .limit(1);
         if (error) throw error;
@@ -44,14 +47,14 @@ export class WeeklyService {
 
     // ── Topics completed this week ────────────────────
     async getCompletedThisWeek(): Promise<TopicWithProgress[]> {
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
         const weekStart = this.getWeekStart();
 
         // 1. Get user_progress rows completed this week
         const { data: progress, error: progErr } = await supabase
             .from('user_progress')
-            .select('*')
-            .eq('user_id', user!.id)
+            .select('topic_id, completed, notes')
+            .eq('user_id', userId)
             .eq('completed', true)
             .gte('updated_at', weekStart);
         if (progErr) throw progErr;
@@ -80,13 +83,13 @@ export class WeeklyService {
 
     // ── Current week's starred topics ─────────────────
     async getCurrentStarredTopics(): Promise<StarredTopic[]> {
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
         const weekStart = this.getWeekStart();
 
         const { data: goals, error: goalErr } = await supabase
             .from('weekly_goals')
-            .select('*')
-            .eq('user_id', user!.id)
+            .select('topic_id')
+            .eq('user_id', userId)
             .eq('week_start', weekStart);
         if (goalErr) throw goalErr;
         if (!goals || goals.length === 0) return [];
@@ -94,9 +97,9 @@ export class WeeklyService {
         const topicIds = goals.map(g => g.topic_id);
 
         const [topicsRes, subjectsRes, progressRes] = await Promise.all([
-            supabase.from('topics').select('*').in('id', topicIds),
-            supabase.from('subjects').select('*').eq('user_id', user!.id),
-            supabase.from('user_progress').select('*').eq('user_id', user!.id).in('topic_id', topicIds)
+            supabase.from('topics').select('id, user_id, subject_id, title, depth, starred, created_at').in('id', topicIds),
+            supabase.from('subjects').select('id, name, color').eq('user_id', userId),
+            supabase.from('user_progress').select('topic_id, completed, notes').eq('user_id', userId).in('topic_id', topicIds)
         ]);
 
         if (topicsRes.error) throw topicsRes.error;
@@ -122,12 +125,12 @@ export class WeeklyService {
 
     // ── All starred topics (for dashboard) ────────────
     async getAllStarredTopics(): Promise<StarredTopic[]> {
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
 
         const { data: topics, error: topErr } = await supabase
             .from('topics')
-            .select('*')
-            .eq('user_id', user!.id)
+            .select('id, user_id, subject_id, title, depth, starred, created_at')
+            .eq('user_id', userId)
             .eq('starred', true);
         if (topErr) throw topErr;
         if (!topics || topics.length === 0) return [];
@@ -135,8 +138,8 @@ export class WeeklyService {
         const topicIds = topics.map(t => t.id);
 
         const [subjectsRes, progressRes] = await Promise.all([
-            supabase.from('subjects').select('*').eq('user_id', user!.id),
-            supabase.from('user_progress').select('*').eq('user_id', user!.id).in('topic_id', topicIds)
+            supabase.from('subjects').select('id, name, color').eq('user_id', userId),
+            supabase.from('user_progress').select('topic_id, completed').eq('user_id', userId).in('topic_id', topicIds)
         ]);
 
         if (subjectsRes.error) throw subjectsRes.error;
@@ -152,7 +155,7 @@ export class WeeklyService {
                 return {
                     ...t,
                     completed: p?.completed ?? false,
-                    notes: p?.notes ?? '',
+                    notes: '',
                     subtopics: [],
                     subject_name: sub?.name ?? '',
                     subject_color: sub?.color ?? '#71717a'
@@ -163,13 +166,13 @@ export class WeeklyService {
 
     // ── Incomplete topics across all subjects ─────────
     async getIncompleteTopicsAllSubjects(): Promise<StarredTopic[]> {
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
 
         // Batch fetch all data
         const [subjectsRes, topicsRes, progressRes] = await Promise.all([
-            supabase.from('subjects').select('*').eq('user_id', user!.id).order('name'),
-            supabase.from('topics').select('*').eq('user_id', user!.id).order('title'),
-            supabase.from('user_progress').select('*').eq('user_id', user!.id)
+            supabase.from('subjects').select('id, name, color').eq('user_id', userId).order('name'),
+            supabase.from('topics').select('id, user_id, subject_id, title, depth, starred, created_at').eq('user_id', userId).order('title'),
+            supabase.from('user_progress').select('topic_id, completed').eq('user_id', userId)
         ]);
 
         if (subjectsRes.error) throw subjectsRes.error;
@@ -194,7 +197,7 @@ export class WeeklyService {
                 return {
                     ...t,
                     completed: false,
-                    notes: p?.notes ?? '',
+                    notes: '',
                     subtopics: [] as Subtopic[],
                     subject_name: sub?.name ?? '',
                     subject_color: sub?.color ?? '#71717a'
@@ -208,21 +211,21 @@ export class WeeklyService {
 
     // ── Save weekly review ────────────────────────────
     async saveWeeklyReview(starredTopicIds: string[]): Promise<void> {
-        const { data: { user } } = await supabase.auth.getUser();
+        const userId = await this.auth.ensureUserId();
         const weekStart = this.getWeekStart();
 
         // 1. Delete old weekly_goals for this week
         const { error: delErr } = await supabase
             .from('weekly_goals')
             .delete()
-            .eq('user_id', user!.id)
+            .eq('user_id', userId)
             .eq('week_start', weekStart);
         if (delErr) throw delErr;
 
         // 2. Insert new weekly_goals
         if (starredTopicIds.length > 0) {
             const rows = starredTopicIds.map(tid => ({
-                user_id: user!.id,
+                user_id: userId,
                 topic_id: tid,
                 week_start: weekStart
             }));
@@ -236,7 +239,7 @@ export class WeeklyService {
         const { error: unstarErr } = await supabase
             .from('topics')
             .update({ starred: false })
-            .eq('user_id', user!.id);
+            .eq('user_id', userId);
         if (unstarErr) throw unstarErr;
 
         // 4. Star selected topics
@@ -252,7 +255,7 @@ export class WeeklyService {
         const { error: revErr } = await supabase
             .from('weekly_reviews')
             .upsert({
-                user_id: user!.id,
+                user_id: userId,
                 week_start: weekStart,
                 completed_at: new Date().toISOString()
             }, { onConflict: 'user_id,week_start' });

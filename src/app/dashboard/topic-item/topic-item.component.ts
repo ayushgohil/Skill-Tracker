@@ -17,6 +17,25 @@ if (typeof window !== 'undefined') {
     (window as any).hljs = hljs;
 }
 
+let quillInitPromise: Promise<void> | null = null;
+function ensureQuillPlugins() {
+    if (!quillInitPromise && typeof window !== 'undefined') {
+        quillInitPromise = Promise.all([
+            import('quill'),
+            import('quill-magic-url')
+        ]).then(([QuillModule, MagicUrlModule]) => {
+            let Quill: any = QuillModule?.default ?? QuillModule;
+            let MagicUrl: any = MagicUrlModule?.default ?? MagicUrlModule;
+            if (MagicUrl?.default) MagicUrl = MagicUrl.default;
+
+            if (Quill?.imports && !Quill.imports['modules/magicUrl']) {
+                Quill.register('modules/magicUrl', MagicUrl);
+            }
+        }).catch(err => console.error('Failed to load magic url:', err));
+    }
+    return quillInitPromise;
+}
+
 export interface ProgressChange {
     topicId: string;
     completed: boolean;
@@ -140,25 +159,7 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         });
         if (isPlatformBrowser(this.platformId)) {
             document.addEventListener('click', this.boundCloseMenu);
-        }
-
-        if (isPlatformBrowser(this.platformId)) {
-            Promise.all([
-                import('quill'),
-                import('quill-magic-url')
-            ]).then(([QuillModule, MagicUrlModule]) => {
-                let Quill: any = QuillModule;
-                if (Quill && typeof Quill !== 'function' && Quill.default) Quill = Quill.default;
-
-                let MagicUrl: any = MagicUrlModule;
-                if (MagicUrl && typeof MagicUrl !== 'function' && MagicUrl.default) MagicUrl = MagicUrl.default;
-                if (MagicUrl && typeof MagicUrl !== 'function' && MagicUrl.default) MagicUrl = MagicUrl.default;
-
-                // Register if not already registered
-                if (!Quill.imports['modules/magicUrl']) {
-                    Quill.register('modules/magicUrl', MagicUrl);
-                }
-            }).catch(err => console.error('Failed to load magic url:', err));
+            ensureQuillPlugins();
         }
     }
 

@@ -1,6 +1,7 @@
 // src/app/core/services/activity.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { AuthService } from './auth.service';
 
 export interface ActivityLog {
     id: string;
@@ -13,6 +14,8 @@ export interface ActivityLog {
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
+
+    constructor(private auth: AuthService) {}
 
     /**
      * Returns today's date as a YYYY-MM-DD string using LOCAL time (not UTC).
@@ -30,8 +33,7 @@ export class ActivityService {
      * Gets activity logs for a specific year.
      */
     async getActivityLogsForYear(year: number): Promise<ActivityLog[]> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Not authenticated');
+        const userId = await this.auth.ensureUserId();
 
         const startDateStr = `${year}-01-01`;
         const endDateStr = `${year}-12-31`;
@@ -39,7 +41,7 @@ export class ActivityService {
         const { data, error } = await supabase
             .from('activity_logs')
             .select('*')
-            .eq('user_id', user.id)
+            .eq('user_id', userId)
             .gte('date', startDateStr)
             .lte('date', endDateStr)
             .order('date', { ascending: true });
@@ -57,8 +59,7 @@ export class ActivityService {
      * (e.g. a streak spanning Dec 31 → Jan 1).
      */
     async getRecentActivityLogs(): Promise<ActivityLog[]> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Not authenticated');
+        const userId = await this.auth.ensureUserId();
 
         const endDate = this.getLocalDateStr();
         const startDateObj = new Date();
@@ -67,8 +68,8 @@ export class ActivityService {
 
         const { data, error } = await supabase
             .from('activity_logs')
-            .select('*')
-            .eq('user_id', user.id)
+            .select('id, user_id, date, tasks_completed, created_at, updated_at')
+            .eq('user_id', userId)
             .gte('date', startDate)
             .lte('date', endDate)
             .order('date', { ascending: true });
@@ -89,22 +90,21 @@ export class ActivityService {
      * This is idempotent — no matter how many times a topic is toggled, the count is accurate.
      */
     async syncActivity(): Promise<void> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        const userId = await this.auth.ensureUserId();
 
         try {
             // Count topics completed (topics with no subtopics)
             const { count: topicCount } = await supabase
                 .from('user_progress')
                 .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
+                .eq('user_id', userId)
                 .eq('completed', true);
 
             // Count subtopics completed (subtopics for topics that have subtopics)
             const { count: subtopicCount } = await supabase
                 .from('subtopics')
                 .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
+                .eq('user_id', userId)
                 .eq('completed', true);
 
             const totalCompleted = (topicCount ?? 0) + (subtopicCount ?? 0);
@@ -113,7 +113,7 @@ export class ActivityService {
             await supabase
                 .from('activity_logs')
                 .upsert({
-                    user_id: user.id,
+                    user_id: userId,
                     date: this.getLocalDateStr(),
                     tasks_completed: totalCompleted,
                     updated_at: new Date().toISOString()
