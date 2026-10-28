@@ -340,14 +340,31 @@ export class BackupService {
 
         // ── 7. Restore Activity Logs ─────────────────────────────
         updateStep(6, 'Restoring activity logs & consistency');
-        const activityToInsert = (backupData.activity_logs ?? []).map(a => ({
-            id: crypto.randomUUID(),
-            user_id: user.id,
-            date: a.date,
-            tasks_completed: a.tasks_completed || 0,
-            created_at: a.created_at || new Date().toISOString(),
-            updated_at: a.updated_at || new Date().toISOString()
-        }));
+        // Backups made before the per-day change stored lifetime snapshots in
+        // tasks_completed, so convert those to daily counts while restoring.
+        const sortedLogs = [...(backupData.activity_logs ?? [])]
+            .sort((a, b) => a.date.localeCompare(b.date));
+        const isLegacyBackup = sortedLogs.length > 0 && sortedLogs.every(a => a.lifetime_total == null);
+        let prevSnapshot = 0;
+
+        const activityToInsert = sortedLogs.map(a => {
+            let lifetimeTotal: number | null = a.lifetime_total ?? null;
+            let daily = a.tasks_completed || 0;
+            if (isLegacyBackup) {
+                lifetimeTotal = daily;
+                daily = Math.max(0, lifetimeTotal - prevSnapshot);
+                prevSnapshot = lifetimeTotal;
+            }
+            return {
+                id: crypto.randomUUID(),
+                user_id: user.id,
+                date: a.date,
+                tasks_completed: daily,
+                lifetime_total: lifetimeTotal,
+                created_at: a.created_at || new Date().toISOString(),
+                updated_at: a.updated_at || new Date().toISOString()
+            };
+        });
 
         if (activityToInsert.length > 0) {
             const { error } = await supabase.from('activity_logs').insert(activityToInsert);

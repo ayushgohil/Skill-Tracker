@@ -131,7 +131,10 @@ export interface ActivityLogItem {
     id?: string;
     user_id?: string;
     date: string;
+    /** Items completed on this day. */
     tasks_completed: number;
+    /** Snapshot of all completed items on this day (absent in backups made before the per-day change). */
+    lifetime_total?: number | null;
     created_at?: string;
     updated_at?: string;
 }

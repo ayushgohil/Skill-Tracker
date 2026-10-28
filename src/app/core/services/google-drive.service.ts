@@ -146,9 +146,12 @@ export class GoogleDriveService {
             return cached.id;
         }
 
+        // Drive query strings are single-quoted, so backslashes and apostrophes in
+        // user-supplied names (e.g. "Ayush's Notes") must be escaped.
+        const safeName = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         const q = parentId
-            ? `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
-            : `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+            ? `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
+            : `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
 
         const res = await fetch(
             `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,parents)`,

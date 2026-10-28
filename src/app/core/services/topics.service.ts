@@ -242,7 +242,7 @@ export class TopicsService {
         
         this.cacheService.clearSubjects();
 
-        // Sync activity after every toggle — syncActivity SETs the real count from DB,
+        // Sync activity after every toggle — syncActivity recomputes today's count from the DB,
         // so it's idempotent and accurate regardless of how many times a topic is toggled.
         this.activityService.syncActivity();
     }

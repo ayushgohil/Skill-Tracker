@@ -92,12 +92,17 @@ export class ActivityService {
     }
 
     /**
-     * Syncs today's activity log to the ACTUAL count of completed topics in the DB.
+     * Syncs today's activity log.
      *
-     * Why SET instead of INCREMENT:
-     * Incrementing means toggling a checkbox 50× adds 50 to the count, which is wrong.
-     * Setting means we always store the truth: "how many topics are done right now".
-     * This is idempotent — no matter how many times a topic is toggled, the count is accurate.
+     * Each row stores two numbers:
+     *  - lifetime_total:  how many topics + subtopics are completed right now (a snapshot)
+     *  - tasks_completed: how many were completed TODAY = lifetime_total minus the
+     *                     lifetime_total of the most recent earlier day (clamped at 0)
+     *
+     * The heatmap reads tasks_completed, so it shows work done per day instead of
+     * the running total. Because both values are recomputed from the DB on every
+     * call, this stays idempotent: toggling a checkbox 50× still gives the right count.
+     * (Requires supabase_migration_activity_daily.sql to have been run.)
      */
     async syncActivity(): Promise<void> {
         const userId = await this.auth.ensureUserId();
@@ -118,16 +123,36 @@ export class ActivityService {
                 .eq('completed', true);
 
             const totalCompleted = (topicCount ?? 0) + (subtopicCount ?? 0);
+            const today = this.getLocalDateStr();
 
-            // SET tasks_completed — never increment, always reflect truth
-            await supabase
+            // Baseline = lifetime total recorded on the most recent earlier day.
+            // No earlier snapshot (brand-new user) means everything counts as today's work.
+            const { data: prior } = await supabase
+                .from('activity_logs')
+                .select('lifetime_total')
+                .eq('user_id', userId)
+                .lt('date', today)
+                .not('lifetime_total', 'is', null)
+                .order('date', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            const baseline = prior?.lifetime_total ?? 0;
+            const completedToday = Math.max(0, totalCompleted - baseline);
+
+            const { error } = await supabase
                 .from('activity_logs')
                 .upsert({
                     user_id: userId,
-                    date: this.getLocalDateStr(),
-                    tasks_completed: totalCompleted,
+                    date: today,
+                    tasks_completed: completedToday,
+                    lifetime_total: totalCompleted,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'user_id,date' });
+
+            if (error) {
+                console.error('Failed to upsert activity log (has supabase_migration_activity_daily.sql been run?):', error);
+            }
 
             this.cacheService.clear('recent_activity_logs');
         } catch (e) {

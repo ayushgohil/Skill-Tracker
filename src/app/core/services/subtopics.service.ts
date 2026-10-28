@@ -64,7 +64,8 @@ export class SubtopicsService {
         if (error) throw error;
         
         this.cacheService.clearSubjects();
-        // so it's idempotent and accurate regardless of how many times a topic is toggled.
+        // syncActivity recomputes today's count from the DB, so it's idempotent
+        // regardless of how many times a subtopic is toggled.
         this.activityService.syncActivity();
     }
 
