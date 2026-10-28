@@ -4,13 +4,14 @@ import { Router } from '@angular/router';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../supabase.client';
 import { CacheService } from './cache.service';
+import { PomodoroService } from './pomodoro.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     currentUser = signal<User | null>(null);
     loading = signal(true);
 
-    constructor(private router: Router, private cacheService: CacheService) {
+    constructor(private router: Router, private cacheService: CacheService, private pomodoro: PomodoroService) {
         supabase.auth.getSession().then(({ data }) => {
             this.currentUser.set(data.session?.user ?? null);
             this.loading.set(false);
@@ -22,6 +23,11 @@ export class AuthService {
             this.currentUser.set(session?.user ?? null);
             if (event === 'SIGNED_OUT' || event === 'SIGNED_IN' || (prevId && newId && prevId !== newId)) {
                 this.cacheService.clear();
+            }
+            // A timer session belongs to the person who started it: never carry it over
+            // to someone else who signs in on the same browser.
+            if (event === 'SIGNED_OUT' || (prevId && newId && prevId !== newId)) {
+                this.pomodoro.stop();
             }
             if (event === 'PASSWORD_RECOVERY') {
                 this.router.navigate(['/reset-password']);
@@ -180,6 +186,7 @@ export class AuthService {
 
     async logout() {
         this.cacheService.clear();
+        this.pomodoro.stop();
         await supabase.auth.signOut();
         this.currentUser.set(null);
         this.router.navigate(['/auth/login']);
