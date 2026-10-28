@@ -8,6 +8,7 @@ import { WeeklyService } from '../core/services/weekly.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
 import { PendingDeleteService } from '../core/services/pending-delete.service';
+import { NetworkStatusService } from '../core/services/network-status.service';
 import { ActivityService, ActivityLog } from '../core/services/activity.service';
 import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -103,7 +104,8 @@ export class DashboardComponent implements OnInit {
         public themeService: ThemeService,
         private collabService: CollaborationService,
         private cacheService: CacheService,
-        private pendingDelete: PendingDeleteService
+        private pendingDelete: PendingDeleteService,
+        private network: NetworkStatusService
     ) { }
 
     ngOnInit() {
@@ -291,16 +293,35 @@ export class DashboardComponent implements OnInit {
         event.stopPropagation();
         if (!this.editSubjectName.trim()) return;
         const titledName = this.toTitleCase(this.editSubjectName.trim());
+        const color = this.editSubjectColor;
+        const previous = this.subjects().find(s => s.id === subId);
         this.subjects.update(subs => subs.map(s =>
-            s.id === subId ? { ...s, name: titledName, color: this.editSubjectColor } : s
+            s.id === subId ? { ...s, name: titledName, color } : s
         ));
         this.editingSubjectId.set(null);
+        await this.saveSubjectEdit(subId, titledName, color, previous?.name, previous?.color);
+    }
+
+    private async saveSubjectEdit(subId: string, name: string, color: string, previousName?: string, previousColor?: string) {
         try {
-            await this.subjectsService.update(subId, titledName, this.editSubjectColor);
+            await this.subjectsService.update(subId, name, color);
             this.toast.success('Subject updated.');
         } catch {
-            this.toast.error('Failed to update subject.');
-            await this.load();
+            // Put back the old name and colour instead of reloading the whole dashboard
+            if (previousName !== undefined && previousColor !== undefined) {
+                this.subjects.update(subs => subs.map(s =>
+                    s.id === subId ? { ...s, name: previousName, color: previousColor } : s
+                ));
+            }
+            this.toast.error(this.network.describeFailure('update the subject'), {
+                label: 'Retry',
+                handler: () => {
+                    this.subjects.update(subs => subs.map(s =>
+                        s.id === subId ? { ...s, name, color } : s
+                    ));
+                    void this.saveSubjectEdit(subId, name, color, previousName, previousColor);
+                }
+            });
         }
     }
 
@@ -365,18 +386,30 @@ export class DashboardComponent implements OnInit {
     async onSubjectDrop(event: CdkDragDrop<SubjectWithTopics[]>) {
         if (event.previousIndex === event.currentIndex) return;
 
-        const items = [...this.subjects()];
+        const before = this.subjects();
+        const items = [...before];
         moveItemInArray(items, event.previousIndex, event.currentIndex);
         this.subjects.set(items); // Instant 0ms optimistic UI update
 
+        await this.saveSubjectOrder(items, before);
+    }
+
+    private async saveSubjectOrder(items: SubjectWithTopics[], before: SubjectWithTopics[]) {
         try {
             await this.subjectsService.updateSubjectsOrder(items);
         } catch (err) {
             console.error('Failed to update subject order:', err);
-            this.toast.error('Failed to save subject order.');
-            this.subjects.set(await this.topicsService.getSubjectsWithTopics());
+            // Put the list back the way it was (works offline too, unlike re-fetching it)
+            this.subjects.set(before);
+            this.toast.error(this.network.describeFailure('save the new order'), {
+                label: 'Retry',
+                handler: () => {
+                    this.subjects.set(items);
+                    void this.saveSubjectOrder(items, before);
+                }
+            });
         }
     }
 
     logout() { this.auth.logout(); }
-}
+}

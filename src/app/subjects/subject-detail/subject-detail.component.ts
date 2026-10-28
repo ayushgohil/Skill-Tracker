@@ -7,6 +7,7 @@ import { TopicsService } from '../../core/services/topics.service';
 import { SubtopicsService } from '../../core/services/subtopics.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PendingDeleteService } from '../../core/services/pending-delete.service';
+import { NetworkStatusService } from '../../core/services/network-status.service';
 import { Subject, TopicWithProgress, Depth } from '../../core/models';
 import {
     TopicItemComponent,
@@ -139,6 +140,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private subtopicsService: SubtopicsService,
         private toast: ToastService,
         private pendingDelete: PendingDeleteService,
+        private network: NetworkStatusService,
         public themeService: ThemeService,
         private titleService: Title,
         private cacheService: CacheService
@@ -256,8 +258,19 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         this.expandedTopicId.update(id => id === topicId ? null : topicId);
     }
 
+    /**
+     * A save did not go through. Tell the user in plain words (aware of being offline)
+     * and offer Retry. Nothing reloads the page, so scroll position, open topics and
+     * anything the user typed stay exactly as they were.
+     */
+    private saveFailed(action: string, retry: () => void) {
+        this.toast.error(this.network.describeFailure(action), { label: 'Retry', handler: retry });
+    }
+
     // ── Progress (optimistic, no reload) ──────────────
     onProgressChanged(event: ProgressChange) {
+        const previousCompleted = this.topics().find(t => t.id === event.topicId)?.completed ?? false;
+
         // 1. Optimistic signal update
         this.topics.update(topics => topics.map(t =>
             t.id === event.topicId ? { ...t, completed: event.completed, notes: event.notes } : t
@@ -266,13 +279,23 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         // 2. Fire-and-forget background save
         this.topicsService.upsertProgress(event.topicId, event.completed, event.notes)
             .catch(() => {
-                this.toast.error('Failed to save progress.');
-                this.load();
+                // Undo only the tick. Never throw away notes the user has typed.
+                this.topics.update(topics => topics.map(t =>
+                    t.id === event.topicId ? { ...t, completed: previousCompleted } : t
+                ));
+                this.saveFailed(
+                    event.completed !== previousCompleted ? 'save your progress' : 'save your notes',
+                    () => this.onProgressChanged(event)
+                );
             });
     }
 
     // ── Edit Topic ────────────────────────────────────
     onTopicEdited(event: TopicEditEvent) {
+        const previous = this.topics().find(t => t.id === event.topicId);
+        const previousTitle = previous?.title;
+        const previousDepth = previous?.depth;
+
         // 1. Optimistic signal update
         this.topics.update(topics => topics.map(t =>
             t.id === event.topicId ? { ...t, title: event.title, depth: event.depth } : t
@@ -282,8 +305,12 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         this.topicsService.updateTopic(event.topicId, event.title, event.depth)
             .then(() => this.toast.success('Topic updated.'))
             .catch(() => {
-                this.toast.error('Failed to update topic.');
-                this.load();
+                if (previousTitle !== undefined && previousDepth !== undefined) {
+                    this.topics.update(topics => topics.map(t =>
+                        t.id === event.topicId ? { ...t, title: previousTitle, depth: previousDepth } : t
+                    ));
+                }
+                this.saveFailed('update the topic', () => this.onTopicEdited(event));
             });
     }
 
@@ -342,8 +369,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             this.showAddTopic.set(false);
             this.toast.success('Topic added.');
         } catch {
-            this.toast.error('Failed to add topic.');
-            this.load();
+            // The form still holds what the user typed, so Retry just submits it again.
+            this.saveFailed('add the topic', () => { void this.addTopic(); });
         } finally {
             this.savingTopic.set(false);
         }
@@ -372,21 +399,36 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         const updatedTopic = this.topics().find(t => t.id === event.topicId);
         const nowComplete = updatedTopic?.completed ?? false;
 
-        // 3. Fire-and-forget background saves
+        // 3. Fire-and-forget background save. The topic-level progress is only synced
+        //    after the tick itself was saved.
         this.subtopicsService.toggleSubtopic(event.subtopicId, event.completed)
-            .catch(() => {
-                this.toast.error('Failed to update subtopic.');
-                this.load();
+            .then(() => {
+                if (nowComplete !== wasCompleted) {
+                    this.syncTopicProgress(event.topicId, nowComplete);
+                }
+            }, () => {
+                // Undo just this tick (and the topic's automatic state that came from it)
+                this.topics.update(topics => topics.map(t => {
+                    if (t.id !== event.topicId) return t;
+                    return {
+                        ...t,
+                        subtopics: t.subtopics.map(s =>
+                            s.id === event.subtopicId ? { ...s, completed: !event.completed } : s
+                        ),
+                        completed: wasCompleted
+                    };
+                }));
+                this.saveFailed('update the subtopic', () => this.onSubtopicToggled(event));
             });
+    }
 
-        // 4. Sync topic-level progress if auto-complete state changed
-        if (nowComplete !== wasCompleted) {
-            this.subtopicsService.updateTopicProgress(event.topicId, nowComplete)
-                .catch(() => {
-                    this.toast.error('Failed to sync topic progress.');
-                    this.load();
-                });
-        }
+    /** Keeps the topic's own progress row in step with its subtopics (retryable). */
+    private syncTopicProgress(topicId: string, completed: boolean) {
+        this.subtopicsService.updateTopicProgress(topicId, completed)
+            .catch(() => this.saveFailed(
+                "update the topic's progress",
+                () => this.syncTopicProgress(topicId, completed)
+            ));
     }
 
     // ── Subtopic Added (optimistic, no reload) ────────
@@ -411,8 +453,8 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
 
             this.toast.success('Subtopic added.');
         } catch {
-            this.toast.error('Failed to add subtopic.');
-            this.load();
+            // The input box was already cleared, so Retry sends the same title again.
+            this.saveFailed('add the subtopic', () => { void this.onSubtopicAdded(event); });
         }
     }
 
@@ -469,18 +511,25 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         if (event.previousIndex === event.currentIndex) return;
         if (this.sortOption() !== 'default' || this.isSearching()) return;
 
-        const items = [...this.topics()];
+        const before = this.topics();
+        const items = [...before];
         moveItemInArray(items, event.previousIndex, event.currentIndex);
         this.topics.set(items); // Instant 0ms optimistic UI update
 
+        await this.saveTopicOrder(items, before);
+    }
+
+    private async saveTopicOrder(items: TopicWithProgress[], before: TopicWithProgress[]) {
         try {
             await this.topicsService.updateTopicsOrder(items);
         } catch (err) {
             console.error('Failed to update topic order:', err);
-            this.toast.error('Failed to save topic order.');
-            if (this.subject()) {
-                this.topics.set(await this.subjectsService.getTopicsForSubject(this.subject()!.id));
-            }
+            // Put the list back the way it was (works offline too, unlike re-fetching it)
+            this.topics.set(before);
+            this.saveFailed('save the new order', () => {
+                this.topics.set(items);
+                void this.saveTopicOrder(items, before);
+            });
         }
     }
 
