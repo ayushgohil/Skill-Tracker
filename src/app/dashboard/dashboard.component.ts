@@ -7,6 +7,7 @@ import { SubjectsService } from '../core/services/subjects.service';
 import { WeeklyService } from '../core/services/weekly.service';
 import { AuthService } from '../core/services/auth.service';
 import { ToastService } from '../core/services/toast.service';
+import { PendingDeleteService } from '../core/services/pending-delete.service';
 import { ActivityService, ActivityLog } from '../core/services/activity.service';
 import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
@@ -101,7 +102,8 @@ export class DashboardComponent implements OnInit {
         private profileService: ProfileService,
         public themeService: ThemeService,
         private collabService: CollaborationService,
-        private cacheService: CacheService
+        private cacheService: CacheService,
+        private pendingDelete: PendingDeleteService
     ) { }
 
     ngOnInit() {
@@ -122,19 +124,33 @@ export class DashboardComponent implements OnInit {
     async load() {
         const cached = this.cacheService.get('subjects_with_topics');
         if (cached) {
-            this.subjects.set(cached);
+            this.subjects.set(this.withoutPendingDeletes(cached));
             this.loading.set(false);
             return;
         }
 
         this.loading.set(true);
         try {
-            this.subjects.set(await this.topicsService.getSubjectsWithTopics());
+            this.subjects.set(this.withoutPendingDeletes(await this.topicsService.getSubjectsWithTopics()));
         } catch {
             this.toast.error('Failed to load subjects.');
         } finally {
             this.loading.set(false);
         }
+    }
+
+    /** Hides subjects that were deleted (or left) a moment ago and can still be undone. */
+    private withoutPendingDeletes(subjects: SubjectWithTopics[]): SubjectWithTopics[] {
+        return subjects.filter(s => !this.pendingDelete.isPending(`subject:${s.id}`));
+    }
+
+    private putSubjectBack(subject: SubjectWithTopics, index: number) {
+        this.subjects.update(subs => {
+            if (subs.some(s => s.id === subject.id)) return subs;
+            const restored = [...subs];
+            restored.splice(Math.min(index, restored.length), 0, subject);
+            return restored;
+        });
     }
 
     private async loadWeeklyData() {
@@ -305,14 +321,16 @@ export class DashboardComponent implements OnInit {
                 cancelButtonColor: '#3f3f46'
             });
             if (!result.isConfirmed) return;
+
+            const index = this.subjects().findIndex(s => s.id === sub.id);
             this.subjects.update(subs => subs.filter(s => s.id !== sub.id));
-            try {
-                await this.collabService.leaveSubject(sub.id);
-                this.toast.success(`Left "${sub.name}".`);
-            } catch {
-                this.toast.error('Failed to leave subject.');
-                await this.load();
-            }
+            this.pendingDelete.schedule({
+                key: `subject:${sub.id}`,
+                message: `Left "${sub.name}".`,
+                commit: () => this.collabService.leaveSubject(sub.id),
+                undo: () => this.putSubjectBack(sub, index),
+                failMessage: `Couldn't leave "${sub.name}". It has been put back.`
+            });
             return;
         }
 
@@ -331,14 +349,16 @@ export class DashboardComponent implements OnInit {
             cancelButtonColor: '#3f3f46'
         });
         if (!result.isConfirmed) return;
+
+        const index = this.subjects().findIndex(s => s.id === sub.id);
         this.subjects.update(subs => subs.filter(s => s.id !== sub.id));
-        try {
-            await this.subjectsService.delete(sub.id);
-            this.toast.success(`"${sub.name}" deleted.`);
-        } catch {
-            this.toast.error('Failed to delete subject.');
-            await this.load();
-        }
+        this.pendingDelete.schedule({
+            key: `subject:${sub.id}`,
+            message: `"${sub.name}" deleted.`,
+            commit: () => this.subjectsService.delete(sub.id),
+            undo: () => this.putSubjectBack(sub, index),
+            failMessage: `Couldn't delete "${sub.name}". It has been put back.`
+        });
     }
 
     // ── Reorder Subjects ──────────────────────────────

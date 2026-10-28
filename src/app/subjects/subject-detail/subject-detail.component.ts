@@ -6,6 +6,7 @@ import { SubjectsService } from '../../core/services/subjects.service';
 import { TopicsService } from '../../core/services/topics.service';
 import { SubtopicsService } from '../../core/services/subtopics.service';
 import { ToastService } from '../../core/services/toast.service';
+import { PendingDeleteService } from '../../core/services/pending-delete.service';
 import { Subject, TopicWithProgress, Depth } from '../../core/models';
 import {
     TopicItemComponent,
@@ -137,6 +138,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         private topicsService: TopicsService,
         private subtopicsService: SubtopicsService,
         private toast: ToastService,
+        private pendingDelete: PendingDeleteService,
         public themeService: ThemeService,
         private titleService: Title,
         private cacheService: CacheService
@@ -187,7 +189,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
                 this.subjectsService.getTopicsForSubject(this.subjectId, force)
             ]);
             this.subject.set(subject);
-            this.topics.set(topics);
+            this.topics.set(this.withoutPendingDeletes(topics));
             if (subject?.name) {
                 this.titleService.setTitle(`${subject.name} | Nextlyr Skill Tracker`);
             }
@@ -197,6 +199,16 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         } finally {
             this.loading.set(false);
         }
+    }
+
+    /** Hides topics and subtopics that were deleted a moment ago and can still be undone. */
+    private withoutPendingDeletes(topics: TopicWithProgress[]): TopicWithProgress[] {
+        return topics
+            .filter(t => !this.pendingDelete.isPending(`topic:${t.id}`))
+            .map(t => ({
+                ...t,
+                subtopics: t.subtopics.filter(s => !this.pendingDelete.isPending(`subtopic:${s.id}`))
+            }));
     }
 
     // ── Sort ───────────────────────────────────────────
@@ -275,18 +287,28 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             });
     }
 
-    // ── Delete Topic (optimistic, no reload) ──────────
+    // ── Delete Topic (hidden at once, real delete after an undo window) ──
     onTopicDeleted(topicId: string) {
-        // 1. Optimistic signal remove
+        const index = this.topics().findIndex(t => t.id === topicId);
+        const removed = this.topics()[index];
+        if (!removed) return;
+
+        // 1. Remove from the screen right away
         this.topics.update(topics => topics.filter(t => t.id !== topicId));
 
-        // 2. Fire-and-forget background delete
-        this.topicsService.deleteTopic(topicId)
-            .then(() => this.toast.success('Topic deleted.'))
-            .catch(() => {
-                this.toast.error('Failed to delete topic.');
-                this.load();
-            });
+        // 2. The real delete only runs once the undo window has passed
+        this.pendingDelete.schedule({
+            key: `topic:${topicId}`,
+            message: `"${removed.title}" deleted.`,
+            commit: () => this.topicsService.deleteTopic(topicId),
+            undo: () => this.topics.update(topics => {
+                if (topics.some(t => t.id === topicId)) return topics;
+                const restored = [...topics];
+                restored.splice(Math.min(index, restored.length), 0, removed);
+                return restored;
+            }),
+            failMessage: `Couldn't delete "${removed.title}". It has been put back.`
+        });
     }
 
     // ── Title Case helper ──────────────────────────────
@@ -394,9 +416,14 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    // ── Subtopic Deleted (optimistic, no reload) ──────
+    // ── Subtopic Deleted (hidden at once, real delete after an undo window) ──
     onSubtopicDeleted(event: SubtopicDeleteEvent) {
-        // 1. Optimistic remove from signal
+        const parent = this.topics().find(t => t.id === event.topicId);
+        const index = parent ? parent.subtopics.findIndex(s => s.id === event.subtopicId) : -1;
+        const removed = index >= 0 ? parent!.subtopics[index] : undefined;
+        if (!removed) return;
+
+        // 1. Remove from the screen right away
         this.topics.update(topics =>
             topics.map(t => {
                 if (t.id !== event.topicId) return t;
@@ -411,23 +438,30 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             })
         );
 
-        // 2. Read updated state
-        const updatedTopic = this.topics().find(t => t.id === event.topicId);
+        // 2. The real delete (and the topic progress sync that follows it) only runs
+        //    once the undo window has passed
+        this.pendingDelete.schedule({
+            key: `subtopic:${event.subtopicId}`,
+            message: `Subtopic "${removed.title}" deleted.`,
+            commit: async () => {
+                await this.subtopicsService.deleteSubtopic(event.subtopicId);
 
-        // 3. Fire-and-forget background delete
-        this.subtopicsService.deleteSubtopic(event.subtopicId)
-            .then(() => this.toast.success('Subtopic removed.'))
-            .catch(() => {
-                this.toast.error('Failed to delete subtopic.');
-                this.load();
-            });
-
-        // 4. Sync topic progress if subtopics remain
-        if (updatedTopic && updatedTopic.subtopics.length > 0) {
-            const allDone = updatedTopic.subtopics.every(s => s.completed);
-            this.subtopicsService.updateTopicProgress(event.topicId, allDone)
-                .catch(() => { /* best-effort */ });
-        }
+                // Sync topic progress if subtopics remain
+                const current = this.topics().find(t => t.id === event.topicId);
+                if (current && current.subtopics.length > 0) {
+                    const allDone = current.subtopics.every(s => s.completed);
+                    this.subtopicsService.updateTopicProgress(event.topicId, allDone)
+                        .catch(() => { /* best-effort */ });
+                }
+            },
+            undo: () => this.topics.update(topics => topics.map(t => {
+                if (t.id !== event.topicId || t.subtopics.some(s => s.id === removed.id)) return t;
+                const restored = [...t.subtopics];
+                restored.splice(Math.min(index, restored.length), 0, removed);
+                return { ...t, subtopics: restored, completed: restored.every(s => s.completed) };
+            })),
+            failMessage: `Couldn't delete subtopic "${removed.title}". It has been put back.`
+        });
     }
 
     // ── Reorder Topics ────────────────────────────────

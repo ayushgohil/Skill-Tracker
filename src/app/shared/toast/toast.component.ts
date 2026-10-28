@@ -6,7 +6,8 @@ import { ToastService } from '../../core/services/toast.service';
     selector: 'app-toast',
     standalone: true,
     template: `
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"
+         role="status" aria-live="polite" aria-atomic="false">
       @for (toast of toastService.toasts(); track toast.id) {
         <div
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-auto animate-slide-up"
@@ -40,7 +41,14 @@ import { ToastService } from '../../core/services/toast.service';
 
           <span>{{ toast.message }}</span>
 
-          <button (click)="toastService.dismiss(toast.id)"
+          @if (toast.action; as action) {
+            <button type="button" (click)="runAction(toast.id, action.handler)"
+              class="ml-1 px-2.5 py-1 rounded-lg text-xs font-bold underline underline-offset-2 bg-white/15 hover:bg-white/25 transition-colors">
+              {{ action.label }}
+            </button>
+          }
+
+          <button type="button" (click)="toastService.dismiss(toast.id)" aria-label="Dismiss notification"
             class="ml-2 opacity-60 hover:opacity-100 transition-opacity">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -53,4 +61,9 @@ import { ToastService } from '../../core/services/toast.service';
 })
 export class ToastComponent {
     toastService = inject(ToastService);
+
+    runAction(toastId: number, handler: () => void) {
+        this.toastService.dismiss(toastId);
+        handler();
+    }
 }

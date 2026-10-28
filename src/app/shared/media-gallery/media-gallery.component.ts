@@ -9,6 +9,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TopicMedia, TopicMediaService } from '../../core/services/topic-media.service';
 import { GoogleDriveService } from '../../core/services/google-drive.service';
 import { AuthService } from '../../core/services/auth.service';
+import { PendingDeleteService } from '../../core/services/pending-delete.service';
 import { validateFiles } from '../../core/utils/file-validation';
 import Swal from 'sweetalert2';
 
@@ -31,6 +32,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     mediaService = inject(TopicMediaService);
     private drive = inject(GoogleDriveService);
     private auth = inject(AuthService);
+    private pendingDelete = inject(PendingDeleteService);
     private vcr = inject(ViewContainerRef);
     private appRef = inject(ApplicationRef);
     private injector = inject(Injector);
@@ -101,7 +103,9 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     async loadMedia() {
         this.loading.set(true);
         try {
-            const items = await this.mediaService.getMedia(this.topicId);
+            const fetched = await this.mediaService.getMedia(this.topicId);
+            // Don't show files that were deleted a moment ago and can still be undone
+            const items = fetched.filter(i => !this.pendingDelete.isPending(`media:${i.id}`));
             this.media.set(items);
             items.filter(i => this.isImage(i.mime_type)).forEach(i => this.loadThumb(i));
         } finally {
@@ -119,20 +123,35 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
         }
     }
 
-    async deleteMedia(event: Event, item: TopicMedia) {
+    /**
+     * Removes an attachment from the list right away, but only deletes it for real
+     * (database record and the file in Google Drive) after the undo window has passed.
+     */
+    deleteMedia(event: Event, item: TopicMedia) {
         event.stopPropagation();
         event.preventDefault();
-        this.deletingId.set(item.id);
-        try {
-            await this.mediaService.delete(item.id, item.drive_file_id);
-            this.media.update(m => m.filter(f => f.id !== item.id));
-            this.thumbnails.update(t => { delete t[item.id]; return { ...t }; });
-            this.brokenFiles.update(s => { s.delete(item.id); return new Set(s); });
-        } catch (err) {
-            console.error('Delete failed:', err);
-        } finally {
-            this.deletingId.set(null);
-        }
+
+        const index = this.media().findIndex(f => f.id === item.id);
+        if (index < 0) return;
+
+        this.media.update(m => m.filter(f => f.id !== item.id));
+
+        this.pendingDelete.schedule({
+            key: `media:${item.id}`,
+            message: `"${item.file_name}" deleted.`,
+            commit: () => this.mediaService.delete(item.id, item.drive_file_id),
+            undo: () => this.media.update(m => {
+                if (m.some(f => f.id === item.id)) return m;
+                const restored = [...m];
+                restored.splice(Math.min(index, restored.length), 0, item);
+                return restored;
+            }),
+            onCommitted: () => {
+                this.thumbnails.update(t => { delete t[item.id]; return { ...t }; });
+                this.brokenFiles.update(s => { s.delete(item.id); return new Set(s); });
+            },
+            failMessage: `Couldn't delete "${item.file_name}". It has been put back.`
+        });
     }
 
     onThumbnailClick(index: number, item: TopicMedia, event: Event) {
