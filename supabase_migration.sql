@@ -31,16 +31,8 @@ ON public.activity_logs FOR UPDATE
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
 
--- 4. Create an upsert helper function (optional but useful for incrementing tasks)
--- This allows us to increment the tasks_completed count for a specific date
-CREATE OR REPLACE FUNCTION increment_activity_log(p_user_id UUID, p_date DATE)
-RETURNS void AS $$
-BEGIN
-    INSERT INTO public.activity_logs (user_id, date, tasks_completed)
-    VALUES (p_user_id, p_date, 1)
-    ON CONFLICT (user_id, date)
-    DO UPDATE SET 
-        tasks_completed = public.activity_logs.tasks_completed + 1,
-        updated_at = NOW();
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Note: an earlier version of this file also created increment_activity_log().
+-- It was removed because it ran as SECURITY DEFINER and trusted a caller-supplied
+-- user id, and the app no longer uses it (see activity.service.ts, which upserts
+-- the signed-in user's own row). Existing databases should run
+-- supabase_migration_drop_increment_activity_log.sql.

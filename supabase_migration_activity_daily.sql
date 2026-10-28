@@ -38,7 +38,5 @@ WHERE a.id = calc.id;
 -- Note: a user's first logged day keeps its full snapshot as that day's count,
 -- since earlier history can't be recovered.
 
--- Optional: increment_activity_log() is no longer called by the app and takes the
--- user id as a parameter while running as SECURITY DEFINER, so any signed-in user
--- could bump another user's log. Uncomment to remove it.
--- DROP FUNCTION IF EXISTS public.increment_activity_log(UUID, DATE);
+-- To also remove the unused, unsafe increment_activity_log() function, run
+-- supabase_migration_drop_increment_activity_log.sql.
