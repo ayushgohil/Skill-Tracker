@@ -540,7 +540,7 @@ export class ProfileComponent implements OnInit {
         const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
         try {
-            await this.backupService.restoreData(backupData, (stepIndex) => {
+            const result = await this.backupService.restoreData(backupData, (stepIndex) => {
                 if (stepIndex > 0) updateStep(stepIndex - 1, 'done');
                 updateStep(stepIndex, 'active');
             });
@@ -549,7 +549,11 @@ export class ProfileComponent implements OnInit {
             updateStep(7, 'done');
 
             this.restoreFinished.set(true);
-            this.toast.success('Skill-Tracker restored completely!');
+            if (result.itemsSkipped) {
+                this.toast.info(result.message || 'Restored, but some items were skipped.');
+            } else {
+                this.toast.success('Skill-Tracker restored completely!');
+            }
 
             // Re-fetch profile and stats
             await this.ngOnInit();

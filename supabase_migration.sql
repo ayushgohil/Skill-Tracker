@@ -31,6 +31,12 @@ ON public.activity_logs FOR UPDATE
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
 
+-- Users can delete their own activity logs (needed by backup restore; without a delete
+-- policy Row Level Security makes deletes silently do nothing)
+CREATE POLICY "Users can delete their own activity logs"
+ON public.activity_logs FOR DELETE
+USING (auth.uid() = user_id);
+
 -- Note: an earlier version of this file also created increment_activity_log().
 -- It was removed because it ran as SECURITY DEFINER and trusted a caller-supplied
 -- user id, and the app no longer uses it (see activity.service.ts, which upserts

@@ -196,6 +196,8 @@ export interface RestoreResult {
     topicsRestored: number;
     subtopicsRestored: number;
     progressRestored: number;
+    /** Rows left out because the topic or subject they belonged to no longer exists. */
+    itemsSkipped?: number;
     message?: string;
 }
 
@@ -205,4 +207,4 @@ export interface BackupStep {
     id: string;
     label: string;
     status: BackupStepStatus;
-}
+}

@@ -139,6 +139,7 @@ Run the SQL files in the Supabase SQL editor. They are safe to run more than onc
 | --- | --- |
 | `supabase_migration.sql` | New installs: creates `activity_logs` with Row Level Security |
 | `supabase_migration_activity_daily.sql` | After the one above, on new and existing installs: makes `tasks_completed` a per-day count and converts old rows |
+| `supabase_migration_restore_function.sql` | New and existing installs, **before** deploying the app: creates the `restore_user_data` function that makes backup restore all-or-nothing, and adds the missing delete policy on `activity_logs`. Needs the per-day migration above to have been run first |
 | `supabase_migration_google_token_table.sql` | New and existing installs, **before** deploying the Edge Function and the app: creates the locked-down `user_google_tokens` table |
 | `supabase_migration_google_token_cleanup.sql` | Existing installs only, **after** deploying: drops the old `profiles.google_refresh_token` column |
 | `supabase_migration_drop_increment_activity_log.sql` | Existing installs only: removes an old, unsafe function the app no longer uses |

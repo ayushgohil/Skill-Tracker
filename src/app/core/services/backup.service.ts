@@ -191,8 +191,12 @@ export class BackupService {
     }
 
     /**
-     * Fully restore and revert user data from BackupData
-     * Step-by-step transaction with progress callbacks
+     * Fully restore and revert user data from BackupData.
+     *
+     * The work happens in ONE database function (restore_user_data), which runs as a
+     * single transaction: it either replaces everything or changes nothing. If anything
+     * goes wrong, your existing data is left exactly as it was.
+     * (Needs supabase_migration_restore_function.sql to have been run.)
      */
     async restoreData(
         backupData: BackupData,
@@ -206,148 +210,14 @@ export class BackupService {
             if (onProgress) onProgress(index, label);
         };
 
-        // ── 1. Wipe existing user records in dependency order ────
-        updateStep(0, 'Clearing existing data');
-        await Promise.all([
-            supabase.from('activity_logs').delete().eq('user_id', user.id),
-            supabase.from('weekly_reviews').delete().eq('user_id', user.id),
-            supabase.from('weekly_goals').delete().eq('user_id', user.id),
-            supabase.from('topic_media').delete().eq('user_id', user.id),
-            supabase.from('user_progress').delete().eq('user_id', user.id),
-            supabase.from('subtopics').delete().eq('user_id', user.id)
-        ]);
-        // Delete topics and subjects after child tables are cleared
-        await supabase.from('topics').delete().eq('user_id', user.id);
-        await supabase.from('subjects').delete().eq('user_id', user.id);
-
-        // ── ID Mapping maps ─────────────────────────────────────
-        const subjectIdMap = new Map<string, string>();
-        const topicIdMap = new Map<string, string>();
-
-        // ── 2. Restore Subjects ──────────────────────────────────
-        updateStep(1, 'Restoring subjects');
-        const subjectsToInsert = (backupData.subjects ?? []).map((s, index) => {
-            const newId = crypto.randomUUID();
-            subjectIdMap.set(s.id, newId);
-            return {
-                id: newId,
-                user_id: user.id,
-                name: s.name,
-                color: s.color || '#3b82f6',
-                order: typeof s.order === 'number' ? s.order : index,
-                created_at: s.created_at || new Date().toISOString()
-            };
-        });
-
-        if (subjectsToInsert.length > 0) {
-            const { error } = await supabase.from('subjects').insert(subjectsToInsert);
-            if (error) throw new Error(`Failed to restore subjects: ${error.message}`);
-        }
-
-        // ── 3. Restore Topics ────────────────────────────────────
-        updateStep(2, 'Restoring topics');
-        const topicsToInsert = (backupData.topics ?? []).map((t, index) => {
-            const newId = crypto.randomUUID();
-            topicIdMap.set(t.id, newId);
-            const mappedSubjectId = subjectIdMap.get(t.subject_id) || t.subject_id;
-            return {
-                id: newId,
-                user_id: user.id,
-                subject_id: mappedSubjectId,
-                title: t.title,
-                depth: t.depth || 'shallow',
-                starred: t.starred || false,
-                order: typeof t.order === 'number' ? t.order : index,
-                created_at: t.created_at || new Date().toISOString()
-            };
-        });
-
-
-        if (topicsToInsert.length > 0) {
-            const { error } = await supabase.from('topics').insert(topicsToInsert);
-            if (error) throw new Error(`Failed to restore topics: ${error.message}`);
-        }
-
-        // ── 4. Restore Subtopics ─────────────────────────────────
-        updateStep(3, 'Restoring subtopics');
-        const subtopicsToInsert = (backupData.subtopics ?? []).map(st => {
-            const mappedTopicId = topicIdMap.get(st.topic_id) || st.topic_id;
-            return {
-                id: crypto.randomUUID(),
-                user_id: user.id,
-                topic_id: mappedTopicId,
-                title: st.title,
-                completed: !!st.completed,
-                notes: st.notes || '',
-                order: typeof st.order === 'number' ? st.order : 0,
-                created_at: st.created_at || new Date().toISOString()
-            };
-        });
-
-        if (subtopicsToInsert.length > 0) {
-            const { error } = await supabase.from('subtopics').insert(subtopicsToInsert);
-            if (error) throw new Error(`Failed to restore subtopics: ${error.message}`);
-        }
-
-        // ── 5. Restore User Progress & Notes ─────────────────────
-        updateStep(4, 'Restoring progress & checkmarks');
-        const progressToInsert = (backupData.user_progress ?? []).map(p => {
-            const mappedTopicId = topicIdMap.get(p.topic_id) || p.topic_id;
-            return {
-                id: crypto.randomUUID(),
-                user_id: user.id,
-                topic_id: mappedTopicId,
-                completed: !!p.completed,
-                notes: p.notes || '',
-                updated_at: p.updated_at || new Date().toISOString()
-            };
-        });
-
-        if (progressToInsert.length > 0) {
-            const { error } = await supabase.from('user_progress').insert(progressToInsert);
-            if (error) throw new Error(`Failed to restore progress: ${error.message}`);
-        }
-
-        // ── 6. Restore Weekly Goals & Reviews ────────────────────
-        updateStep(5, 'Restoring weekly goals & reviews');
-        const goalsToInsert = (backupData.weekly_goals ?? []).map(g => {
-            const mappedTopicId = topicIdMap.get(g.topic_id) || g.topic_id;
-            return {
-                id: crypto.randomUUID(),
-                user_id: user.id,
-                topic_id: mappedTopicId,
-                week_start: g.week_start,
-                created_at: g.created_at || new Date().toISOString()
-            };
-        });
-
-        if (goalsToInsert.length > 0) {
-            const { error } = await supabase.from('weekly_goals').insert(goalsToInsert);
-            if (error) throw new Error(`Failed to restore weekly goals: ${error.message}`);
-        }
-
-        const reviewsToInsert = (backupData.weekly_reviews ?? []).map(r => ({
-            id: crypto.randomUUID(),
-            user_id: user.id,
-            week_start: r.week_start,
-            completed_at: r.completed_at || new Date().toISOString()
-        }));
-
-        if (reviewsToInsert.length > 0) {
-            const { error } = await supabase.from('weekly_reviews').insert(reviewsToInsert);
-            if (error) throw new Error(`Failed to restore weekly reviews: ${error.message}`);
-        }
-
-        // ── 7. Restore Activity Logs ─────────────────────────────
-        updateStep(6, 'Restoring activity logs & consistency');
-        // Backups made before the per-day change stored lifetime snapshots in
-        // tasks_completed, so convert those to daily counts while restoring.
+        // Backups made before the per-day heatmap change stored lifetime snapshots in
+        // tasks_completed, so convert those to daily counts before sending them.
         const sortedLogs = [...(backupData.activity_logs ?? [])]
             .sort((a, b) => a.date.localeCompare(b.date));
         const isLegacyBackup = sortedLogs.length > 0 && sortedLogs.every(a => a.lifetime_total == null);
         let prevSnapshot = 0;
 
-        const activityToInsert = sortedLogs.map(a => {
+        const activityLogs = sortedLogs.map(a => {
             let lifetimeTotal: number | null = a.lifetime_total ?? null;
             let daily = a.tasks_completed || 0;
             if (isLegacyBackup) {
@@ -356,52 +226,68 @@ export class BackupService {
                 prevSnapshot = lifetimeTotal;
             }
             return {
-                id: crypto.randomUUID(),
-                user_id: user.id,
                 date: a.date,
                 tasks_completed: daily,
                 lifetime_total: lifetimeTotal,
-                created_at: a.created_at || new Date().toISOString(),
-                updated_at: a.updated_at || new Date().toISOString()
+                created_at: a.created_at,
+                updated_at: a.updated_at
             };
         });
 
-        if (activityToInsert.length > 0) {
-            const { error } = await supabase.from('activity_logs').insert(activityToInsert);
-            if (error) throw new Error(`Failed to restore activity logs: ${error.message}`);
+        const payload = {
+            subjects: backupData.subjects ?? [],
+            topics: backupData.topics ?? [],
+            subtopics: backupData.subtopics ?? [],
+            user_progress: backupData.user_progress ?? [],
+            weekly_goals: backupData.weekly_goals ?? [],
+            weekly_reviews: backupData.weekly_reviews ?? [],
+            activity_logs: activityLogs,
+            topic_media: backupData.topic_media ?? []
+        };
+
+        // ── One all-or-nothing database call ─────────────────────
+        updateStep(0, 'Restoring your data');
+        const { data, error } = await supabase.rpc('restore_user_data', { p_backup: payload });
+
+        if (error) {
+            if (error.code === 'PGRST202') {
+                throw new Error('Restore needs a database update first (run supabase_migration_restore_function.sql). Your data was not changed.');
+            }
+            const reason = (error.message || 'Unknown error').replace(/\.+$/, '');
+            throw new Error(`Restore failed: ${reason}. Your existing data was not changed.`);
         }
 
-        // ── 8. Restore Topic Media Metadata ──────────────────────
-        if (backupData.topic_media && backupData.topic_media.length > 0) {
-            const mediaToInsert = backupData.topic_media.map(m => {
-                const mappedTopicId = topicIdMap.get(m.topic_id) || m.topic_id;
-                const mappedSubjectId = subjectIdMap.get(m.subject_id) || m.subject_id;
-                return {
-                    id: crypto.randomUUID(),
-                    user_id: user.id,
-                    topic_id: mappedTopicId,
-                    subject_id: mappedSubjectId,
-                    drive_file_id: m.drive_file_id,
-                    file_name: m.file_name,
-                    mime_type: m.mime_type,
-                    created_at: m.created_at || new Date().toISOString()
-                };
-            });
-            await supabase.from('topic_media').insert(mediaToInsert);
+        // The database did all of the steps above in one go, so show the remaining
+        // steps as finished.
+        for (let step = 1; step <= 6; step++) {
+            updateStep(step, 'Restored');
         }
 
-        // ── 9. Refresh Cache & Synchronize ───────────────────────
+        // ── Refresh Cache & Synchronize ──────────────────────────
         updateStep(7, 'Finalizing & refreshing cache');
         this.cacheService.clear();
         await this.activityService.syncActivity();
 
+        const summary = (data ?? {}) as Record<string, any>;
+        const skipped = Object.values((summary['skipped'] ?? {}) as Record<string, number>)
+            .reduce((total, n) => total + (Number(n) || 0), 0);
+        const subjectsRestored = Number(summary['subjects'] ?? 0);
+        const topicsRestored = Number(summary['topics'] ?? 0);
+        const subtopicsRestored = Number(summary['subtopics'] ?? 0);
+
+        let message = `Successfully restored ${subjectsRestored} subjects, ${topicsRestored} topics, and ${subtopicsRestored} subtopics.`;
+        if (skipped > 0) {
+            message += ` ${skipped} item${skipped === 1 ? ' was' : 's were'} skipped because what they belonged to no longer exists.`;
+        }
+
         return {
             success: true,
-            subjectsRestored: subjectsToInsert.length,
-            topicsRestored: topicsToInsert.length,
-            subtopicsRestored: subtopicsToInsert.length,
-            progressRestored: progressToInsert.length,
-            message: `Successfully restored ${subjectsToInsert.length} subjects, ${topicsToInsert.length} topics, and ${subtopicsToInsert.length} subtopics.`
+            subjectsRestored,
+            topicsRestored,
+            subtopicsRestored,
+            progressRestored: Number(summary['user_progress'] ?? 0),
+            itemsSkipped: skipped,
+            message
         };
     }
 }
