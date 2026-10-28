@@ -136,45 +136,34 @@ export class AuthService {
     }
 
     // ── Refresh Token Management ────────────────────────────────
-    // Stores the Google refresh token server-side in the profiles table.
-    // This token is NEVER read by the frontend — only the edge function uses it.
-    async saveProviderRefreshToken(refreshToken: string): Promise<void> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    // The Google refresh token is stored in the user_google_tokens table, which the
+    // browser cannot read or write (row level security with no policies). The
+    // browser can only call three small database functions that act on the signed-in
+    // user's own row and never return the token itself. Only the google-token Edge
+    // Function can read the token. See supabase_migration_google_token_table.sql.
 
-        // Use the service-role-bypassing RPC or direct update
-        // The frontend can write to its own profile row via RLS
-        await supabase
-            .from('profiles')
-            .update({ google_refresh_token: refreshToken })
-            .eq('id', user.id);
+    // Store (or replace) the refresh token for the signed-in user
+    async saveProviderRefreshToken(refreshToken: string): Promise<void> {
+        const { error } = await supabase.rpc('save_google_refresh_token', {
+            p_refresh_token: refreshToken
+        });
+        if (error) throw error;
     }
 
-    // Check if a refresh token is stored (without reading its value)
+    // Check if a refresh token is stored. Returns only true/false, never the token.
     async hasStoredRefreshToken(): Promise<boolean> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return false;
-
-        // We query for non-null refresh token — the actual value is never sent to the frontend
-        // We only need to know if one exists
-        const { data } = await supabase
-            .from('profiles')
-            .select('google_refresh_token')
-            .eq('id', user.id)
-            .single();
-
-        return !!data?.google_refresh_token;
+        const { data, error } = await supabase.rpc('has_google_refresh_token');
+        if (error) {
+            console.error('Failed to check stored refresh token:', error);
+            return false;
+        }
+        return data === true;
     }
 
     // Clear the stored refresh token (when user disconnects Drive)
     async clearStoredRefreshToken(): Promise<void> {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        await supabase
-            .from('profiles')
-            .update({ google_refresh_token: null })
-            .eq('id', user.id);
+        const { error } = await supabase.rpc('clear_google_refresh_token');
+        if (error) throw error;
     }
 
     async sendPasswordReset(email: string) {

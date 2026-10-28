@@ -202,7 +202,14 @@ export class ProfileComponent implements OnInit {
                 return;
             }
         } else {
-            await this.auth.clearStoredRefreshToken();
+            try {
+                await this.auth.clearStoredRefreshToken();
+            } catch (err) {
+                // Don't claim Drive is disconnected if the stored token is still there.
+                console.error('Failed to clear stored refresh token:', err);
+                this.toast.error('Could not fully disconnect Drive. Please try again.');
+                return;
+            }
             this.googleDrive.clearCachedToken();
             this.hasDriveAccess.set(false);
         }

@@ -44,13 +44,23 @@ serve(async (req) => {
             { auth: { autoRefreshToken: false, persistSession: false } }
         )
 
-        const { data: profile, error: profileError } = await adminClient
-            .from('profiles')
-            .select('google_refresh_token')
-            .eq('id', user.id)
-            .single()
+        // The token lives in user_google_tokens, which the browser cannot read
+        // (row level security with no policies). Only this function can.
+        const { data: stored, error: storedError } = await adminClient
+            .from('user_google_tokens')
+            .select('refresh_token')
+            .eq('user_id', user.id)
+            .maybeSingle()
 
-        if (profileError || !profile?.google_refresh_token) {
+        if (storedError) {
+            console.error('Failed to read stored refresh token:', storedError)
+            return new Response(
+                JSON.stringify({ error: 'Failed to read stored Google token' }),
+                { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+        }
+
+        if (!stored?.refresh_token) {
             return new Response(
                 JSON.stringify({ error: 'No refresh token stored. Please connect Google Drive first.' }),
                 { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -77,7 +87,7 @@ serve(async (req) => {
             body: new URLSearchParams({
                 client_id: clientId,
                 client_secret: clientSecret,
-                refresh_token: profile.google_refresh_token,
+                refresh_token: stored.refresh_token,
                 grant_type: 'refresh_token',
             }),
         })
@@ -90,9 +100,9 @@ serve(async (req) => {
             // If Google says the refresh token is invalid/revoked, clean it up
             if (tokenData.error === 'invalid_grant') {
                 await adminClient
-                    .from('profiles')
-                    .update({ google_refresh_token: null })
-                    .eq('id', user.id)
+                    .from('user_google_tokens')
+                    .delete()
+                    .eq('user_id', user.id)
 
                 return new Response(
                     JSON.stringify({
