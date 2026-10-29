@@ -1,6 +1,6 @@
 import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
-import { TitleStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
+import { TitleStrategy, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideQuillConfig } from 'ngx-quill/config';
 import { routes } from './app.routes';
@@ -16,7 +16,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(
       routes,
-      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })
+      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
+      // Soft fade between pages (browsers without support just switch instantly).
+      withViewTransitions()
     ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideAnimationsAsync(prefersReducedMotion ? 'noop' : 'animations'),

@@ -1189,3 +1189,24 @@ summary:focus-visible,
   .topic-checkbox::after { content: ''; position: absolute; inset: -10px; }
   .topic-checkbox svg { width: 0.9rem; height: 0.9rem; }
 }
+
+/* ── Mobile polish (Batch C). To undo: remove this block, `phone-text` classes and withViewTransitions(). ── */
+@media (max-width: 639px) {
+  /* Tiny 8-10 px text is hard to read on a phone: lift it on the main app pages */
+  .phone-text .text-\[8px\],
+  .phone-text .text-\[9px\] { font-size: 11px; }
+  .phone-text .text-\[10px\] { font-size: 12px; }
+  .phone-text .text-\[11px\] { font-size: 12px; }
+  /* 16 px inputs stop iPhones zooming the page when you tap a field */
+  .input,
+  .phone-text input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+  .phone-text select,
+  .phone-text textarea { font-size: 16px; }
+}
+/* Pulling down inside the app no longer reloads the page by accident while editing */
+html, body { overscroll-behavior-y: contain; }
+/* The bottom bar stays still while the page behind it fades */
+.app-bottom-nav { view-transition-name: app-bottom-nav; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
