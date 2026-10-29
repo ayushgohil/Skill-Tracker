@@ -1072,4 +1072,37 @@ html.dark .swal2-popup {
   background: var(--surface-1) !important;
   color: var(--text-1) !important;
 }
-
+
+/* ── Accessibility ───────────────────────────────────────────
+   1) A clear ring on whatever has keyboard focus (only when using the keyboard,
+      so mouse and touch users do not see it).
+   2) Respect "reduce motion" in the device settings: no sliding, scaling or
+      endless animations. Spinners keep spinning because they show that
+      something is loading. (Angular's own animations are switched off in
+      app.config.ts.) */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[role="switch"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

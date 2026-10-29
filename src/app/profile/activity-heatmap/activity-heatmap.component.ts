@@ -1,5 +1,5 @@
 // src/app/profile/activity-heatmap/activity-heatmap.component.ts
-import { Component, OnInit, signal, input, effect } from '@angular/core';
+import { Component, OnInit, signal, input, effect, computed } from '@angular/core';
 import { ActivityService, ActivityLog } from '../../core/services/activity.service';
 
 interface HeatmapDay {
@@ -7,6 +7,22 @@ interface HeatmapDay {
     count: number;
     level: number; // 0-4 for colors
 }
+
+/** Plain-words description of one day, e.g. "Tue, 12 Oct 2026: 3 tasks completed". */
+export function describeDay(date: Date, count: number): string {
+    const when = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const what = count === 0 ? 'no tasks completed' : count === 1 ? '1 task completed' : `${count} tasks completed`;
+    return `${when}: ${what}`;
+}
+
+/** What each colour step means, for the legend under the heatmap. */
+export const HEAT_LEGEND: { level: number; label: string }[] = [
+    { level: 0, label: 'No tasks' },
+    { level: 1, label: '1 to 2 tasks' },
+    { level: 2, label: '3 to 5 tasks' },
+    { level: 3, label: '6 to 8 tasks' },
+    { level: 4, label: '9 or more tasks' }
+];
 
 @Component({
     selector: 'app-activity-heatmap',
@@ -23,6 +39,27 @@ export class ActivityHeatmapComponent implements OnInit {
     currentStreak = signal(0);
     maxStreak = signal(0);
     totalCompletions = signal(0);
+
+    /** The day the user is pointing at or has tapped (shown in the line above the grid). */
+    selectedDay = signal<HeatmapDay | null>(null);
+    readonly legend = HEAT_LEGEND;
+
+    selectedDayText = computed(() => {
+        const day = this.selectedDay();
+        return day?.date ? describeDay(day.date, day.count) : '';
+    });
+
+    activeDays = computed(() => this.days().filter(d => d.count > 0).length);
+
+    /** One sentence for screen readers (the grid itself is just coloured squares). */
+    summary = computed(() =>
+        `Activity for ${this.selectedYear()}: ${this.totalCompletions()} tasks completed on ${this.activeDays()} days. ` +
+        `Current streak ${this.currentStreak()} days, best streak ${this.maxStreak()} days.`
+    );
+
+    selectDay(day: HeatmapDay) {
+        this.selectedDay.set(day.date ? day : null);
+    }
 
     selectedYear = signal<number>(new Date().getFullYear());
     availableYears = signal<number[]>([]);
@@ -63,6 +100,7 @@ export class ActivityHeatmapComponent implements OnInit {
 
     async selectYear(year: number) {
         this.selectedYear.set(year);
+        this.selectedDay.set(null);
         await this.loadYear(year);
     }
 

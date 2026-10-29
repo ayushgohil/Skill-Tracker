@@ -22,7 +22,7 @@
 
         <div class="flex items-center gap-2">
             @if (!pomodoroService.isBreakWaiting()) {
-            <button (click)="toggle()" class="fs-btn-primary"
+            <button (click)="toggle()" [attr.aria-label]="pomodoroService.isPaused() ? 'Resume timer' : 'Pause timer'" class="fs-btn-primary"
                 [class.bg-emerald-500]="pomodoroService.isPaused() && pomodoroService.state() === 'running'"
                 [class.bg-blue-500]="pomodoroService.isPaused() && pomodoroService.state() === 'break'"
                 [class.bg-white/10]="!pomodoroService.isPaused()" style="color:white">
@@ -40,7 +40,7 @@
                 }
             </button>
 
-            <button (click)="stop()" class="fs-btn-secondary">
+            <button (click)="stop()" aria-label="Stop timer" class="fs-btn-secondary">
                 <svg style="width:clamp(13px,3vmin,20px);height:clamp(13px,3vmin,20px)" fill="currentColor"
                     viewBox="0 0 24 24">
                     <path d="M6 6h12v12H6z" />
@@ -48,7 +48,7 @@
             </button>
             }
 
-            <button (click)="toggleFullScreen()" class="fs-btn-secondary">
+            <button (click)="toggleFullScreen()" aria-label="Minimise timer" class="fs-btn-secondary">
                 <svg style="width:clamp(13px,3vmin,20px);height:clamp(13px,3vmin,20px)" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -126,14 +126,14 @@
             </span>
         </div>
         <div class="flex items-center gap-1">
-            <button (click)="toggleFullScreen()" class="p-1.5 text-zinc-400 hover:text-blue-600 transition-colors
+            <button (click)="toggleFullScreen()" aria-label="Open full screen timer" class="p-1.5 text-zinc-400 hover:text-blue-600 transition-colors
                            bg-white hover:bg-blue-50 rounded-lg shadow-sm border border-zinc-100/50">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
             </button>
-            <button (click)="close()" class="p-1.5 text-zinc-400 hover:text-red-500 transition-colors
+            <button (click)="close()" aria-label="Hide timer" class="p-1.5 text-zinc-400 hover:text-red-500 transition-colors
                            bg-white hover:bg-red-50 rounded-lg shadow-sm border border-zinc-100/50">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -162,7 +162,7 @@
             {{ pomodoroService.formattedTime() }}
         </div>
         <div class="flex items-center justify-center gap-4">
-            <button (click)="toggle()" class="w-14 h-14 rounded-2xl flex items-center justify-center
+            <button (click)="toggle()" [attr.aria-label]="pomodoroService.isPaused() ? 'Resume timer' : 'Pause timer'" class="w-14 h-14 rounded-2xl flex items-center justify-center
                                transition-all hover:scale-105 active:scale-95 shadow-md border"
                 [class.bg-emerald-50]="pomodoroService.state() === 'running'"
                 [class.text-emerald-600]="pomodoroService.state() === 'running'"
@@ -180,7 +180,7 @@
                 </svg>
                 }
             </button>
-            <button (click)="stop()" class="w-14 h-14 rounded-2xl bg-white hover:bg-red-50 text-zinc-400
+            <button (click)="stop()" aria-label="Stop timer" class="w-14 h-14 rounded-2xl bg-white hover:bg-red-50 text-zinc-400
                                hover:text-red-500 flex items-center justify-center
                                transition-all shadow-sm border border-zinc-100">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

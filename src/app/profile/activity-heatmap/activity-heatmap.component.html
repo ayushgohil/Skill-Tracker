@@ -28,14 +28,27 @@
 
         <!-- Heatmap Grid -->
         <div class="flex-1 min-w-0 overflow-hidden">
+            <!-- What you are pointing at: works with a mouse (hover) and on a phone (tap) -->
+            <p class="text-xs mb-2 min-h-[1rem]" style="color:var(--text-3)" aria-hidden="true">
+                @if (selectedDayText()) {
+                <span class="font-semibold" style="color:var(--text-2)">{{ selectedDayText() }}</span>
+                } @else {
+                Tap or hover over a day to see what you did.
+                }
+            </p>
+            <p class="sr-only">{{ summary() }}</p>
+
             <div class="overflow-x-auto pb-2" style="-webkit-overflow-scrolling: touch;">
-                <div class="grid grid-flow-col grid-rows-7 gap-[2px] sm:gap-[3px]" style="min-width: max-content;">
+                <div class="grid grid-flow-col grid-rows-7 gap-[2px] sm:gap-[3px]" style="min-width: max-content;"
+                     aria-hidden="true">
                     @for (day of days(); track $index) {
                         @if (day.level === -1) {
                             <div class="w-2.5 h-2.5 sm:w-3 sm:h-3"></div>
                         } @else {
                             <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] sm:rounded-[3px] cursor-pointer transition-all hover:ring-1 hover:ring-white/30 hover:scale-110"
-                                 [attr.title]="day.count + ' tasks on ' + day.date?.toLocaleDateString()"
+                                 (mouseenter)="selectDay(day)" (click)="selectDay(day)"
+                                 [class.ring-1]="selectedDay() === day"
+                                 [class.ring-white/60]="selectedDay() === day"
                                  [class.heat-0]="day.level === 0"
                                  [class.heat-1]="day.level === 1"
                                  [class.heat-2]="day.level === 2"
@@ -46,13 +59,28 @@
                     }
                 </div>
             </div>
+
+            <!-- Colour legend -->
+            <div class="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px]" style="color:var(--text-3)" aria-hidden="true">
+                <span>Less</span>
+                @for (step of legend; track step.level) {
+                <span class="inline-flex items-center gap-1">
+                    <span class="w-2.5 h-2.5 rounded-[2px] inline-block"
+                          [class.heat-0]="step.level === 0" [class.heat-1]="step.level === 1"
+                          [class.heat-2]="step.level === 2" [class.heat-3]="step.level === 3"
+                          [class.heat-4]="step.level === 4"></span>
+                    <span class="hidden sm:inline">{{ step.label }}</span>
+                </span>
+                }
+                <span>More</span>
+            </div>
         </div>
 
         <!-- Year selector -->
         @if (availableYears().length > 1) {
         <div class="flex md:flex-col gap-1.5 overflow-x-auto md:overflow-visible flex-shrink-0 pb-1 md:pb-0" style="-webkit-overflow-scrolling: touch;">
             @for (year of availableYears(); track year) {
-                <button (click)="selectYear(year)"
+                <button (click)="selectYear(year)" [attr.aria-pressed]="selectedYear() === year" [attr.aria-label]="'Show ' + year"
                     class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap min-h-[32px] touch-manipulation"
                     [class.bg-blue-600]="selectedYear() === year"
                     [class.text-white]="selectedYear() === year"

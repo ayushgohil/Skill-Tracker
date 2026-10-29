@@ -13,7 +13,7 @@
                     }}</span>
             </div>
             <div class="flex items-center gap-2">
-                <button (click)="themeService.toggle()" class="theme-toggle-collapsed" title="Toggle theme">
+                <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle-collapsed" title="Toggle theme">
                     @if (themeService.isDark()) {
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -58,7 +58,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <!-- Theme Toggle -->
-                    <button (click)="themeService.toggle()" class="theme-toggle touch-manipulation" title="Toggle theme">
+                    <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle touch-manipulation" title="Toggle theme">
                         @if (themeService.isDark()) {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -195,7 +195,8 @@
             </div>
             <div class="flex flex-wrap gap-2">
                 @for (topic of starredTopics(); track topic.id) {
-                <div (click)="openSubject(topic.subject_id, topic.title)"
+                <div (click)="openSubject(topic.subject_id, topic.title)" role="button" tabindex="0"
+                    (keydown.enter)="openSubject(topic.subject_id, topic.title)"
                     class="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all touch-manipulation"
                     style="background:var(--surface-2);border:1px solid var(--border)">
                     <div class="tahoma w-2 h-2 rounded-full flex-shrink-0"
@@ -369,7 +370,8 @@
             <!-- Display Mode -->
             <div cdkDrag [cdkDragData]="sub" [cdkDragDisabled]="!canReorder()" class="relative group/subject">
                 <div *cdkDragPlaceholder class="cdk-drag-placeholder my-2 min-h-[72px]"></div>
-                <div (click)="openSubject(sub.id)"
+                <div (click)="openSubject(sub.id)" role="button" tabindex="0" [attr.aria-label]="'Open ' + sub.name"
+                    (keydown.enter)="$event.target === $event.currentTarget && openSubject(sub.id)"
                     class="rounded-xl sm:rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-2 sm:gap-4 cursor-pointer transition-all animate-scale-in touch-manipulation"
                     style="background:var(--surface-0);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.02)">
 
@@ -442,7 +444,7 @@
                                 }}</span>
                         </div>
 
-                        <button (click)="startEditSubject($event, sub)"
+                        <button (click)="startEditSubject($event, sub)" [attr.aria-label]="'Edit ' + sub.name"
                             class="tahoma w-8 h-8 min-w-[32px] rounded-xl transition-all flex items-center justify-center touch-manipulation"
                             style="color:var(--text-4)">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -452,7 +454,7 @@
                             </svg>
                         </button>
 
-                        <button (click)="deleteSubject($event, sub)"
+                        <button (click)="deleteSubject($event, sub)" [attr.aria-label]="(sub.is_shared && !sub.is_owner ? 'Leave ' : 'Delete ') + sub.name"
                             class="tahoma w-8 h-8 min-w-[32px] rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all flex items-center justify-center touch-manipulation"
                             [title]="sub.is_shared && !sub.is_owner ? 'Leave shared subject' : 'Delete subject'"
                             style="color:var(--text-4)">
@@ -504,7 +506,8 @@
     <!-- Add Subject Bottom Sheet -->
     @if (showAddSubject()) {
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-end justify-center animate-fade-in"
-        (click)="showAddSubject.set(false)">
+        role="dialog" aria-modal="true" aria-label="Add a subject"
+        (click)="showAddSubject.set(false)" (keydown.escape)="showAddSubject.set(false)">
         <div class="w-full max-w-md rounded-t-[28px] sm:rounded-t-[32px] p-5 sm:p-6 shadow-2xl animate-slide-up flex flex-col gap-4 sm:gap-5 max-h-[92vh] overflow-y-auto relative"
             style="background:var(--bg)" (click)="$event.stopPropagation()">
 
@@ -516,7 +519,7 @@
             <div class="flex items-center justify-between">
                 <h2 class="text-xl sm:text-2xl font-black tracking-tight tahoma" style="color:var(--text-1)">New
                     Subject</h2>
-                <button (click)="showAddSubject.set(false)"
+                <button (click)="showAddSubject.set(false)" aria-label="Close"
                     class="tahoma w-9 h-9 min-w-[36px] rounded-full flex items-center justify-center transition-colors touch-manipulation"
                     style="background:var(--surface-3);color:var(--text-3)">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -543,7 +546,7 @@
                     Identity</span>
                 <div class="grid grid-cols-4 gap-2 sm:gap-3">
                     @for (icon of icons; track icon) {
-                    <button (click)="selectedIcon.set(icon)"
+                    <button (click)="selectedIcon.set(icon)" [attr.aria-label]="'Icon: ' + icon" [attr.aria-pressed]="selectedIcon() === icon"
                         class="h-14 sm:h-16 rounded-2xl flex items-center justify-center transition-all shadow-sm touch-manipulation"
                         [class.bg-blue-600]="selectedIcon() === icon" [class.text-white]="selectedIcon() === icon"
                         [style.background]="selectedIcon() !== icon ? 'var(--surface-2)' : null"
@@ -618,7 +621,7 @@
                     style="color:var(--text-3)">Accent Color</span>
                 <div class="flex flex-wrap items-center gap-4 sm:gap-6 py-1 sm:py-2">
                     @for (color of colors; track color) {
-                    <button (click)="newSubjectColor = color"
+                    <button (click)="newSubjectColor = color" [attr.aria-label]="'Colour ' + color" [attr.aria-pressed]="newSubjectColor === color"
                         class="w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all flex items-center justify-center relative touch-manipulation"
                         [style.background-color]="color">
                         @if (newSubjectColor === color) {

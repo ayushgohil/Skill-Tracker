@@ -23,7 +23,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <button (click)="themeService.toggle()" class="theme-toggle-collapsed" title="Toggle theme">
+                <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle-collapsed" title="Toggle theme">
                     @if (themeService.isDark()) {
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -73,7 +73,7 @@
                     }
 
                     <!-- Theme Toggle in Header -->
-                    <button (click)="themeService.toggle()" class="theme-toggle touch-manipulation" title="Toggle theme">
+                    <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle touch-manipulation" title="Toggle theme">
                         @if (themeService.isDark()) {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -135,7 +135,7 @@
                     class="w-full h-11 sm:h-12 pl-11 pr-4 rounded-xl text-sm outline-none transition-all"
                     style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)" />
                 @if (isSearching()) {
-                <button (click)="searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-100 transition-opacity" style="color:var(--text-3)">
+                <button (click)="searchQuery.set('')" aria-label="Clear search" class="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-100 transition-opacity" style="color:var(--text-3)">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 }

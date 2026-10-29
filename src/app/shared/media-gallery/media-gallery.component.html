@@ -198,7 +198,7 @@
                             </button>
                         </div>
                         } @else {
-                        <button (click)="toggleLinkMenu(item.id, $event)" class="w-5 h-5 rounded-full bg-slate-900/80 hover:bg-slate-800
+                        <button (click)="toggleLinkMenu(item.id, $event)" [attr.aria-label]="'Copy link to ' + item.file_name" class="w-5 h-5 rounded-full bg-slate-900/80 hover:bg-slate-800
                    flex items-center justify-center transition-colors" title="Copy link">
                             @if (copiedId() === item.id) {
                             <svg class="w-2.5 h-2.5 text-emerald-400" fill="none" stroke="currentColor"
@@ -219,7 +219,7 @@
 
                     <!-- Delete button — top right -->
                     <div class="absolute top-1 right-1">
-                        <button (click)="deleteMedia($event, item)" [disabled]="deletingId() === item.id" class="w-5 h-5 rounded-full bg-red-500/80 hover:bg-red-500
+                        <button (click)="deleteMedia($event, item)" [attr.aria-label]="'Delete ' + item.file_name" [disabled]="deletingId() === item.id" class="w-5 h-5 rounded-full bg-red-500/80 hover:bg-red-500
                  flex items-center justify-center transition-colors disabled:opacity-50" title="Delete">
                             @if (deletingId() === item.id) {
                             <svg class="w-2.5 h-2.5 text-white animate-spin" fill="none" viewBox="0 0 24 24">
@@ -280,6 +280,7 @@
     <ng-template #driveModalTemplate>
         @if (showDriveModal()) {
         <div class="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+            role="dialog" aria-modal="true" aria-label="Google Drive"
             (click)="closeDriveModal()">
             <div class="bg-slate-900 border border-slate-700/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
                 (click)="$event.stopPropagation()">
@@ -364,7 +365,7 @@
     <!-- Lightbox: Industry-Standard Media Viewer -->
     <ng-template #lightboxTemplate>
         @if (lightboxOpen()) {
-        <div class="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md select-none overflow-hidden flex flex-col justify-between"
+        <div role="dialog" aria-modal="true" aria-label="Attachment viewer" class="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md select-none overflow-hidden flex flex-col justify-between"
             [style.opacity]="1 - (touchSwipeY() / 350)"
             (click)="closeLightbox()">
 
@@ -374,7 +375,7 @@
 
                 <!-- Left: Back/Close + File Info -->
                 <div class="flex items-center gap-3 min-w-0">
-                    <button (click)="closeLightbox()"
+                    <button (click)="closeLightbox()" aria-label="Close"
                         class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-all duration-150 backdrop-blur-md border border-white/10 flex-shrink-0"
                         title="Close (Esc)">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -466,7 +467,7 @@
                     </button>
 
                     <!-- Fullscreen (Desktop/Tablet) -->
-                    <button (click)="toggleFullscreen()"
+                    <button (click)="toggleFullscreen()" aria-label="Toggle full screen"
                         class="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white items-center justify-center backdrop-blur-md border border-white/10 transition-all duration-150"
                         title="Toggle Fullscreen (F)">
                         @if (isFullscreen()) {
@@ -500,7 +501,7 @@
 
                 <!-- Prev Button (Desktop/Tablet) -->
                 @if (media().length > 1) {
-                <button (click)="prevSlide(); $event.stopPropagation()"
+                <button (click)="prevSlide(); $event.stopPropagation()" aria-label="Previous"
                     class="hidden sm:flex absolute left-4 z-30 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 hover:scale-110 active:scale-95 text-white items-center justify-center backdrop-blur-md border border-white/15 transition-all duration-200 shadow-xl"
                     title="Previous (←)">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -548,7 +549,7 @@
 
                 <!-- Next Button (Desktop/Tablet) -->
                 @if (media().length > 1) {
-                <button (click)="nextSlide(); $event.stopPropagation()"
+                <button (click)="nextSlide(); $event.stopPropagation()" aria-label="Next"
                     class="hidden sm:flex absolute right-4 z-30 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 hover:scale-110 active:scale-95 text-white items-center justify-center backdrop-blur-md border border-white/15 transition-all duration-200 shadow-xl"
                     title="Next (→)">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -568,7 +569,7 @@
                 <div class="flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/15 shadow-2xl animate-fade-in">
 
                     <!-- Zoom Out -->
-                    <button (click)="zoomOut()" [disabled]="zoomLevel() <= 0.5"
+                    <button (click)="zoomOut()" aria-label="Zoom out" [disabled]="zoomLevel() <= 0.5"
                         class="w-8 h-8 rounded-full text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 flex items-center justify-center transition-all"
                         title="Zoom out (-)">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -596,7 +597,7 @@
                     <div class="w-px h-4 bg-white/15 mx-0.5"></div>
 
                     <!-- Rotate CCW -->
-                    <button (click)="rotateLeft()"
+                    <button (click)="rotateLeft()" aria-label="Rotate left"
                         class="w-8 h-8 rounded-full text-slate-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all"
                         title="Rotate Left 90°">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -606,7 +607,7 @@
                     </button>
 
                     <!-- Rotate CW -->
-                    <button (click)="rotateRight()"
+                    <button (click)="rotateRight()" aria-label="Rotate right"
                         class="w-8 h-8 rounded-full text-slate-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all"
                         title="Rotate Right 90°">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -619,14 +620,14 @@
                     @if (media().length > 1) {
                     <div class="sm:hidden flex items-center">
                         <div class="w-px h-4 bg-white/15 mx-0.5"></div>
-                        <button (click)="prevSlide()"
+                        <button (click)="prevSlide()" aria-label="Previous"
                             class="w-8 h-8 rounded-full text-slate-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all"
                             title="Previous">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
-                        <button (click)="nextSlide()"
+                        <button (click)="nextSlide()" aria-label="Next"
                             class="w-8 h-8 rounded-full text-slate-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all"
                             title="Next">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -643,7 +644,7 @@
                 @if (media().length > 1) {
                 <div class="flex items-center gap-2 max-w-full overflow-x-auto py-1 px-3 scrollbar-none">
                     @for (item of media(); track item.id; let i = $index) {
-                    <button (click)="goToSlide(i)"
+                    <button (click)="goToSlide(i)" [attr.aria-label]="'Show ' + item.file_name" [attr.aria-current]="i === lightboxIndex()"
                         class="relative flex-shrink-0 w-11 h-11 sm:w-13 sm:h-13 rounded-lg overflow-hidden transition-all duration-200"
                         [class]="i === lightboxIndex() ? 'ring-2 ring-indigo-400 scale-105 opacity-100 shadow-lg shadow-indigo-500/30' : 'opacity-50 hover:opacity-80 scale-95'">
                         @if (isImage(item.mime_type) && thumbnails()[item.id]) {
