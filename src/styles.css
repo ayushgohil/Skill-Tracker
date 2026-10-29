@@ -1180,3 +1180,12 @@ summary:focus-visible,
   }
   .theme-toggle svg { width: 20px; height: 20px; }
 }
+
+/* ── Mobile lists (Batch B). To undo: remove this block + revert the Batch B commit. ── */
+.topic-checkbox { position: relative; }
+@media (max-width: 639px) {
+  .topic-checkbox { width: 1.625rem; height: 1.625rem; border-radius: 8px; }
+  /* invisible extra area so a thumb can hit it easily */
+  .topic-checkbox::after { content: ''; position: absolute; inset: -10px; }
+  .topic-checkbox svg { width: 0.9rem; height: 0.9rem; }
+}

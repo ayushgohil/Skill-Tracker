@@ -73,6 +73,8 @@ export class DashboardComponent implements OnInit {
 
     // Add subject
     showAddSubject = signal(false);
+    /** Phone only: the subject whose Edit / Delete menu is open. */
+    actionSheetSub = signal<SubjectWithTopics | null>(null);
     newSubjectName = '';
     newSubjectColor = '#2563EB';
     savingSubject = signal(false);
@@ -349,6 +351,15 @@ export class DashboardComponent implements OnInit {
     }
 
     // ── Edit Subject ──────────────────────────────────
+    openActionSheet(event: Event, sub: SubjectWithTopics) {
+        event.stopPropagation();
+        this.actionSheetSub.set(sub);
+    }
+
+    closeActionSheet() {
+        this.actionSheetSub.set(null);
+    }
+
     startEditSubject(event: Event, sub: SubjectWithTopics) {
         event.stopPropagation();
         this.editSubjectName = sub.name;

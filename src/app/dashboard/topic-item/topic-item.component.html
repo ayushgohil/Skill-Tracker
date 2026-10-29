@@ -24,12 +24,12 @@
 
     } @else {
     <!-- ── Normal View Mode ─────────────────────── -->
-    <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer select-none group/row transition-colors hover:bg-white/[0.02] rounded-xl min-h-[52px]"
+    <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 sm:py-3 cursor-pointer select-none group/row transition-colors hover:bg-white/[0.02] active:bg-white/[0.04] rounded-xl min-h-[64px] sm:min-h-[52px]"
         (click)="onToggle()" role="button" tabindex="0" [attr.aria-expanded]="isOpen()"
         (keydown.enter)="$event.target === $event.currentTarget && onToggle()">
 
         <!-- Checkbox -->
-        <button (click)="onCheck($event)" [attr.aria-label]="topic().title" [attr.aria-pressed]="isTopicChecked()" [attr.aria-disabled]="hasSubtopics() ? true : null" class="topic-checkbox flex-shrink-0 w-5 h-5 min-w-[20px] touch-manipulation"
+        <button (click)="onCheck($event)" [attr.aria-label]="topic().title" [attr.aria-pressed]="isTopicChecked()" [attr.aria-disabled]="hasSubtopics() ? true : null" class="topic-checkbox flex-shrink-0 touch-manipulation"
             [class.checked]="isTopicChecked()"
             [attr.title]="hasSubtopics() ? 'Completion is automatic when all subtopics are done' : null">
             @if (isTopicChecked()) {
@@ -40,23 +40,25 @@
             }
         </button>
 
-        <!-- Title -->
-        <span class="flex-1 text-xs sm:text-sm font-medium transition-colors leading-tight min-w-0"
+        <!-- Title + small tags: stacked on phones, side by side on bigger screens -->
+        <div class="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+        <span class="sm:flex-1 text-[15px] sm:text-sm font-semibold sm:font-medium transition-colors leading-snug sm:leading-tight min-w-0"
             [style.color]="isTopicChecked() ? 'var(--text-4)' : 'var(--text-1)'"
             [class.line-through]="isTopicChecked()">
             {{ topic().title }}
         </span>
 
+        <div class="flex items-center flex-wrap gap-1.5 sm:flex-nowrap">
         <!-- Subtopic progress badge -->
         @if (hasSubtopics()) {
-        <span class="badge flex-shrink-0 text-[10px] sm:text-xs" [class.badge-green]="allSubtopicsComplete()"
+        <span class="badge flex-shrink-0 text-[11px] sm:text-xs" [class.badge-green]="allSubtopicsComplete()"
             [class.badge-zinc]="!allSubtopicsComplete()">
             {{ subtopicCompletedCount() }}/{{ subtopicTotalCount() }}
         </span>
         }
 
         <!-- Depth badge - hidden on very small screens -->
-        <span class="badge flex-shrink-0 hidden xs:inline-flex text-[10px] sm:text-xs"
+        <span class="badge flex-shrink-0 text-[11px] sm:text-xs"
             [class.depth-shallow]="topic().depth === 'shallow'" [class.depth-medium]="topic().depth === 'medium'"
             [class.depth-deep]="topic().depth === 'deep'">
             {{ depthConfig[topic().depth].label }}
@@ -64,7 +66,7 @@
 
         <!-- Study Partner Completion Badge -->
         @if (partnerName()) {
-        <span class="badge flex-shrink-0 text-[10px] sm:text-xs flex items-center gap-1 cursor-default"
+        <span class="badge flex-shrink-0 text-[11px] sm:text-xs flex items-center gap-1 cursor-default"
             [class.badge-green]="topic().partner_completed"
             [class.badge-zinc]="!topic().partner_completed"
             [attr.title]="partnerName() + (topic().partner_completed ? ' has completed this topic' : ' has not completed this topic yet')">
@@ -76,6 +78,9 @@
             <span>{{ topic().partner_completed ? '✓' : '○' }}</span>
         </span>
         }
+
+        </div>
+        </div>
 
         <!-- Starred -->
         @if (topic().starred) {
@@ -89,10 +94,10 @@
 
         <!-- Pomodoro button -->
         <button (click)="pomodoro.startSession(topic().id, topic().title); $event.stopPropagation()" [attr.aria-label]="'Start a focus session for ' + topic().title"
-            class="w-7 h-7 min-w-[28px] rounded-lg flex items-center justify-center hover:text-emerald-400 hover:bg-emerald-500/[0.1] transition-all flex-shrink-0 touch-manipulation"
+            class="w-11 h-11 min-w-[44px] sm:w-7 sm:h-7 sm:min-w-[28px] -mx-1 sm:mx-0 rounded-xl sm:rounded-lg flex items-center justify-center hover:text-emerald-400 hover:bg-emerald-500/[0.1] transition-all flex-shrink-0 touch-manipulation"
             style="color:var(--text-3)"
             title="Start Focus Session">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-5 h-5 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="9" />
                 <path stroke-linecap="round" d="M12 7v5l3 3" />
             </svg>
@@ -102,10 +107,10 @@
         <div class="relative topic-kebab-menu flex-shrink-0" (click)="$event.stopPropagation()">
 
             <button (click)="toggleMenu($event)" [attr.aria-label]="'More options for ' + topic().title" aria-haspopup="menu" [attr.aria-expanded]="showMenu()"
-                class="w-7 h-7 min-w-[28px] rounded-lg flex items-center justify-center hover:bg-white/[0.07] transition-all touch-manipulation"
+                class="w-11 h-11 min-w-[44px] sm:w-7 sm:h-7 sm:min-w-[28px] -mx-1 sm:mx-0 rounded-xl sm:rounded-lg flex items-center justify-center hover:bg-white/[0.07] transition-all touch-manipulation"
                 style="color:var(--text-3)"
                 title="More options">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                     <circle cx="12" cy="5" r="1.5" />
                     <circle cx="12" cy="12" r="1.5" />
                     <circle cx="12" cy="19" r="1.5" />
@@ -113,11 +118,11 @@
             </button>
 
             @if (showMenu()) {
-            <div class="absolute right-0 top-full mt-1 w-32 sm:w-36 z-[100] rounded-xl shadow-2xl overflow-hidden animate-scale-in"
+            <div class="absolute right-0 top-full mt-1 w-44 sm:w-36 z-[100] rounded-xl shadow-2xl overflow-hidden animate-scale-in"
                 style="background: var(--surface-0); border: 1px solid var(--border);" (click)="$event.stopPropagation()">
 
                 <button (click)="startEdit($event)"
-                    class="w-full flex items-center gap-2.5 px-3 py-3 text-sm transition-colors rounded-t-xl min-h-[44px] touch-manipulation"
+                    class="w-full flex items-center gap-2.5 px-4 sm:px-3 py-3 text-base sm:text-sm transition-colors rounded-t-xl min-h-[48px] sm:min-h-[44px] touch-manipulation"
                     style="color:var(--text-2)"
                     [style.background]="'transparent'">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -129,7 +134,7 @@
                 </button>
 
                 <button (click)="onDelete($event)"
-                    class="w-full flex items-center gap-2.5 px-3 py-3 text-sm text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors rounded-b-xl min-h-[44px] touch-manipulation">
+                    class="w-full flex items-center gap-2.5 px-4 sm:px-3 py-3 text-base sm:text-sm text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors rounded-b-xl min-h-[48px] sm:min-h-[44px] touch-manipulation">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -142,7 +147,7 @@
         </div>
 
         <!-- Arrow -->
-        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 flex-shrink-0"
+        <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5 transition-transform duration-200 flex-shrink-0"
             [class.rotate-180]="isOpen()" style="color:var(--text-3)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
