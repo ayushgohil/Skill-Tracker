@@ -170,7 +170,7 @@ export class PomodoroService {
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
             new Notification('Session Complete!', {
                 body: this.state() === 'running' ? 'Time for a break!' : 'Break is over, back to focus!',
-                icon: '/favicon.ico'
+                icon: '/icons/icon-192.png'
             });
         }
 

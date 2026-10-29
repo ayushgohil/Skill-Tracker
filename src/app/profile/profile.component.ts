@@ -16,6 +16,7 @@ import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.co
 import { ToastComponent } from '../shared/toast/toast.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import Swal from 'sweetalert2';
+import { PwaService } from '../core/services/pwa.service';
 
 export interface ProgressStep {
     id: string;
@@ -101,8 +102,15 @@ export class ProfileComponent implements OnInit {
         private googleDrive: GoogleDriveService,
         private backupService: BackupService,
         public themeService: ThemeService,
-        private cacheService: CacheService
+        private cacheService: CacheService,
+        public pwa: PwaService
     ) { }
+
+    async installApp() {
+        if (await this.pwa.install()) {
+            this.toast.success('Skill Tracker was added to your device.');
+        }
+    }
 
     async ngOnInit() {
         // 1. Instant 0ms cache hydration

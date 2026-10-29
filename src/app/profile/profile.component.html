@@ -7,7 +7,7 @@
             <div class="flex items-center gap-2.5 min-w-0">
                 <a routerLink="/dashboard" class="flex items-center gap-2 text-xs font-bold transition-colors hover:opacity-80"
                     style="color:var(--text-2)">
-                    <img src="favicon.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
+                    <img src="icons/logo-96.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
                     <span class="font-black truncate hidden xs:inline" style="color:var(--text-1)">Nextlyr</span>
                 </a>
                 <div class="w-px h-4" style="background:var(--border)"></div>
@@ -41,7 +41,7 @@
         <div class="max-w-3xl mx-auto flex items-center justify-between">
             <a routerLink="/dashboard"
                 class="flex items-center gap-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl hover:bg-white/25 transition-all touch-manipulation">
-                <img src="favicon.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
+                <img src="icons/logo-96.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
                 <span class="font-black tracking-tight text-xs sm:text-sm text-white">Nextlyr</span>
             </a>
 
@@ -253,6 +253,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Install the app (shown only where installing is possible and not done yet) -->
+        @if (pwa.installable()) {
+        <div class="flex items-center justify-between gap-3 p-4 rounded-xl"
+            style="background:var(--surface-1);border:1px solid var(--border)">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--surface-2)">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--accent)" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-medium" style="color:var(--text-1)">Install the app</p>
+                    <p class="text-xs mt-0.5" style="color:var(--text-3)">
+                        {{ pwa.canPromptInstall()
+                        ? 'Add Skill Tracker to your home screen. It opens full screen and starts faster.'
+                        : 'Tap the Share button in Safari, then "Add to Home Screen".' }}
+                    </p>
+                </div>
+            </div>
+            @if (pwa.canPromptInstall()) {
+            <button type="button" (click)="installApp()"
+                class="flex-shrink-0 text-xs font-bold px-4 py-2 rounded-lg min-h-[36px] touch-manipulation bg-blue-600 hover:bg-blue-700 text-white">
+                Install
+            </button>
+            }
+        </div>
+        }
 
         <!-- Google Drive auto-connect toggle -->
         <div class="flex items-center justify-between p-4 rounded-xl"
