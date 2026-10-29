@@ -259,9 +259,87 @@
         </div>
 
         } @else {
+
+        <!-- Search, filter and sort (shown once there are a few subjects) -->
+        @if (showListTools()) {
+        <div class="mb-3 sm:mb-4 space-y-2.5">
+            <div class="flex flex-col sm:flex-row gap-2">
+                <div class="relative flex-1">
+                    <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--text-4)"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+                    </svg>
+                    <input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                        (keydown.escape)="searchQuery.set('')" placeholder="Search subjects and topics"
+                        aria-label="Search subjects and topics" autocomplete="off"
+                        class="tahoma w-full h-11 rounded-xl pl-10 pr-10 text-sm outline-none"
+                        style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)" />
+                    @if (searchQuery()) {
+                    <button type="button" (click)="searchQuery.set('')" aria-label="Clear search"
+                        class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg touch-manipulation"
+                        style="color:var(--text-3)">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    }
+                </div>
+                <select [ngModel]="sortBy()" (ngModelChange)="setSort($event)" aria-label="Sort subjects"
+                    class="tahoma h-11 rounded-xl px-3 text-xs font-bold outline-none cursor-pointer sm:w-44"
+                    style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-2)">
+                    @for (option of sortOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" role="group" aria-label="Filter by progress">
+                @for (f of statusFilters; track f.value) {
+                @if (f.value !== 'shared' || hasSharedSubjects() || statusFilter() === 'shared') {
+                <button type="button" (click)="setStatusFilter(f.value)" [attr.aria-pressed]="statusFilter() === f.value"
+                    class="tahoma text-xs font-bold px-3.5 py-2 rounded-full whitespace-nowrap flex-shrink-0 min-h-[36px] touch-manipulation transition-colors"
+                    [style.background]="statusFilter() === f.value ? 'var(--accent)' : 'var(--surface-2)'"
+                    [style.color]="statusFilter() === f.value ? '#fff' : 'var(--text-2)'">
+                    {{ f.label }}
+                </button>
+                }
+                }
+            </div>
+
+            @if (viewChanged()) {
+            <div class="flex items-center justify-between text-xs tahoma" style="color:var(--text-3)" aria-live="polite">
+                <span>Showing {{ visibleSubjects().length }} of {{ subjects().length }}</span>
+                <button type="button" (click)="clearView()" class="font-bold hover:underline min-h-[32px] touch-manipulation"
+                    style="color:var(--accent)">Clear</button>
+            </div>
+            @if (!canReorder() && visibleSubjects().length > 1) {
+            <p class="text-[11px] tahoma" style="color:var(--text-4)">Dragging to reorder is off while you search, filter or sort. Press Clear to reorder.</p>
+            }
+            }
+        </div>
+        }
+
+        @if (visibleSubjects().length === 0 && subjects().length > 0) {
+        <!-- Nothing matches -->
+        <div class="text-center py-10 rounded-2xl" style="background:var(--surface-0);border:1px dashed var(--border)">
+            <p class="font-bold text-sm tahoma mb-1" style="color:var(--text-1)">No subjects match</p>
+            <p class="text-xs tahoma mb-4 px-4" style="color:var(--text-3)">
+                @if (searchQuery().trim()) {
+                Nothing found for "{{ searchQuery().trim() }}" with the current filter.
+                } @else {
+                No subjects fit this filter.
+                }
+            </p>
+            <button type="button" (click)="clearView()"
+                class="tahoma text-xs font-bold px-5 py-2.5 rounded-full min-h-[40px] touch-manipulation"
+                style="background:var(--surface-2);color:var(--text-2)">Clear search and filters</button>
+        </div>
+        }
+
         <!-- Subject List -->
         <div cdkDropList (cdkDropListDropped)="onSubjectDrop($event)" class="space-y-2 sm:space-y-3">
-            @for (sub of subjects(); track sub.id) {
+            @for (sub of visibleSubjects(); track sub.id) {
 
             @if (editingSubjectId() === sub.id) {
             <!-- Edit Mode -->
@@ -289,7 +367,7 @@
 
             } @else {
             <!-- Display Mode -->
-            <div cdkDrag [cdkDragData]="sub" class="relative group/subject">
+            <div cdkDrag [cdkDragData]="sub" [cdkDragDisabled]="!canReorder()" class="relative group/subject">
                 <div *cdkDragPlaceholder class="cdk-drag-placeholder my-2 min-h-[72px]"></div>
                 <div (click)="openSubject(sub.id)"
                     class="rounded-xl sm:rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-2 sm:gap-4 cursor-pointer transition-all animate-scale-in touch-manipulation"
@@ -297,8 +375,10 @@
 
                     <!-- Drag Handle -->
                     <div cdkDragHandle (click)="$event.stopPropagation()"
-                        class="drag-handle cursor-grab active:cursor-grabbing p-1 transition-colors flex items-center justify-center rounded-lg flex-shrink-0"
-                        style="color:var(--text-4)" title="Drag to reorder">
+                        class="drag-handle p-1 transition-colors flex items-center justify-center rounded-lg flex-shrink-0"
+                        [style.cursor]="canReorder() ? 'grab' : 'default'"
+                        [class.opacity-30]="!canReorder()"
+                        style="color:var(--text-4)" [title]="canReorder() ? 'Drag to reorder' : 'Clear search, filter and sort to reorder'">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="9" cy="6" r="1.5" />
                             <circle cx="15" cy="6" r="1.5" />
@@ -330,6 +410,11 @@
                                 </span>
                                 }
                             </div>
+                            @if (topicMatches(sub).length) {
+                            <p class="text-[11px] tahoma truncate mt-0.5" style="color:var(--text-3)">
+                                Topic: {{ topicMatches(sub).join(' · ') }}
+                            </p>
+                            }
                             <div class="flex items-center gap-2 mt-1">
                                 <div class="w-full rounded-full h-1.5" style="background:var(--surface-2)">
                                     <div class="h-1.5 rounded-full transition-all" [style.width.%]="sub.percent"

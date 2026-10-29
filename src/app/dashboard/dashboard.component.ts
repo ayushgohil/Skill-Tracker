@@ -18,6 +18,14 @@ import { ThemeService } from '../core/services/theme.service';
 import { CollaborationService } from '../core/services/collaboration.service';
 import { CacheService } from '../core/services/cache.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+    SubjectView, StatusFilter, SortOption, STATUS_FILTERS, SORT_OPTIONS, DEFAULT_VIEW,
+    applySubjectView, isViewChanged, matchingTopicTitles, isStatusFilter, isSortOption
+} from './subject-view';
+
+const VIEW_STORAGE_KEY = 'skilltracker.dashboard.view.v1';
+/** The search and filter tools only appear once there are enough subjects to need them. */
+const SHOW_TOOLS_FROM = 4;
 
 @Component({
     selector: 'app-dashboard',
@@ -77,6 +85,26 @@ export class DashboardComponent implements OnInit {
     editSubjectName = '';
     editSubjectColor = '';
 
+    // ── Search, filter and sort ────────────────────────
+    searchQuery = signal('');
+    statusFilter = signal<StatusFilter>('all');
+    sortBy = signal<SortOption>('custom');
+    readonly statusFilters = STATUS_FILTERS;
+    readonly sortOptions = SORT_OPTIONS;
+
+    private view = computed<SubjectView>(() => ({
+        query: this.searchQuery(),
+        status: this.statusFilter(),
+        sort: this.sortBy()
+    }));
+
+    visibleSubjects = computed(() => applySubjectView(this.subjects(), this.view()));
+    viewChanged = computed(() => isViewChanged(this.view()));
+    /** Dragging only makes sense when you see your own full list. */
+    canReorder = computed(() => !this.viewChanged());
+    showListTools = computed(() => this.subjects().length >= SHOW_TOOLS_FROM || this.viewChanged());
+    hasSharedSubjects = computed(() => this.subjects().some(s => s.is_shared));
+
     // ── Computed ───────────────────────────────────────
     totalTopics = computed(() => this.subjects().reduce((s, c) => s + c.totalCount, 0));
     totalCompleted = computed(() => this.subjects().reduce((s, c) => s + c.completedCount, 0));
@@ -109,10 +137,53 @@ export class DashboardComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.restoreView();
         // Fire all dashboard data loaders concurrently so UI hydrates immediately in parallel
         this.load();
         this.loadWeeklyData();
         this.loadProfile();
+    }
+
+    /** Brings back the sort and filter chosen last time (the search text is never kept). */
+    private restoreView() {
+        try {
+            const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(VIEW_STORAGE_KEY) : null;
+            const saved = raw ? JSON.parse(raw) : null;
+            if (saved && isStatusFilter(saved.status)) this.statusFilter.set(saved.status);
+            if (saved && isSortOption(saved.sort)) this.sortBy.set(saved.sort);
+        } catch {
+            // Storage blocked or damaged: start with the default view.
+        }
+    }
+
+    private rememberView() {
+        try {
+            localStorage.setItem(VIEW_STORAGE_KEY, JSON.stringify({ status: this.statusFilter(), sort: this.sortBy() }));
+        } catch {
+            // Not important: the lists still work.
+        }
+    }
+
+    setStatusFilter(value: StatusFilter) {
+        this.statusFilter.set(value);
+        this.rememberView();
+    }
+
+    setSort(value: string) {
+        this.sortBy.set(isSortOption(value) ? value : DEFAULT_VIEW.sort);
+        this.rememberView();
+    }
+
+    clearView() {
+        this.searchQuery.set('');
+        this.statusFilter.set(DEFAULT_VIEW.status);
+        this.sortBy.set(DEFAULT_VIEW.sort);
+        this.rememberView();
+    }
+
+    /** Topic titles (up to two) that matched the search, shown under the subject name. */
+    topicMatches(subject: SubjectWithTopics): string[] {
+        return matchingTopicTitles(subject, this.searchQuery()).slice(0, 2);
     }
 
     private async loadProfile() {

@@ -207,6 +207,26 @@
                                 }
                             </button>
                         </div>
+
+                        <!-- Strength hint (only a suggestion, it never blocks sign-up) -->
+                        @if (strength().level > 0) {
+                        <div class="mt-3" aria-live="polite">
+                            <div class="flex gap-1.5" aria-hidden="true">
+                                @for (bar of [1, 2, 3, 4]; track bar) {
+                                <div class="h-1 flex-1 rounded-full transition-colors"
+                                    [class]="bar <= strength().level ? strengthColors[strength().level] : 'bg-white/10'"></div>
+                                }
+                            </div>
+                            <p class="mt-2 text-[11px] font-semibold">
+                                <span [class]="strengthTextColors[strength().level]">Password strength: {{ strength().label }}</span>
+                                @if (strength().tip) {
+                                <span class="text-zinc-500 font-medium"> · {{ strength().tip }}</span>
+                                }
+                            </p>
+                        </div>
+                        } @else {
+                        <p class="mt-2 text-[11px] text-zinc-500 font-medium">Use at least 8 characters.</p>
+                        }
                     </div>
 
                     <button (click)="submit()" [disabled]="loading() || googleLoading()"

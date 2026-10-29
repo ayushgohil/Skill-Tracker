@@ -1,8 +1,9 @@
 // src/app/auth/register/register.component.ts
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { checkPasswordStrength } from '../password-strength';
 
 @Component({
     selector: 'app-register',
@@ -12,7 +13,15 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class RegisterComponent {
     email = '';
-    password = '';
+    /** A signal behind the scenes so the strength hint updates as you type. */
+    private passwordValue = signal('');
+    get password(): string { return this.passwordValue(); }
+    set password(value: string) { this.passwordValue.set(value ?? ''); }
+
+    strength = computed(() => checkPasswordStrength(this.passwordValue()));
+    /** Colour of the filled bars for each level. */
+    readonly strengthColors = ['', 'bg-red-500', 'bg-amber-500', 'bg-lime-500', 'bg-emerald-500'];
+    readonly strengthTextColors = ['', 'text-red-400', 'text-amber-400', 'text-lime-400', 'text-emerald-400'];
     loading = signal(false);
     googleLoading = signal(false);
     error = signal('');
