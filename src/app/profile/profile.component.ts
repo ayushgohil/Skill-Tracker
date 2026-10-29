@@ -482,6 +482,16 @@ export class ProfileComponent implements OnInit {
         const backupData = this.selectedBackupData();
         if (!backupData || this.isRestoring()) return;
 
+        const cutOff = this.backupService.findPossiblyCutOffTables(backupData);
+        const cutOffWarning = cutOff.length
+            ? `<div style="background:#451a03; border:1px solid #b45309; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#fcd34d">
+                    ⚠️ This backup may be incomplete: <strong>${cutOff.join(', ')}</strong> ${cutOff.length === 1 ? 'has' : 'have'} exactly
+                    a round number of rows (1000, 2000...). Older backups were cut off at 1000 rows per table.
+                    If this file was made before this update, restoring it could leave out some of your data.
+                    Your current data is downloaded as a safety backup first.
+               </div>`
+            : '';
+
         const confirm = await Swal.fire({
             title: 'Revert & Restore Data?',
             html: `
@@ -497,6 +507,7 @@ export class ProfileComponent implements OnInit {
                             <div>✅ <strong>Progress items:</strong> ${backupData.user_progress.length}</div>
                         </div>
                     </div>
+                    ${cutOffWarning}
                     <p style="margin-bottom:12px; font-size:12px; color:#34d399">🛟 Before anything is changed, a backup of your <strong>current</strong> data will download to your device, so you can always go back.</p>
                     <p style="font-size:12px; color:#f59e0b">⚠️ Are you sure you want to overwrite and revert to this state?</p>
                 </div>

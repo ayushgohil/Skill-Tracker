@@ -1,6 +1,7 @@
 // src/app/core/services/backup.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { fetchAllRows } from '../supabase-paging';
 import { GoogleDriveService } from './google-drive.service';
 import { CacheService } from './cache.service';
 import { ActivityService } from './activity.service';
@@ -48,43 +49,45 @@ export class BackupService {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('User is not authenticated');
 
+        // Every table is read page by page: Supabase answers at most 1000 rows per request
+        // and would otherwise leave the rest out of the backup without any warning.
+        // Each query ends with a unique column so rows are never repeated or skipped.
+        const all = <T>(table: string, ...order: { column: string; ascending?: boolean }[]) =>
+            fetchAllRows<T>((from, to) => {
+                let query = supabase.from(table).select('*', { count: 'exact' }).eq('user_id', user.id);
+                for (const o of order) query = query.order(o.column, { ascending: o.ascending ?? true });
+                return query.range(from, to);
+            });
+
         const [
             profileRes,
-            subjectsRes,
-            topicsRes,
-            subtopicsRes,
-            progressRes,
-            goalsRes,
-            reviewsRes,
-            activityRes,
-            mediaRes
+            subjects,
+            topics,
+            subtopics,
+            user_progress,
+            weekly_goals,
+            weekly_reviews,
+            activity_logs,
+            topic_media
         ] = await Promise.all([
             supabase.from('profiles').select('id, display_name, created_at').eq('id', user.id).maybeSingle(),
-            supabase.from('subjects').select('*').eq('user_id', user.id).order('created_at', { ascending: true }),
-            supabase.from('topics').select('*').eq('user_id', user.id).order('created_at', { ascending: true }),
-            supabase.from('subtopics').select('*').eq('user_id', user.id).order('order', { ascending: true }),
-            supabase.from('user_progress').select('*').eq('user_id', user.id),
-            supabase.from('weekly_goals').select('*').eq('user_id', user.id),
-            supabase.from('weekly_reviews').select('*').eq('user_id', user.id),
-            supabase.from('activity_logs').select('*').eq('user_id', user.id).order('date', { ascending: true }),
-            supabase.from('topic_media').select('*').eq('user_id', user.id)
+            all<Subject>('subjects', { column: 'created_at' }, { column: 'id' }),
+            all<Topic>('topics', { column: 'created_at' }, { column: 'id' }),
+            all<Subtopic>('subtopics', { column: 'order' }, { column: 'id' }),
+            all<UserProgress>('user_progress', { column: 'topic_id' }),
+            all<WeeklyGoal>('weekly_goals', { column: 'id' }),
+            all<WeeklyReview>('weekly_reviews', { column: 'id' }),
+            // These two tables may not exist on older databases (their migrations are optional),
+            // so a failure here leaves them out instead of stopping the whole backup.
+            all<ActivityLogItem>('activity_logs', { column: 'date' }).catch(err => {
+                console.error('Could not read activity_logs for the backup:', err);
+                return [] as ActivityLogItem[];
+            }),
+            all<TopicMediaItem>('topic_media', { column: 'id' }).catch(err => {
+                console.error('Could not read topic_media for the backup:', err);
+                return [] as TopicMediaItem[];
+            })
         ]);
-
-        if (subjectsRes.error) throw subjectsRes.error;
-        if (topicsRes.error) throw topicsRes.error;
-        if (subtopicsRes.error) throw subtopicsRes.error;
-        if (progressRes.error) throw progressRes.error;
-        if (goalsRes.error) throw goalsRes.error;
-        if (reviewsRes.error) throw reviewsRes.error;
-
-        const subjects: Subject[] = subjectsRes.data ?? [];
-        const topics: Topic[] = topicsRes.data ?? [];
-        const subtopics: Subtopic[] = subtopicsRes.data ?? [];
-        const user_progress: UserProgress[] = progressRes.data ?? [];
-        const weekly_goals: WeeklyGoal[] = goalsRes.data ?? [];
-        const weekly_reviews: WeeklyReview[] = reviewsRes.data ?? [];
-        const activity_logs: ActivityLogItem[] = activityRes.data ?? [];
-        const topic_media: TopicMediaItem[] = mediaRes.data ?? [];
 
         const metadata: BackupMetadata = {
             version: 1,
@@ -175,6 +178,29 @@ export class BackupService {
         }
         this.validateBackupData(data);
         return data as BackupData;
+    }
+
+    /**
+     * Backups made before the paging fix could be cut off at exactly 1000 rows per table
+     * (a Supabase limit). A table with a round number of rows (1000, 2000, ...) is
+     * therefore suspicious. Returns the names of those tables so the user can be warned
+     * before a restore replaces everything. A real backup that happens to have exactly
+     * 1000 rows also shows up here, so the wording must say "may".
+     */
+    findPossiblyCutOffTables(backup: BackupData): string[] {
+        const tables: Record<string, unknown> = {
+            subjects: backup.subjects,
+            topics: backup.topics,
+            subtopics: backup.subtopics,
+            user_progress: backup.user_progress,
+            weekly_goals: backup.weekly_goals,
+            weekly_reviews: backup.weekly_reviews,
+            activity_logs: backup.activity_logs,
+            topic_media: backup.topic_media
+        };
+        return Object.entries(tables)
+            .filter(([, rows]) => Array.isArray(rows) && rows.length > 0 && rows.length % 1000 === 0)
+            .map(([name]) => name);
     }
 
     /**

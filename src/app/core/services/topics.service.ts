@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { fetchAllRows, fetchAllRowsForIds } from '../supabase-paging';
 import { Topic, TopicWithProgress, Depth, SubjectWithTopics, Subtopic } from '../models';
 import { ActivityService } from './activity.service';
 import { CacheService } from './cache.service';
@@ -24,40 +25,44 @@ export class TopicsService {
         this.cacheService.incrementDbCall('getSubjectsWithTopics_batch');
 
         // Batch-fetch subjects, topics, progress, subtopics, and members in PARALLEL
-        const [subjectsRes, topicsRes, progRes, subTopRes, membersRes] = await Promise.all([
-            supabase
+        // Each list is read page by page: Supabase answers at most 1000 rows per request,
+        // and a bigger account would otherwise show wrong totals without any error.
+        // (A unique column goes last in each sort so pages never repeat or skip rows.)
+        const [subjects, topics, progress, allSubtopics, members] = await Promise.all([
+            fetchAllRows<any>((from, to) => supabase
                 .from('subjects')
-                .select('*')
+                .select('*', { count: 'exact' })
                 .order('order', { ascending: true, nullsFirst: false })
-                .order('created_at', { ascending: true }),
-            supabase
+                .order('created_at', { ascending: true })
+                .order('id', { ascending: true })
+                .range(from, to)),
+            fetchAllRows<any>((from, to) => supabase
                 .from('topics')
-                .select('id, user_id, subject_id, title, depth, starred, order, created_at')
+                .select('id, user_id, subject_id, title, depth, starred, order, created_at', { count: 'exact' })
                 .order('order', { ascending: true, nullsFirst: false })
-                .order('created_at', { ascending: true }),
-            supabase
+                .order('created_at', { ascending: true })
+                .order('id', { ascending: true })
+                .range(from, to)),
+            fetchAllRows<any>((from, to) => supabase
                 .from('user_progress')
-                .select('topic_id, completed')
-                .eq('user_id', userId),
-            supabase
+                .select('topic_id, completed', { count: 'exact' })
+                .eq('user_id', userId)
+                .order('topic_id', { ascending: true })
+                .range(from, to)),
+            fetchAllRows<any>((from, to) => supabase
                 .from('subtopics')
-                .select('id, topic_id, completed')
-                .order('order', { ascending: true }),
-            supabase
+                .select('id, topic_id, completed', { count: 'exact' })
+                .order('order', { ascending: true })
+                .order('id', { ascending: true })
+                .range(from, to)),
+            // Sharing is optional: if this table cannot be read, the dashboard still loads.
+            fetchAllRows<any>((from, to) => supabase
                 .from('subject_members')
-                .select('subject_id, user_id, role, joined_at')
+                .select('subject_id, user_id, role, joined_at', { count: 'exact' })
+                .order('subject_id', { ascending: true })
+                .order('user_id', { ascending: true })
+                .range(from, to)).catch(() => [] as any[])
         ]);
-
-        if (subjectsRes.error) throw subjectsRes.error;
-        if (topicsRes.error) throw topicsRes.error;
-        if (progRes.error) throw progRes.error;
-        if (subTopRes.error) throw subTopRes.error;
-
-        const subjects = subjectsRes.data ?? [];
-        const topics = topicsRes.data ?? [];
-        const progress = progRes.data ?? [];
-        const allSubtopics = subTopRes.data ?? [];
-        const members = membersRes.data ?? [];
 
         const topicIds = topics.map(t => t.id);
 
@@ -86,19 +91,24 @@ export class TopicsService {
 
         if (partnerUserIds.size > 0 && topicIds.length > 0) {
             const partnerIds = Array.from(partnerUserIds);
-            const [profilesRes, partnerProgRes] = await Promise.all([
+            const [profilesRes, partnerProgress] = await Promise.all([
                 supabase.rpc('get_partner_profiles', { p_partner_ids: partnerIds }),
-                supabase
+                // The topic ids go in small groups: a long list makes the request address too
+                // long and the whole request fails.
+                fetchAllRowsForIds<any>(topicIds, (idChunk, from, to) => supabase
                     .from('user_progress')
-                    .select('user_id, topic_id, completed')
+                    .select('user_id, topic_id, completed', { count: 'exact' })
                     .in('user_id', partnerIds)
-                    .in('topic_id', topicIds)
+                    .in('topic_id', idChunk)
+                    .order('user_id', { ascending: true })
+                    .order('topic_id', { ascending: true })
+                    .range(from, to)).catch(() => [] as any[])
             ]);
 
             for (const p of (profilesRes.data ?? [])) {
                 partnerProfileMap.set(p.id, p.display_name);
             }
-            for (const pp of (partnerProgRes.data ?? [])) {
+            for (const pp of partnerProgress) {
                 partnerProgressMap.set(`${pp.user_id}_${pp.topic_id}`, !!pp.completed);
             }
         }

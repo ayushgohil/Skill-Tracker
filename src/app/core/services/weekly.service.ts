@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { fetchAllRows, fetchAllRowsForIds } from '../supabase-paging';
 import { AuthService } from './auth.service';
 import { CacheService } from './cache.service';
 import {
@@ -71,12 +72,13 @@ export class WeeklyService {
 
         const topicIds = progress.map(p => p.topic_id);
 
-        // 2. Get matching topics
-        const { data: topics, error: topErr } = await supabase
+        // 2. Get matching topics (ids in small groups so the request address stays short)
+        const topics = await fetchAllRowsForIds<any>(topicIds, (idChunk, from, to) => supabase
             .from('topics')
-            .select('*')
-            .in('id', topicIds);
-        if (topErr) throw topErr;
+            .select('*', { count: 'exact' })
+            .in('id', idChunk)
+            .order('id', { ascending: true })
+            .range(from, to));
 
         // 3. Merge
         return (topics ?? []).map(t => {
@@ -189,19 +191,16 @@ export class WeeklyService {
         const userId = await this.auth.ensureUserId();
 
         // Batch fetch all data
-        const [subjectsRes, topicsRes, progressRes] = await Promise.all([
-            supabase.from('subjects').select('id, name, color').eq('user_id', userId).order('name'),
-            supabase.from('topics').select('id, user_id, subject_id, title, depth, starred, created_at').eq('user_id', userId).order('title'),
-            supabase.from('user_progress').select('topic_id, completed').eq('user_id', userId)
+        // Page by page: Supabase answers at most 1000 rows per request (see supabase-paging.ts)
+        const [subjects, topics, progress] = await Promise.all([
+            fetchAllRows<any>((from, to) => supabase.from('subjects').select('id, name, color', { count: 'exact' })
+                .eq('user_id', userId).order('name').order('id').range(from, to)),
+            fetchAllRows<any>((from, to) => supabase.from('topics')
+                .select('id, user_id, subject_id, title, depth, starred, created_at', { count: 'exact' })
+                .eq('user_id', userId).order('title').order('id').range(from, to)),
+            fetchAllRows<any>((from, to) => supabase.from('user_progress').select('topic_id, completed', { count: 'exact' })
+                .eq('user_id', userId).order('topic_id').range(from, to))
         ]);
-
-        if (subjectsRes.error) throw subjectsRes.error;
-        if (topicsRes.error) throw topicsRes.error;
-        if (progressRes.error) throw progressRes.error;
-
-        const subjects = subjectsRes.data ?? [];
-        const topics = topicsRes.data ?? [];
-        const progress = progressRes.data ?? [];
 
         // Filter to incomplete topics (no progress row = incomplete, completed=false = incomplete)
         const incomplete = topics.filter(t => {

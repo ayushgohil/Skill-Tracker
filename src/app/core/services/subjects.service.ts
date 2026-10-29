@@ -1,6 +1,7 @@
 // src/app/core/services/subjects.service.ts
 import { Injectable } from '@angular/core';
 import { supabase } from '../supabase.client';
+import { fetchAllRowsForIds } from '../supabase-paging';
 import { Subject, TopicWithProgress, Subtopic } from '../models';
 import { CacheService } from './cache.service';
 import { AuthService } from './auth.service';
@@ -117,17 +118,22 @@ export class SubjectsService {
 
         if (topicIds.length > 0) {
             // Batch-fetch progress, subtopics, subject info, and partner membership in PARALLEL
-            const [progRes, subsRes, subjectRes, partnerMemberRes] = await Promise.all([
-                supabase
+            const [progRows, subRows, subjectRes, partnerMemberRes] = await Promise.all([
+                // Ids go in small groups and rows come page by page (see supabase-paging.ts)
+                fetchAllRowsForIds<any>(topicIds, (idChunk, from, to) => supabase
                     .from('user_progress')
-                    .select('*')
+                    .select('*', { count: 'exact' })
                     .eq('user_id', userId)
-                    .in('topic_id', topicIds),
-                supabase
+                    .in('topic_id', idChunk)
+                    .order('topic_id', { ascending: true })
+                    .range(from, to)),
+                fetchAllRowsForIds<any>(topicIds, (idChunk, from, to) => supabase
                     .from('subtopics')
-                    .select('*')
-                    .in('topic_id', topicIds)
-                    .order('order', { ascending: true }),
+                    .select('*', { count: 'exact' })
+                    .in('topic_id', idChunk)
+                    .order('order', { ascending: true })
+                    .order('id', { ascending: true })
+                    .range(from, to)),
                 supabase
                     .from('subjects')
                     .select('user_id')
@@ -141,8 +147,9 @@ export class SubjectsService {
                     .maybeSingle()
             ]);
 
-            progress = progRes.data ?? [];
-            allSubtopics = subsRes.data ?? [];
+            progress = progRows;
+            // Chunks are read one after another, so put the subtopics back in their saved order
+            allSubtopics = subRows.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
             const subjectData = subjectRes.data;
             if (subjectData) {
@@ -154,13 +161,15 @@ export class SubjectsService {
                 }
 
                 if (partnerUserId) {
-                    const { data: partnerProgs } = await supabase
+                    const partnerProgs = await fetchAllRowsForIds<any>(topicIds, (idChunk, from, to) => supabase
                         .from('user_progress')
-                        .select('topic_id, completed, notes')
+                        .select('topic_id, completed, notes', { count: 'exact' })
                         .eq('user_id', partnerUserId)
-                        .in('topic_id', topicIds);
+                        .in('topic_id', idChunk)
+                        .order('topic_id', { ascending: true })
+                        .range(from, to)).catch(() => [] as any[]);
 
-                    for (const pp of (partnerProgs ?? [])) {
+                    for (const pp of partnerProgs) {
                         partnerProgressMap.set(pp.topic_id, {
                             completed: !!pp.completed,
                             notes: pp.notes || ''
