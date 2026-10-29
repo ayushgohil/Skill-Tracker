@@ -134,7 +134,7 @@
 
                 <!-- Alert -->
                 @if (error()) {
-                <div class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm rounded-xl px-4 py-3 mb-6 font-bold animate-slide-up">
+                <div role="alert" class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm rounded-xl px-4 py-3 mb-6 font-bold animate-slide-up">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
@@ -169,27 +169,26 @@
                     <div class="flex-1 h-[1px] bg-white/10"></div>
                 </div>
 
-                <!-- Auth Fields -->
-                <div class="space-y-5">
+                <!-- Auth Fields (a real form, so password managers can fill and save it) -->
+                <form (ngSubmit)="submit()" novalidate class="space-y-5">
                     <div>
-                        <label class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest block mb-2">Email address</label>
-                        <input [(ngModel)]="email" type="email" placeholder="you@example.com"
+                        <label for="login-email" class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest block mb-2">Email address</label>
+                        <input id="login-email" name="email" autocomplete="username" autocapitalize="off" spellcheck="false" [(ngModel)]="email" type="email" placeholder="you@example.com"
                                class="w-full h-11 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 text-white text-sm font-medium outline-none focus:border-purple-500 focus:bg-white/[0.06] focus:ring-4 focus:ring-purple-500/10 transition-all placeholder-zinc-600" />
                     </div>
 
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <label class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">Password</label>
+                            <label for="login-password" class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">Password</label>
                             <a routerLink="/auth/forgot-password"
                                 class="text-purple-400 hover:text-purple-300 text-[10px] hover:underline font-bold transition-all">
                                 Forgot password?
                             </a>
                         </div>
                         <div class="relative">
-                            <input [(ngModel)]="password"
+                            <input id="login-password" name="password" autocomplete="current-password" [(ngModel)]="password"
                                 [type]="showPassword() ? 'text' : 'password'"
                                 placeholder="••••••••"
-                                (keydown.enter)="submit()"
                                 class="w-full h-11 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 text-white text-sm font-medium outline-none focus:border-purple-500 focus:bg-white/[0.06] focus:ring-4 focus:ring-purple-500/10 transition-all pr-11 placeholder-zinc-700" />
                             <button type="button" (click)="showPassword.update(v => !v)"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors w-8 h-8 flex items-center justify-center touch-manipulation"
@@ -208,11 +207,11 @@
                         </div>
                     </div>
 
-                    <button (click)="submit()" [disabled]="loading() || googleLoading()"
+                    <button type="submit" [disabled]="loading() || googleLoading()"
                             class="w-full h-11 bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center shadow-lg shadow-purple-600/25 mt-4 active:scale-[0.98] disabled:opacity-50 touch-manipulation">
                         {{ loading() ? 'Signing in...' : 'Sign in' }}
                     </button>
-                </div>
+                </form>
 
                 <!-- Signup Redirect Link -->
                 <p class="text-zinc-400 text-xs sm:text-sm text-center mt-8 font-medium">
