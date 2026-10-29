@@ -14,6 +14,7 @@ import { CacheService } from '../core/services/cache.service';
 import { Profile, SubjectWithTopics, DriveBackupFile, BackupData } from '../core/models';
 import { ActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 import { ToastComponent } from '../shared/toast/toast.component';
+import { BottomNavComponent } from '../shared/bottom-nav/bottom-nav.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import Swal from 'sweetalert2';
 import { PwaService } from '../core/services/pwa.service';
@@ -27,7 +28,7 @@ export interface ProgressStep {
 @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, ActivityHeatmapComponent, ToastComponent],
+    imports: [CommonModule, FormsModule, RouterModule, ActivityHeatmapComponent, ToastComponent, BottomNavComponent],
     templateUrl: './profile.component.html',
     animations: [staggerList, fadeSlideInOut]
 })

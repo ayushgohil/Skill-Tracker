@@ -11,7 +11,7 @@ import { PwaService } from '../../core/services/pwa.service';
     standalone: true,
     template: `
     @if (pwa.updateReady() || pwa.needsReload()) {
-      <div class="update-banner fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[70] max-w-[92vw] flex items-center gap-3 pl-4 pr-2 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-xl bg-blue-600 text-white border border-blue-400"
+      <div class="update-banner fixed bottom-24 md:bottom-24 left-1/2 -translate-x-1/2 z-[70] max-w-[92vw] flex items-center gap-3 pl-4 pr-2 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-xl bg-blue-600 text-white border border-blue-400"
            role="status" aria-live="polite">
         <span>{{ pwa.needsReload() ? 'Something went wrong. Please reload.' : 'A new version is ready.' }}</span>
         <button type="button" (click)="pwa.applyUpdate()"

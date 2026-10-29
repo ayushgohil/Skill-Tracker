@@ -110,7 +110,7 @@
          FLOATING WIDGET MODE
     ══════════════════════════════════════════ -->
 @if (!pomodoroService.isFullScreen()) {
-<div @fadeSlideInOut class="fixed bottom-6 right-6 z-[9999] w-72 rounded-3xl overflow-hidden glass-widget"
+<div @fadeSlideInOut class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[9999] w-72 rounded-3xl overflow-hidden glass-widget"
     [class.opacity-80]="isDragging()"
     [style.transform]="'translate(' + dragPosition().x + 'px, ' + dragPosition().y + 'px) scale(' + (isDragging() ? '0.96' : '1') + ') rotate(' + (isDragging() ? '-1deg' : '0deg') + ')'">
 

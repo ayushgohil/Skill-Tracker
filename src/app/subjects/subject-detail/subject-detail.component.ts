@@ -18,6 +18,7 @@ import {
     SubtopicDeleteEvent
 } from '../../dashboard/topic-item/topic-item.component';
 import { ToastComponent } from '../../shared/toast/toast.component';
+import { BottomNavComponent } from '../../shared/bottom-nav/bottom-nav.component';
 import { ThemeService } from '../../core/services/theme.service';
 import { staggerList, fadeSlideInOut } from '../../core/animations/app.animations';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -33,7 +34,7 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
 @Component({
     selector: 'app-subject-detail',
     standalone: true,
-    imports: [TopicItemComponent, ToastComponent, FormsModule, RouterLink, DragDropModule, ShareModalComponent],
+    imports: [TopicItemComponent, ToastComponent, BottomNavComponent, FormsModule, RouterLink, DragDropModule, ShareModalComponent],
     templateUrl: './subject-detail.component.html',
     animations: [staggerList, fadeSlideInOut]
 })

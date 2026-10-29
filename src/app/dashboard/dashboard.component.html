@@ -1,5 +1,5 @@
 <!-- src/app/dashboard/dashboard.component.html -->
-<div class="min-h-screen pb-24" style="background:var(--bg);color:var(--text-1)">
+<div class="min-h-screen pb-28" style="background:var(--bg);color:var(--text-1)">
 
     <!-- ── Collapsed Sticky Header ─────────────── -->
     <div class="collapsed-header" [class.visible]="headerCollapsed()">
@@ -42,7 +42,7 @@
 
     <!-- ── Header Area ────────────────────────────── -->
     <header #headerEl
-        class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-6 sm:py-10 text-white rounded-b-[24px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
+        class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 pt-8 pb-7 sm:py-10 text-white rounded-b-[28px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
         <div class="absolute top-[-50%] right-[-20%] w-56 sm:w-72 h-56 sm:h-72 bg-white/10 blur-3xl rounded-full">
         </div>
 
@@ -51,9 +51,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <span
-                        class="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-widest tahoma">Learning
+                        class="text-white/75 text-xs font-bold uppercase tracking-widest tahoma">Learning
                         Dashboard</span>
-                    <h1 class="text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 tracking-tight tahoma">Nextlyr Skill
+                    <h1 class="text-2xl font-black mt-1 tracking-tight tahoma">Nextlyr Skill
                         Tracker</h1>
                 </div>
                 <div class="flex items-center gap-2">
@@ -73,7 +73,7 @@
                     </button>
                     <!-- Profile Avatar -->
                     <a routerLink="/profile"
-                        class="w-10 h-10 min-w-[40px] rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation overflow-hidden">
+                        class="w-11 h-11 min-w-[44px] rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation overflow-hidden">
                         @if (userAvatar()) {
                         <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover"
                             referrerpolicy="no-referrer" />
@@ -85,11 +85,11 @@
             </div>
 
             <!-- Metrics Cards -->
-            <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-1 sm:mt-2">
+            <div class="grid grid-cols-3 gap-2.5 sm:gap-3 mt-2">
                 <!-- Mastery Circle -->
                 <div
-                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2 shadow-sm">
-                    <div class="relative flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14">
+                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2 shadow-sm">
+                    <div class="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14">
                         <svg class="w-full h-full transform -rotate-90">
                             <circle class="text-white/20" stroke-width="4" stroke="currentColor" fill="transparent"
                                 r="16" cx="20" cy="20" class="sm:hidden" />
@@ -104,26 +104,26 @@
                                 stroke-linecap="round" stroke="currentColor" fill="transparent" r="22" cx="28"
                                 cy="28" />
                         </svg>
-                        <span class="absolute text-[9px] sm:text-xs font-black tahoma">{{ overallPercent() }}%</span>
+                        <span class="absolute text-[11px] sm:text-xs font-black tahoma">{{ overallPercent() }}%</span>
                     </div>
                     <span
-                        class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80 tahoma">Mastery</span>
+                        class="text-[11px] sm:text-[10px] font-bold uppercase tracking-wider text-white/85 tahoma">Mastery</span>
                 </div>
 
                 <!-- Streak -->
                 <div
-                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
-                    <span class="text-lg sm:text-2xl font-black tahoma">🔥 {{ currentStreak() }}</span>
-                    <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80 tahoma">Day
+                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
+                    <span class="text-xl sm:text-2xl font-black tahoma">🔥 {{ currentStreak() }}</span>
+                    <span class="text-[11px] sm:text-[10px] font-bold uppercase tracking-wider text-white/85 tahoma">Day
                         Streak</span>
                 </div>
 
                 <!-- XP -->
                 <div
-                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
-                    <span class="text-lg sm:text-2xl font-black tahoma">✨ {{ totalCompleted() * 100 }}</span>
+                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
+                    <span class="text-xl sm:text-2xl font-black tahoma">✨ {{ totalCompleted() * 100 }}</span>
                     <span
-                        class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white/80 tahoma">Total
+                        class="text-[11px] sm:text-[10px] font-bold uppercase tracking-wider text-white/85 tahoma">Total
                         XP</span>
                 </div>
             </div>
@@ -475,33 +475,8 @@
 
     </main>
 
-    <!-- ── Floating Bottom Nav ────────────────────── -->
-    <nav class="fixed bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 rounded-full px-5 sm:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-8 sm:gap-10 shadow-2xl z-[60] w-[92%] max-w-sm"
-        style="background:var(--nav-bg);border:1px solid var(--nav-border)">
-        <a routerLink="/dashboard" class="flex flex-col items-center gap-0 text-cyan-400 touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z" />
-            </svg>
-            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Home</span>
-        </a>
-        <button (click)="goToWeeklyReview()"
-            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Weekly</span>
-        </button>
-        <a routerLink="/profile"
-            class="tahoma flex flex-col items-center gap-0 text-white/60 hover:text-white transition-all touch-manipulation">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
-            <span class="text-[8px] sm:text-[9px] font-bold tahoma">Profile</span>
-        </a>
-    </nav>
+    <!-- ── Bottom menu ───────────────────────────── -->
+    <app-bottom-nav active="home" />
 
     <!-- Add Subject Bottom Sheet -->
     @if (showAddSubject()) {

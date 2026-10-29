@@ -12,6 +12,7 @@ import { NetworkStatusService } from '../core/services/network-status.service';
 import { ActivityService, ActivityLog } from '../core/services/activity.service';
 import { SubjectWithTopics, StarredTopic } from '../core/models';
 import { ToastComponent } from '../shared/toast/toast.component';
+import { BottomNavComponent } from '../shared/bottom-nav/bottom-nav.component';
 import { staggerList, fadeSlideInOut } from '../core/animations/app.animations';
 import { ProfileService } from '../core/services/profile.service';
 import { ThemeService } from '../core/services/theme.service';
@@ -30,7 +31,7 @@ const SHOW_TOOLS_FROM = 4;
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ToastComponent, FormsModule, RouterLink, DragDropModule],
+    imports: [ToastComponent, BottomNavComponent, FormsModule, RouterLink, DragDropModule],
     templateUrl: './dashboard.component.html',
     animations: [staggerList, fadeSlideInOut]
 })

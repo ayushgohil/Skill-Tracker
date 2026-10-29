@@ -6,7 +6,7 @@ import { ToastService } from '../../core/services/toast.service';
     selector: 'app-toast',
     standalone: true,
     template: `
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"
+    <div class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50 flex flex-col gap-2 pointer-events-none"
          role="status" aria-live="polite" aria-atomic="false">
       @for (toast of toastService.toasts(); track toast.id) {
         <div
