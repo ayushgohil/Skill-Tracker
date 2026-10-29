@@ -172,6 +172,11 @@
                             </svg>
                             Saved
                         </span>
+                        } @else if (saveStatus() === 'failed') {
+                        <button type="button" (click)="retryNoteSave($event)"
+                            class="text-red-400 hover:text-red-300 text-xs font-semibold flex items-center gap-1 underline underline-offset-2">
+                            Not saved · Retry
+                        </button>
                         }
                     </label>
                 </div>

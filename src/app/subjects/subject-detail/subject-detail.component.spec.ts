@@ -119,6 +119,22 @@ describe('SubjectDetailComponent: failed saves and undo', () => {
             expect(current('t1').completed).toBe(true);
         });
 
+        it('tells the notes label the real result of the save', async () => {
+            const onResult = vi.fn();
+            topicsService['upsertProgress'].mockResolvedValueOnce(undefined);
+            component.topics.set([topic('t1')]);
+            component.onProgressChanged({ topicId: 't1', completed: false, notes: 'a', onResult });
+            await vi.advanceTimersByTimeAsync(0);
+            expect(onResult).toHaveBeenCalledTimes(1);
+            expect(onResult).toHaveBeenLastCalledWith(true);
+
+            topicsService['upsertProgress'].mockRejectedValueOnce(new Error('offline'));
+            component.onProgressChanged({ topicId: 't1', completed: false, notes: 'b', onResult });
+            await vi.advanceTimersByTimeAsync(0);
+            expect(onResult).toHaveBeenCalledTimes(2);
+            expect(onResult).toHaveBeenLastCalledWith(false);
+        });
+
         it('words the error for being offline', async () => {
             topicsService['upsertProgress'].mockRejectedValueOnce(new Error('offline'));
             TestBed.inject(NetworkStatusService).online.set(false);

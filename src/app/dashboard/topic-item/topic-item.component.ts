@@ -1,5 +1,5 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
-import { Component, input, output, signal, computed, effect, OnDestroy, OnInit, HostListener } from '@angular/core';
+import { Component, input, output, signal, computed, effect, untracked, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { TopicWithProgress, Depth } from '../../core/models';
@@ -40,6 +40,8 @@ export interface ProgressChange {
     topicId: string;
     completed: boolean;
     notes: string;
+    /** Called with the real result of the save, so the "Saved" label can tell the truth. */
+    onResult?: (saved: boolean) => void;
 }
 
 export interface TopicEditEvent {
@@ -92,7 +94,9 @@ export class TopicItemComponent implements OnDestroy, OnInit {
     notesDirty = false;
 
     // ── Auto-save ────────────────────────────────────
-    saveStatus = signal<'idle' | 'saving' | 'saved'>('idle');
+    saveStatus = signal<'idle' | 'saving' | 'saved' | 'failed'>('idle');
+    /** Counts note saves, so a late answer from an older save cannot change the label. */
+    private saveSeq = 0;
     private notesChanged$ = new Subject<void>();
     private notesSubscription?: Subscription;
     private savedTimeout?: ReturnType<typeof setTimeout>;
@@ -151,11 +155,16 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         effect(() => {
-            if (this.isOpen()) {
-                this.localNotes = this.topic().notes;
-                this.notesDirty = false;
-                this.saveStatus.set('idle');
-            }
+            const open = this.isOpen();
+            const notes = this.topic().notes;
+            untracked(() => {
+                // Never overwrite what the user is typing, or notes that are still being
+                // saved or that failed to save.
+                const status = this.saveStatus();
+                if (open && !this.notesDirty && status !== 'saving' && status !== 'failed') {
+                    this.localNotes = notes;
+                }
+            });
         });
         if (isPlatformBrowser(this.platformId)) {
             document.addEventListener('click', this.boundCloseMenu);
@@ -235,24 +244,42 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         }
     }
 
+    /** Saves the notes again after a failure (the "Not saved. Retry" button). */
+    retryNoteSave(event?: Event) {
+        event?.preventDefault();
+        event?.stopPropagation();
+        this.notesDirty = true;
+        this.performNoteSave();
+    }
+
     private performNoteSave() {
         if (!this.notesDirty) return;
+        const seq = ++this.saveSeq;
         this.saveStatus.set('saving');
+        if (this.savedTimeout) clearTimeout(this.savedTimeout);
+        this.notesDirty = false;
+
         this.progressChanged.emit({
             topicId: this.topic().id,
             completed: this.topic().completed,
-            notes: this.localNotes
+            notes: this.localNotes,
+            onResult: saved => this.onNoteSaveResult(seq, saved)
         });
-        this.notesDirty = false;
+    }
 
-        // Show "Saved" for 2 seconds, then fade back to idle
+    /** The real answer from the database arrives here. */
+    private onNoteSaveResult(seq: number, saved: boolean) {
+        // A newer save has started, or the user typed more since: that one decides the label.
+        if (seq !== this.saveSeq || this.notesDirty) return;
+
+        if (!saved) {
+            this.saveStatus.set('failed'); // stays until a save works
+            return;
+        }
+
+        this.saveStatus.set('saved');
         if (this.savedTimeout) clearTimeout(this.savedTimeout);
-        this.savedTimeout = setTimeout(() => {
-            this.saveStatus.set('saved');
-            this.savedTimeout = setTimeout(() => {
-                this.saveStatus.set('idle');
-            }, 2000);
-        }, 300);
+        this.savedTimeout = setTimeout(() => this.saveStatus.set('idle'), 2000);
     }
 
     toggleMenu(event: Event) {

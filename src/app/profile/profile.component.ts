@@ -497,6 +497,7 @@ export class ProfileComponent implements OnInit {
                             <div>✅ <strong>Progress items:</strong> ${backupData.user_progress.length}</div>
                         </div>
                     </div>
+                    <p style="margin-bottom:12px; font-size:12px; color:#34d399">🛟 Before anything is changed, a backup of your <strong>current</strong> data will download to your device, so you can always go back.</p>
                     <p style="font-size:12px; color:#f59e0b">⚠️ Are you sure you want to overwrite and revert to this state?</p>
                 </div>
             `,
@@ -517,6 +518,7 @@ export class ProfileComponent implements OnInit {
         this.restoreFinished.set(false);
 
         const steps: ProgressStep[] = [
+            { id: 'safety_backup', label: 'Saving a Safety Backup of Your Current Data', status: 'pending' },
             { id: 'clear_existing', label: 'Clearing Current Database Records', status: 'pending' },
             { id: 'restore_subjects', label: 'Rebuilding Subjects & Color Themes', status: 'pending' },
             { id: 'restore_topics', label: 'Rebuilding Topics & Depth Levels', status: 'pending' },
@@ -540,13 +542,29 @@ export class ProfileComponent implements OnInit {
         const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
         try {
+            // Step 0: keep a copy of what you have now. If this fails, nothing is changed.
+            updateStep(0, 'active');
+            try {
+                const current = await this.backupService.exportAllUserData();
+                this.backupService.downloadBackupFile(
+                    current,
+                    this.backupService.generateBackupFileName().replace('skilltracker-backup-', 'skilltracker-before-restore-')
+                );
+            } catch (backupErr) {
+                console.error('Safety backup failed:', backupErr);
+                throw new Error('Could not save a safety backup of your current data, so nothing was restored. Your data has not been changed. Please try again.');
+            }
+            await sleep(400);
+            updateStep(0, 'done');
+
+            // The restore itself reports steps 0..7; they sit one place lower in the list now.
             const result = await this.backupService.restoreData(backupData, (stepIndex) => {
-                if (stepIndex > 0) updateStep(stepIndex - 1, 'done');
-                updateStep(stepIndex, 'active');
+                if (stepIndex > 0) updateStep(stepIndex, 'done');
+                updateStep(stepIndex + 1, 'active');
             });
 
             await sleep(400);
-            updateStep(7, 'done');
+            updateStep(8, 'done');
 
             this.restoreFinished.set(true);
             if (result.itemsSkipped) {

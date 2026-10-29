@@ -278,7 +278,9 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
 
         // 2. Fire-and-forget background save
         this.topicsService.upsertProgress(event.topicId, event.completed, event.notes)
+            .then(() => event.onResult?.(true))
             .catch(() => {
+                event.onResult?.(false);
                 // Undo only the tick. Never throw away notes the user has typed.
                 this.topics.update(topics => topics.map(t =>
                     t.id === event.topicId ? { ...t, completed: previousCompleted } : t
