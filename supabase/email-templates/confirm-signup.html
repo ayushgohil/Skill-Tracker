@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Confirm your email</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1f4f9;">
+<!-- Hidden preview text shown next to the subject in the inbox -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f1f4f9;font-size:1px;line-height:1px;">
+  One quick step: confirm your email and start tracking your skills.&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1f4f9;">
+  <tr>
+    <td align="center" style="padding:28px 16px;">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;">
+
+        <!-- Card -->
+        <tr>
+          <td style="background-color:#ffffff;border-radius:14px;border:1px solid #e3e8f0;overflow:hidden;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <!-- Brand header -->
+              <tr>
+                <td align="left" bgcolor="#1a56db" style="padding:26px 40px;background-color:#1a56db;background-image:linear-gradient(135deg,#00b4d8,#1a56db);font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                  <img src="https://nextlyrtech-skilltracker.vercel.app/icons/icon-192.png" width="40" height="40" alt="" style="display:inline-block;vertical-align:middle;border-radius:10px;border:0;">
+                  <span style="display:inline-block;vertical-align:middle;margin-left:12px;font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-0.2px;">Nextlyr Skill Tracker</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:34px 40px 12px 40px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                  <h1 style="margin:0 0 14px 0;font-size:24px;line-height:1.3;font-weight:700;color:#0f1b3d;">Confirm your email address</h1>
+                  <p style="margin:0 0 12px 0;font-size:16px;line-height:1.6;color:#44506b;">Welcome! You're one step away from your Skill Tracker account.</p>
+                  <p style="margin:0;font-size:16px;line-height:1.6;color:#44506b;">Tap the button below to confirm that <strong style="color:#0f1b3d;">{{ .Email }}</strong> is yours.</p>
+                </td>
+              </tr>
+              <!-- Button -->
+              <tr>
+                <td align="left" style="padding:24px 40px 8px 40px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td align="center" bgcolor="#1a56db" style="border-radius:10px;">
+                        <a href="{{ .ConfirmationURL }}" target="_blank"
+                           style="display:inline-block;padding:14px 32px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;font-weight:600;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:10px;background-color:#1a56db;">
+                          Confirm my email
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <!-- What's next -->
+              <tr>
+                <td style="padding:20px 40px 8px 40px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                  <p style="margin:0;font-size:14px;line-height:1.6;color:#44506b;">After that you can add your subjects, tick off topics and watch your streak grow.</p>
+                </td>
+              </tr>
+              <!-- Divider + fallback link -->
+              <tr>
+                <td style="padding:20px 40px 0 40px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr><td height="1" style="height:1px;line-height:1px;font-size:0;background-color:#e8edf4;">&nbsp;</td></tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 40px 36px 40px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                  <p style="margin:0 0 6px 0;font-size:13px;line-height:1.5;color:#6b7690;">Button not working? Copy and paste this link into your browser:</p>
+                  <p style="margin:0;font-size:13px;line-height:1.5;word-break:break-all;"><a href="{{ .ConfirmationURL }}" target="_blank" style="color:#1a56db;text-decoration:underline;">{{ .ConfirmationURL }}</a></p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td align="center" style="padding:24px 24px 0 24px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+            <p style="margin:0 0 6px 0;font-size:13px;line-height:1.6;color:#6b7690;">Didn't create this account? You can safely ignore this email and nothing will happen.</p>
+            <p style="margin:0;font-size:12px;line-height:1.6;color:#8a94ab;">Sent by Nextlyr Tech &middot; <a href="https://nextlyrtech.com" target="_blank" style="color:#8a94ab;text-decoration:underline;">nextlyrtech.com</a></p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
