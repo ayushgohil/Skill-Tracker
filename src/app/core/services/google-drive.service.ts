@@ -230,7 +230,7 @@ export class GoogleDriveService {
     }
 
     // Fetch file as a blob URL for display
-    async getFileUrl(fileId: string): Promise<string> {
+    async getFileUrl(fileId: string, forceType?: string): Promise<string> {
         const token = await this.getAccessToken();
         if (!token) throw new Error('NO_DRIVE_ACCESS');
 
@@ -239,10 +239,32 @@ export class GoogleDriveService {
             { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error('Failed to fetch file');
-        const blob = await res.blob();
+        let blob = await res.blob();
+        // The type stored with the file is not trusted: a PDF is always opened as a PDF
+        // (never as a web page), whatever the file claims to be.
+        if (forceType && blob.type !== forceType) blob = new Blob([blob], { type: forceType });
         const url = URL.createObjectURL(blob);
         this.activeBlobUrls.add(url);
         return url;
+    }
+
+    /**
+     * Reads a plain text file as words (first `maxChars` characters only).
+     * The text is shown as text, never run as a page.
+     */
+    async getFileText(fileId: string, maxChars = 200_000): Promise<{ text: string; truncated: boolean }> {
+        const token = await this.getAccessToken();
+        if (!token) throw new Error('NO_DRIVE_ACCESS');
+
+        const res = await fetch(
+            `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) throw new Error('Failed to fetch file');
+        const text = await res.text();
+        return text.length > maxChars
+            ? { text: text.slice(0, maxChars), truncated: true }
+            : { text, truncated: false };
     }
 
     /** Revoke a blob URL to free memory. Call when the file is no longer displayed. */
@@ -372,4 +394,4 @@ export class GoogleDriveService {
         return await res.text();
     }
 }
-
+

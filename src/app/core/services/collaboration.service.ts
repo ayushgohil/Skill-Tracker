@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { generateInviteCode } from '../utils/invite-code';
 import { supabase } from '../supabase.client';
 import { CacheService } from './cache.service';
 import { InvitePreview, SubjectMember, SubjectPartnerInfo, UserProgress } from '../models';
@@ -35,20 +36,25 @@ export class CollaborationService {
             };
         }
 
-        // Generate clean random 8-character uppercase code (e.g. SKILL-8A2F)
-        const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const inviteCode = `ST-${randomPart}`;
-
-        const { data: newInvite, error: insertErr } = await supabase
-            .from('subject_invites')
-            .insert({
-                subject_id: subjectId,
-                inviter_id: user.id,
-                invite_code: inviteCode,
-                status: 'active'
-            })
-            .select()
-            .single();
+        // Secure random code such as ST-8A2F9K. If that exact code already exists
+        // (the database refuses duplicates) a new one is made, up to 3 tries.
+        let newInvite: any = null;
+        let insertErr: any = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const res = await supabase
+                .from('subject_invites')
+                .insert({
+                    subject_id: subjectId,
+                    inviter_id: user.id,
+                    invite_code: generateInviteCode(),
+                    status: 'active'
+                })
+                .select()
+                .single();
+            newInvite = res.data;
+            insertErr = res.error;
+            if (!insertErr || insertErr.code !== '23505') break;
+        }
 
         if (insertErr) throw insertErr;
 

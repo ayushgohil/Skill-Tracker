@@ -519,8 +519,13 @@
                 }
 
                 <!-- Media Content Display -->
-                @if (!lightboxLoading() && lightboxUrl()) {
-                    @if (isImage(media()[lightboxIndex()].mime_type)) {
+                @if (!lightboxLoading()) {
+                    @if (lightboxError()) {
+                    <div class="text-center text-slate-300 text-sm px-6">
+                        <p class="font-semibold mb-1">Couldn't load this file.</p>
+                        <p class="text-slate-400 text-xs">Check your connection, or use Download / Drive above.</p>
+                    </div>
+                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'image' && lightboxUrl()) {
                     <!-- Image with Interactive Zoom, Pan, Rotation & Gestures -->
                     <div class="w-full h-full flex items-center justify-center p-2 sm:p-6"
                         (dblclick)="onImageDoubleClick($event)">
@@ -530,19 +535,40 @@
                             [style.transform]="'translate3d(' + panOffset().x + 'px, ' + (panOffset().y + touchSwipeY()) + 'px, 0) scale(' + zoomLevel() + ') rotate(' + rotation() + 'deg)'"
                             draggable="false" />
                     </div>
-                    } @else if (isVideo(media()[lightboxIndex()].mime_type)) {
+                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'video' && lightboxUrl()) {
                     <!-- Responsive Video Player -->
                     <div class="w-full h-full max-w-4xl max-h-[78vh] flex items-center justify-center p-4">
                         <video [src]="lightboxUrl()!" controls autoplay playsinline
                             class="max-w-full max-h-[78vh] rounded-2xl shadow-2xl bg-black border border-white/10 outline-none">
                         </video>
                     </div>
-                    } @else {
-                    <!-- Document / PDF Viewer -->
+                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'pdf' && safeLightboxUrl()) {
+                    <!-- PDF Viewer (the only kind of file shown in a frame) -->
                     <div class="w-full h-full max-w-5xl max-h-[78vh] p-3 sm:p-6 flex flex-col items-center justify-center">
-                        <iframe [src]="safeLightboxUrl()!"
+                        <iframe [src]="safeLightboxUrl()!" title="PDF preview"
                             class="w-full h-full rounded-2xl shadow-2xl border border-white/10 bg-slate-900">
                         </iframe>
+                    </div>
+                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'text' && lightboxText()) {
+                    <!-- Plain text: the words are shown as text, never run as a page -->
+                    <div class="w-full h-full max-w-4xl max-h-[78vh] p-3 sm:p-6 flex flex-col">
+                        <pre class="flex-1 overflow-auto rounded-2xl border border-white/10 bg-slate-900 text-slate-200 text-xs sm:text-sm p-4 whitespace-pre-wrap break-words">{{ lightboxText()!.text }}</pre>
+                        @if (lightboxText()!.truncated) {
+                        <p class="text-[11px] text-slate-400 mt-2 text-center">Only the start of this file is shown. Download it to read all of it.</p>
+                        }
+                    </div>
+                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'none') {
+                    <!-- No preview for this kind of file -->
+                    <div class="text-center px-6 max-w-sm">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-3xl" aria-hidden="true">📄</div>
+                        <p class="text-white font-semibold text-sm break-words">{{ media()[lightboxIndex()].file_name }}</p>
+                        <p class="text-slate-400 text-xs mt-1 mb-4">This kind of file can't be previewed here.</p>
+                        <div class="flex items-center justify-center gap-2">
+                            <button (click)="downloadCurrentFile(); $event.stopPropagation()"
+                                class="h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold touch-manipulation">Download</button>
+                            <button (click)="openInDrive(); $event.stopPropagation()"
+                                class="h-11 px-5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-sm font-medium border border-white/10 touch-manipulation">Open in Drive</button>
+                        </div>
                     </div>
                     }
                 }

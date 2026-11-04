@@ -6,6 +6,34 @@ export interface FileValidationResult {
 const MAX_SIZE_MB = 50;
 const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
+/** Makes a file name safe to put inside a popup that shows HTML. */
+export function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * How an attachment may be shown inside the app.
+ *  image / video : shown with a normal image or video tag
+ *  pdf           : shown in the PDF viewer
+ *  text          : the words are read and shown as plain text (never run as a page)
+ *  none          : no preview, only Download / Open in Drive
+ */
+export type PreviewKind = 'image' | 'video' | 'pdf' | 'text' | 'none';
+
+export function previewKind(mime: string | null | undefined): PreviewKind {
+    const m = (mime ?? '').toLowerCase();
+    if (m.startsWith('image/')) return 'image';
+    if (m.startsWith('video/')) return 'video';
+    if (m === 'application/pdf') return 'pdf';
+    if (m === 'text/plain' || m === 'text/csv' || m === 'text/markdown') return 'text';
+    return 'none';
+}
+
 // All allowed MIME types
 const ALLOWED_TYPES: Record<string, string> = {
     // Images
@@ -13,7 +41,6 @@ const ALLOWED_TYPES: Record<string, string> = {
     'image/png': 'PNG',
     'image/gif': 'GIF',
     'image/webp': 'WebP',
-    'image/svg+xml': 'SVG',
     'image/bmp': 'BMP',
     'image/tiff': 'TIFF',
     // Videos
@@ -52,7 +79,7 @@ export function validateFile(file: File): FileValidationResult {
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
         return {
             valid: false,
-            error: `<b>${file.name}</b> is ${fileSizeMB}MB — maximum allowed size is ${MAX_SIZE_MB}MB.`
+            error: `<b>${escapeHtml(file.name)}</b> is ${fileSizeMB}MB — maximum allowed size is ${MAX_SIZE_MB}MB.`
         };
     }
 
@@ -60,7 +87,7 @@ export function validateFile(file: File): FileValidationResult {
     if (!ALLOWED_TYPES[file.type]) {
         return {
             valid: false,
-            error: `<b>${file.name}</b> has an unsupported file type (<code>${file.type || 'unknown'}</code>).`
+            error: `<b>${escapeHtml(file.name)}</b> has an unsupported file type (<code>${escapeHtml(file.type || 'unknown')}</code>).`
         };
     }
 

@@ -1,6 +1,6 @@
 // src/app/subjects/subject-detail/subject-detail.component.ts
 import { Component, OnInit, OnDestroy, signal, computed, HostListener } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SubjectsService } from '../../core/services/subjects.service';
 import { TopicsService } from '../../core/services/topics.service';
@@ -34,7 +34,7 @@ const DEPTH_ORDER: Record<Depth, number> = { shallow: 0, medium: 1, deep: 2 };
 @Component({
     selector: 'app-subject-detail',
     standalone: true,
-    imports: [TopicItemComponent, ToastComponent, BottomNavComponent, FormsModule, RouterLink, DragDropModule, ShareModalComponent],
+    imports: [TopicItemComponent, ToastComponent, BottomNavComponent, FormsModule, DragDropModule, ShareModalComponent],
     templateUrl: './subject-detail.component.html',
     animations: [staggerList, fadeSlideInOut]
 })

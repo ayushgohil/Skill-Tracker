@@ -10,7 +10,7 @@ import { TopicMedia, TopicMediaService } from '../../core/services/topic-media.s
 import { GoogleDriveService } from '../../core/services/google-drive.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PendingDeleteService } from '../../core/services/pending-delete.service';
-import { validateFiles } from '../../core/utils/file-validation';
+import { validateFiles, previewKind, PreviewKind } from '../../core/utils/file-validation';
 import Swal from 'sweetalert2';
 
 
@@ -61,6 +61,9 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     lightboxUrl = signal<string | null>(null);
     safeLightboxUrl = signal<SafeResourceUrl | null>(null);
     lightboxLoading = signal(false);
+    /** Words of a plain text attachment, shown as text only. */
+    lightboxText = signal<{ text: string; truncated: boolean } | null>(null);
+    lightboxError = signal(false);
     zoomLevel = signal<number>(1);
     panOffset = signal<{ x: number; y: number }>({ x: 0, y: 0 });
     rotation = signal<number>(0);
@@ -385,6 +388,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
         this.lightboxOpen.set(false);
         this.lightboxUrl.set(null);
         this.safeLightboxUrl.set(null);
+        this.lightboxText.set(null);
         this.resetTransform();
         if (isPlatformBrowser(this.platformId)) {
             document.removeEventListener('keydown', this.onKey);
@@ -603,16 +607,35 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
         window.open(viewUrl, '_blank');
     }
 
+    /** What the viewer may show for this attachment (see previewKind). */
+    kindOf(mime: string | null | undefined): PreviewKind { return previewKind(mime); }
+
     async loadLightboxFile(index: number) {
         const item = this.media()[index];
         if (!item) return;
-        this.lightboxLoading.set(true);
         this.lightboxUrl.set(null);
         this.safeLightboxUrl.set(null);
+        this.lightboxText.set(null);
+        this.lightboxError.set(false);
+
+        const kind = previewKind(item.mime_type);
+        // Word, Excel, zip, audio and so on: nothing to load, the viewer shows Download buttons.
+        if (kind === 'none') { this.lightboxLoading.set(false); return; }
+
+        this.lightboxLoading.set(true);
         try {
-            const url = await this.drive.getFileUrl(item.drive_file_id);
-            this.lightboxUrl.set(url);
-            this.safeLightboxUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+            if (kind === 'text') {
+                const result = await this.drive.getFileText(item.drive_file_id);
+                if (index === this.lightboxIndex()) this.lightboxText.set(result);
+            } else {
+                const url = await this.drive.getFileUrl(item.drive_file_id, kind === 'pdf' ? 'application/pdf' : undefined);
+                this.lightboxUrl.set(url);
+                if (kind === 'pdf') {
+                    this.safeLightboxUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+                }
+            }
+        } catch {
+            this.lightboxError.set(true);
         } finally {
             this.lightboxLoading.set(false);
         }
