@@ -393,5 +393,88 @@ export class GoogleDriveService {
         if (!res.ok) throw new Error(`Failed to download backup file from Drive (${res.status})`);
         return await res.text();
     }
+
+    // ── Account deletion: the app's own Drive folder ───────────
+
+    /**
+     * Looks at the "NextLyr SkillTracker" folder (without creating it) and counts what is
+     * inside: backups, and everything else (attachments). Only files this app made are
+     * visible to it (the app only has the drive.file permission).
+     */
+    async getAppFolderSummary(): Promise<{ found: boolean; folderId?: string; files: number; backups: number; attachments: number; truncated: boolean }> {
+        const token = await this.getAccessToken();
+        if (!token) throw new Error('NO_DRIVE_ACCESS');
+
+        const rootId = await this.findFolderId(token, 'NextLyr SkillTracker');
+        if (!rootId) return { found: false, files: 0, backups: 0, attachments: 0, truncated: false };
+
+        const FOLDER = 'application/vnd.google-apps.folder';
+        const LIMIT = 5000; // stop counting after this many items so the popup never waits long
+        let backups = 0;
+        let attachments = 0;
+        let truncated = false;
+
+        const queue: { id: string; isBackups: boolean }[] = [{ id: rootId, isBackups: false }];
+        while (queue.length && !truncated) {
+            const { id, isBackups } = queue.shift()!;
+            let pageToken: string | undefined;
+            do {
+                const q = `'${id}' in parents and trashed=false`;
+                const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`
+                    + `&fields=nextPageToken,files(id,name,mimeType)&pageSize=1000`
+                    + (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '');
+                const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+                if (!res.ok) throw new Error(`Drive folder listing failed: ${res.status}`);
+                const data = await res.json();
+                for (const f of data.files ?? []) {
+                    if (f.mimeType === FOLDER) {
+                        queue.push({ id: f.id, isBackups: id === rootId && f.name === 'Backups' });
+                    } else if (isBackups) {
+                        backups++;
+                    } else {
+                        attachments++;
+                    }
+                }
+                pageToken = data.nextPageToken;
+                if (backups + attachments >= LIMIT) { truncated = true; break; }
+            } while (pageToken);
+        }
+
+        return { found: true, folderId: rootId, files: backups + attachments, backups, attachments, truncated };
+    }
+
+    /**
+     * Moves the "NextLyr SkillTracker" folder (and everything in it) to the Google Drive
+     * Trash. It stays there for 30 days, so it can still be restored.
+     * Does nothing when the folder does not exist.
+     */
+    async trashAppFolder(): Promise<void> {
+        const token = await this.getAccessToken();
+        if (!token) throw new Error('NO_DRIVE_ACCESS');
+
+        const rootId = await this.findFolderId(token, 'NextLyr SkillTracker');
+        if (!rootId) return;
+
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${rootId}`, {
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trashed: true })
+        });
+        if (!res.ok) throw new Error(`Could not move the Drive folder to the Trash (${res.status})`);
+        this.folderCache.clear();
+    }
+
+    /** Finds a folder by name without creating it. Returns null when there is none. */
+    private async findFolderId(token: string, name: string): Promise<string | null> {
+        const safeName = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const q = `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+        const res = await fetch(
+            `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) throw new Error(`Drive folder search failed: ${res.status}`);
+        const data = await res.json();
+        return data.files?.[0]?.id ?? null;
+    }
 }
 

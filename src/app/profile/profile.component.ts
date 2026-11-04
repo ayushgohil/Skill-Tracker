@@ -55,6 +55,14 @@ export class ProfileComponent implements OnInit {
     showDeleteModal = signal(false);
     deleteConfirmationEmail = '';
     isDeleting = signal(false);
+    /** Google Drive part of the delete popup. */
+    driveDelete = signal<{
+        state: 'none' | 'checking' | 'ready' | 'error';
+        files: number; backups: number; attachments: number; truncated: boolean;
+    }>({ state: 'none', files: 0, backups: 0, attachments: 0, truncated: false });
+    /** Ticked by the user: also move the Skill Tracker folder in Google Drive to the Trash. */
+    deleteDriveData = signal(false);
+    driveDeleteError = signal('');
     deletionProgress = signal<{ table: string, label: string, status: 'pending' | 'deleting' | 'done' | 'error' }[]>([]);
     autoConnectDrive = signal(false);
     hasDriveAccess = signal(false);
@@ -609,6 +617,10 @@ export class ProfileComponent implements OnInit {
 
     startDeleteAccount() {
         this.deleteConfirmationEmail = '';
+        this.deleteDriveData.set(false);
+        this.driveDeleteError.set('');
+        this.driveDelete.set({ state: 'none', files: 0, backups: 0, attachments: 0, truncated: false });
+        void this.loadDriveSummary();
         this.deletionProgress.set([
             { table: 'activity_logs', label: 'Activity Logs', status: 'pending' },
             { table: 'weekly_reviews', label: 'Weekly Reviews', status: 'pending' },
@@ -622,12 +634,58 @@ export class ProfileComponent implements OnInit {
         this.showDeleteModal.set(true);
     }
 
+    /** Asks Google Drive what is in the app's folder, so the popup can show it. */
+    private async loadDriveSummary() {
+        try {
+            if (!(await this.googleDrive.hasDriveAccess())) return; // Drive not connected: no checkbox
+            this.driveDelete.update(d => ({ ...d, state: 'checking' }));
+            const summary = await this.googleDrive.getAppFolderSummary();
+            if (!this.showDeleteModal()) return;
+            this.driveDelete.set(summary.found
+                ? { state: 'ready', files: summary.files, backups: summary.backups, attachments: summary.attachments, truncated: summary.truncated }
+                : { state: 'none', files: 0, backups: 0, attachments: 0, truncated: false });
+        } catch (err) {
+            console.error('Could not check the Google Drive folder:', err);
+            this.driveDelete.update(d => ({ ...d, state: 'error' }));
+        }
+    }
+
+    /** Puts the progress list back to its start (used when the Drive step fails). */
+    private resetDeletionSteps() {
+        this.deletionProgress.update(prev => prev.filter(s => s.table !== 'google_drive').map(s => ({ ...s, status: 'pending' as const })));
+    }
+
     async confirmDeleteAccount() {
         if (this.deleteConfirmationEmail !== this.userEmail() || this.isDeleting()) return;
 
         this.isDeleting.set(true);
+        this.driveDeleteError.set('');
+
+        // Step 1 (only if ticked): move the Drive folder to the Trash. This runs BEFORE the account
+        // is deleted, because the Google access is removed together with the account.
+        const withDrive = this.deleteDriveData() && this.driveDelete().state === 'ready';
+        if (withDrive) {
+            this.deletionProgress.update(prev => [
+                { table: 'google_drive', label: 'Google Drive: Skill Tracker Data', status: 'deleting' as const },
+                ...prev
+            ]);
+            try {
+                await this.googleDrive.trashAppFolder();
+                this.deletionProgress.update(prev => prev.map(s => s.table === 'google_drive' ? { ...s, status: 'done' as const } : s));
+            } catch (err: any) {
+                console.error('Failed to delete the Google Drive data:', err);
+                // Nothing was deleted from the account: go back to the confirm screen with a message.
+                this.resetDeletionSteps();
+                this.driveDeleteError.set(
+                    "We couldn't delete your Google Drive data, so your account was NOT deleted. " +
+                    'Try again, or untick the Drive box to delete only the account.');
+                this.isDeleting.set(false);
+                return;
+            }
+        }
+
         const steps = this.deletionProgress();
-        let currentStep = 0;
+        let currentStep = withDrive ? 1 : 0;
 
         const progressInterval = setInterval(() => {
             if (currentStep < steps.length - 1) {

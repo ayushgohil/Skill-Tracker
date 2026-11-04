@@ -795,6 +795,42 @@
                 </ul>
 
                 @if (!isDeleting() && deletionProgress()[0].status === 'pending') {
+
+                @if (driveDelete().state === 'checking') {
+                <div class="p-4 rounded-xl mt-4 flex items-center gap-3 text-xs font-bold" style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-3)">
+                    <span class="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style="border-color:var(--text-4);border-top-color:transparent"></span>
+                    Checking your Google Drive…
+                </div>
+                } @else if (driveDelete().state === 'ready') {
+                <label class="p-4 rounded-xl mt-4 flex items-start gap-3 cursor-pointer" style="background:var(--surface-1);border:1px solid var(--border)">
+                    <input type="checkbox" [checked]="deleteDriveData()" (change)="deleteDriveData.set($any($event.target).checked)"
+                        class="mt-0.5 w-5 h-5 flex-shrink-0 accent-red-600" />
+                    <span class="text-xs" style="color:var(--text-2)">
+                        <span class="block font-bold text-sm" style="color:var(--text-1)">Also delete my Skill Tracker data from Google Drive</span>
+                        <span class="block mt-1" style="color:var(--text-3)">Folder: <span class="font-bold">My Drive › NextLyr SkillTracker</span></span>
+                        <span class="block" style="color:var(--text-3)">
+                            @if (driveDelete().files === 0) {
+                            The folder has no files in it.
+                            } @else {
+                            {{ driveDelete().truncated ? 'More than ' : '' }}{{ driveDelete().files }} file{{ driveDelete().files === 1 ? '' : 's' }}:
+                            {{ driveDelete().backups }} backup{{ driveDelete().backups === 1 ? '' : 's' }} and
+                            {{ driveDelete().attachments }} attachment{{ driveDelete().attachments === 1 ? '' : 's' }}
+                            }
+                        </span>
+                        <span class="block mt-1" style="color:var(--text-3)">Everything in this folder moves to your Google Drive Trash, where you can restore it for 30 days.</span>
+                    </span>
+                </label>
+                } @else if (driveDelete().state === 'error') {
+                <p class="p-3 rounded-xl mt-4 text-xs font-medium" style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-3)">
+                    We couldn't check your Google Drive, so your Drive files can't be deleted from here. You can delete the
+                    "NextLyr SkillTracker" folder in Google Drive yourself.
+                </p>
+                }
+
+                @if (driveDeleteError()) {
+                <p role="alert" class="p-3 rounded-xl mt-4 text-xs font-bold text-red-500 bg-red-500/10 border border-red-500/30">{{ driveDeleteError() }}</p>
+                }
+
                 <div class="p-4 rounded-xl mt-4" style="background:var(--surface-1);border:1px solid var(--border)">
                     <label class="block text-xs font-bold mb-2" style="color:var(--text-3)">Please type <span
                             class="font-black select-all" style="color:var(--text-1)">{{ userEmail() }}</span> to confirm.</label>
