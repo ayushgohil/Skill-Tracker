@@ -1,37 +1,38 @@
 <!-- src/app/dashboard/dashboard.component.html -->
-<div class="min-h-screen pb-28 phone-text" style="background:var(--bg);color:var(--text-1)">
+<div class="min-h-screen pb-28 bg-[var(--bg)] text-[var(--text-1)]">
 
-    <!-- ── Collapsed Sticky Header ─────────────── -->
+    <!-- ── Collapsed Sticky Header (Appears on scroll) ─────────────── -->
     <div class="collapsed-header" [class.visible]="headerCollapsed()">
         <div class="collapsed-header-inner">
-            <div class="flex items-center gap-2 min-w-0">
-                <img src="icons/logo-96.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Nextlyr" class="w-5 h-5 rounded-md object-contain flex-shrink-0" />
-                <span class="text-sm sm:text-base font-black tahoma truncate" style="color:var(--text-1)">Nextlyr</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                    style="background:var(--accent-dim);color:var(--accent)">{{ overallPercent() }}%</span>
-                <span class="text-[10px] font-bold hidden sm:inline" style="color:var(--text-3)">🔥 {{ currentStreak()
-                    }}</span>
+            <div class="flex items-center gap-3 min-w-0">
+                <img src="icons/logo-96.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Skill Tracker" class="w-5 h-5 rounded object-contain flex-shrink-0" />
+                <span class="text-xs sm:text-sm font-semibold truncate text-[var(--text-1)]">Skill Tracker</span>
+                <span class="text-[11px] font-mono px-2 py-0.5 rounded border border-[var(--border)] text-[var(--text-3)] hidden xs:inline-block">
+                    {{ overallPercent() }}% complete
+                </span>
+                @if (currentStreak() > 0) {
+                <span class="text-xs font-mono text-amber-500 hidden sm:inline-flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 1.5 1.5 3 2.5 4 2 2 4.5 4.5 4.5 8a7 7 0 11-14 0c0-3.5 2.5-6 4.5-8 1-1 2-2.5 2.5-4z"/></svg>
+                    {{ currentStreak() }}d
+                </span>
+                }
             </div>
+
             <div class="flex items-center gap-2">
                 <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle-collapsed" title="Toggle theme">
                     @if (themeService.isDark()) {
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     } @else {
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                     }
                 </button>
-                <a routerLink="/profile"
-                    class="w-8 h-8 min-w-[32px] rounded-lg flex items-center justify-center text-xs font-bold overflow-hidden"
-                    style="background:var(--surface-2);color:var(--accent)">
+                <a routerLink="/profile" class="w-7 h-7 rounded border border-[var(--border)] flex items-center justify-center text-xs font-semibold overflow-hidden bg-[var(--surface-1)] text-[var(--text-1)]">
                     @if (userAvatar()) {
-                    <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover"
-                        referrerpolicy="no-referrer" />
+                    <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
                     } @else {
                     {{ userInitial() }}
                     }
@@ -40,43 +41,43 @@
         </div>
     </div>
 
-    <!-- ── Header Area ────────────────────────────── -->
-    <header #headerEl
-        class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 pt-8 pb-7 sm:py-10 text-white rounded-b-[28px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative overflow-hidden">
-        <div class="absolute top-[-50%] right-[-20%] w-56 sm:w-72 h-56 sm:h-72 bg-white/10 blur-3xl rounded-full">
-        </div>
-
-        <div class="max-w-5xl mx-auto flex flex-col gap-4 sm:gap-6 relative z-10">
-            <!-- Top Row: Title & Actions -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <span
-                        class="text-white/75 text-xs font-bold uppercase tracking-widest tahoma">Learning
-                        Dashboard</span>
-                    <h1 class="text-2xl font-black mt-1 tracking-tight tahoma">Nextlyr Skill
-                        Tracker</h1>
+    <!-- ── Calm Workspace Header ────────────────────── -->
+    <header #headerEl class="border-b border-[var(--border)] bg-[var(--surface-0)] px-4 sm:px-6 pt-6 pb-5">
+        <div class="max-w-4xl mx-auto flex flex-col gap-5">
+            <!-- Top Row: Title, Action & Controls -->
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="icons/logo-96.png" onerror="this.src='assets/nextlyr-logo.png'" alt="Skill Tracker" class="w-7 h-7 rounded-md object-contain" />
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold tracking-tight text-[var(--text-1)]">Skill Tracker</h1>
+                        <p class="text-xs text-[var(--text-3)] font-mono">Learning Workspace</p>
+                    </div>
                 </div>
+
                 <div class="flex items-center gap-2">
-                    <!-- Theme Toggle -->
-                    <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle touch-manipulation" title="Toggle theme">
+                    <button (click)="showAddSubject.set(true)"
+                        class="btn-primary text-xs py-1.5 px-3">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>New Subject</span>
+                    </button>
+
+                    <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle" title="Toggle theme">
                         @if (themeService.isDark()) {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                         } @else {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                         </svg>
                         }
                     </button>
-                    <!-- Profile Avatar -->
-                    <a routerLink="/profile"
-                        class="w-11 h-11 min-w-[44px] rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-bold hover:bg-white/30 transition-all touch-manipulation overflow-hidden">
+
+                    <a routerLink="/profile" class="w-8 h-8 rounded-lg border border-[var(--border)] flex items-center justify-center text-xs font-semibold overflow-hidden bg-[var(--surface-1)] text-[var(--text-1)] hover:border-[var(--border-hover)] transition-colors">
                         @if (userAvatar()) {
-                        <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover"
-                            referrerpolicy="no-referrer" />
+                        <img [src]="userAvatar()" alt="Profile" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
                         } @else {
                         {{ userInitial() }}
                         }
@@ -84,386 +85,316 @@
                 </div>
             </div>
 
-            <!-- Metrics Cards -->
-            <div class="grid grid-cols-3 gap-2.5 sm:gap-3 mt-2">
-                <!-- Mastery Circle -->
-                <div
-                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2 shadow-sm">
-                    <div class="relative flex items-center justify-center w-14 h-14">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 56 56" aria-hidden="true">
-                            <circle class="text-white/20" stroke-width="5" stroke="currentColor" fill="transparent"
-                                r="22" cx="28" cy="28" />
-                            <circle class="text-white" stroke-width="5" [style.stroke-dasharray]="138.2"
-                                [style.stroke-dashoffset]="138.2 - (138.2 * overallPercent() / 100)"
-                                stroke-linecap="round" stroke="currentColor" fill="transparent" r="22" cx="28"
-                                cy="28" />
-                        </svg>
-                        <span class="absolute text-xs font-black tahoma">{{ overallPercent() }}%</span>
+            <!-- Restrained Metrics Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                <!-- Metric 1: Overall Mastery -->
+                <div class="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)]">
+                    <span class="text-xs text-[var(--text-3)] block mb-1">Mastery</span>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-xl font-bold font-mono tracking-tight text-[var(--text-1)]">{{ overallPercent() }}%</span>
+                        <span class="text-[11px] text-[var(--text-3)]">completed</span>
                     </div>
-                    <span
-                        class="text-[11px] sm:text-[10px] font-bold uppercase tracking-wider text-white/85 tahoma">Mastery</span>
+                    <div class="mt-2 w-full bg-[var(--surface-2)] h-1 rounded-full overflow-hidden">
+                        <div class="bg-[var(--accent)] h-full rounded-full transition-all duration-500" [style.width.%]="overallPercent()"></div>
+                    </div>
                 </div>
 
-                <!-- Streak -->
-                <div
-                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
-                    <span class="text-xl sm:text-2xl font-black tahoma">🔥 {{ currentStreak() }}</span>
-                    <span class="text-[11px] sm:text-[10px] font-bold uppercase tracking-wider text-white/85 tahoma">Day
-                        Streak</span>
+                <!-- Metric 2: Active Streak -->
+                <div class="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)]">
+                    <span class="text-xs text-[var(--text-3)] block mb-1">Daily Streak</span>
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="text-xl font-bold font-mono tracking-tight text-[var(--text-1)]">{{ currentStreak() }}</span>
+                        <span class="text-xs text-[var(--text-3)] font-mono">days active</span>
+                    </div>
+                    <div class="mt-2 text-[11px] text-[var(--text-3)] truncate">
+                        {{ currentStreak() > 0 ? 'Consistency on track' : 'Start a topic today' }}
+                    </div>
                 </div>
 
-                <!-- XP -->
-                <div
-                    class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center gap-0.5 sm:gap-1 shadow-sm">
-                    <span class="text-xl sm:text-2xl font-black tahoma">✨ {{ totalCompleted() * 100 }}</span>
-                    <span
-                        class="text-[11px] sm:text-[10px] font-bold uppercase tracking-wider text-white/85 tahoma">Total
-                        XP</span>
+                <!-- Metric 3: Topics Finished -->
+                <div class="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)]">
+                    <span class="text-xs text-[var(--text-3)] block mb-1">Topics Mastered</span>
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="text-xl font-bold font-mono tracking-tight text-[var(--text-1)]">{{ totalCompleted() }}</span>
+                        <span class="text-xs text-[var(--text-3)] font-mono">/ {{ totalTopics() }}</span>
+                    </div>
+                    <div class="mt-2 text-[11px] text-[var(--text-3)] truncate">
+                        {{ subjects().length }} {{ subjects().length === 1 ? 'subject' : 'subjects' }} tracked
+                    </div>
+                </div>
+
+                <!-- Metric 4: Weekly Review Status -->
+                <div (click)="goToWeeklyReview()" role="button" tabindex="0"
+                    (keydown.enter)="goToWeeklyReview()"
+                    class="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] hover:border-[var(--border-hover)] cursor-pointer transition-colors">
+                    <span class="text-xs text-[var(--text-3)] block mb-1">Weekly Focus</span>
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="text-sm font-semibold text-[var(--text-1)]">
+                            {{ reviewDue() ? 'Review Ready' : (starredTopics().length + ' Focused') }}
+                        </span>
+                    </div>
+                    <div class="mt-2 text-[11px] text-[var(--accent)] hover:underline truncate">
+                        {{ reviewDue() ? 'Start weekly review →' : 'Manage focus topics →' }}
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- ── Main Content ────────────────────────────── -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-5 py-6 sm:py-8 tahoma">
+    <!-- ── Main Content Area ────────────────────────── -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
-        <!-- Weekly Review Banner / Focus Topics — Skeleton Loading -->
-        @if (loadingWeekly()) {
-        <!-- Skeleton: Weekly Focus Ready Banner -->
-        <div class="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 flex items-center justify-between gap-3 animate-pulse"
-            style="background:var(--surface-0);border:1px solid var(--border)">
-            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex-shrink-0" style="background:var(--skeleton)">
-                </div>
-                <div class="min-w-0 space-y-1.5">
-                    <div class="h-3.5 rounded w-32 sm:w-40" style="background:var(--skeleton)"></div>
-                    <div class="h-2.5 rounded w-44 sm:w-52 hidden sm:block" style="background:var(--skeleton)"></div>
-                </div>
-            </div>
-            <div class="h-9 w-24 sm:w-28 rounded-lg sm:rounded-xl flex-shrink-0" style="background:var(--skeleton)">
-            </div>
-        </div>
-        <!-- Skeleton: Current Focus Topics -->
-        <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 animate-pulse"
-            style="background:var(--surface-0);border:1px solid var(--border)">
-            <div class="flex items-center justify-between mb-3">
-                <div class="h-3.5 rounded w-36" style="background:var(--skeleton)"></div>
-                <div class="h-3 rounded w-14" style="background:var(--skeleton)"></div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <div class="h-9 rounded-xl w-36 sm:w-44" style="background:var(--skeleton)"></div>
-                <div class="h-9 rounded-xl w-28 sm:w-32" style="background:var(--skeleton)"></div>
-                <div class="h-9 rounded-xl w-44 sm:w-52" style="background:var(--skeleton)"></div>
-            </div>
-        </div>
-        } @else {
-
-        <!-- Weekly Review Banner -->
+        <!-- Weekly Review Ready Banner -->
         @if (reviewDue()) {
-        <div class="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 animate-slide-up flex items-center justify-between gap-3 shadow-sm"
-            style="background:var(--surface-0);border:1px solid var(--border)">
-            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                <span class="text-xl sm:text-2xl flex-shrink-0">⭐</span>
-                <div class="min-w-0">
-                    <div class="text-sm font-bold truncate tahoma" style="color:var(--text-1)">Weekly Focus Ready</div>
-                    <div class="text-xs hidden sm:block tahoma" style="color:var(--text-3)">Pick topics to focus on this
-                        week</div>
+        <div class="p-4 rounded-lg border border-blue-500/30 bg-blue-500/5 dark:bg-blue-500/10 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 animate-pulse"></span>
+                <div>
+                    <h3 class="text-xs font-semibold text-[var(--text-1)]">Weekly Focus Review Ready</h3>
+                    <p class="text-xs text-[var(--text-2)] mt-0.5">Recap your completed topics and pick focus topics for this week.</p>
                 </div>
             </div>
-            <button (click)="goToWeeklyReview()"
-                class="tahoma bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl shadow-sm transition-all whitespace-nowrap flex-shrink-0 min-h-[36px] touch-manipulation">
-                Start Review
+            <button (click)="goToWeeklyReview()" class="btn-primary text-xs py-1.5 px-3 whitespace-nowrap flex-shrink-0">
+                Start Review →
             </button>
         </div>
         }
 
-        <!-- Focus Topics -->
+        <!-- Current Focus Topics Strip -->
         @if (starredTopics().length > 0) {
-        <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 shadow-sm animate-slide-up"
-            style="background:var(--surface-0);border:1px solid var(--border)">
+        <div class="p-4 rounded-lg border border-[var(--border)] bg-[var(--surface-0)]">
             <div class="flex items-center justify-between mb-3">
-                <span class="font-bold text-sm tahoma" style="color:var(--accent)">★ Current Focus Topics</span>
-                <button (click)="goToWeeklyReview()"
-                    class="tahoma hover:underline text-xs font-bold min-h-[32px] touch-manipulation"
-                    style="color:var(--accent)">Manage</button>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono text-[var(--text-3)] uppercase tracking-wider">CURRENT WEEKLY FOCUS</span>
+                    <span class="text-xs font-mono text-[var(--text-3)]">({{ starredTopics().length }}/3)</span>
+                </div>
+                <button (click)="goToWeeklyReview()" class="text-xs text-[var(--accent)] hover:underline">
+                    Manage
+                </button>
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 @for (topic of starredTopics(); track topic.id) {
                 <div (click)="openSubject(topic.subject_id, topic.title)" role="button" tabindex="0"
                     (keydown.enter)="openSubject(topic.subject_id, topic.title)"
-                    class="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all touch-manipulation"
-                    style="background:var(--surface-2);border:1px solid var(--border)">
-                    <div class="tahoma w-2 h-2 rounded-full flex-shrink-0"
-                        [style.background-color]="topic.subject_color">
-                    </div>
-                    <span class="tahoma text-xs font-semibold truncate max-w-[160px] sm:max-w-[250px]"
-                        style="color:var(--text-2)">{{
-                        topic.title }}</span>
+                    class="p-2.5 rounded-md border border-[var(--border)] bg-[var(--surface-1)] hover:border-[var(--border-hover)] cursor-pointer transition-colors flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0" [style.background-color]="topic.subject_color"></span>
+                    <span class="text-xs font-medium text-[var(--text-1)] truncate flex-1">{{ topic.title }}</span>
+                    <span class="text-[10px] text-[var(--text-3)] font-mono">Focus</span>
                 </div>
                 }
             </div>
         </div>
         }
 
-        }
-
-        <!-- Section Header -->
-        <div class="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 class="text-sm sm:text-base font-black tahoma" style="color:var(--text-1)">Learning Paths</h2>
-            <button (click)="showAddSubject.set(true)"
-                class="tahoma text-xs font-bold flex items-center gap-1 hover:underline min-h-[32px] touch-manipulation"
-                style="color:var(--accent)">
-                + Add Subject
-            </button>
-        </div>
-
-        <!-- Loading Skeletons -->
-        @if (loading()) {
-        <div class="grid grid-cols-1 gap-3 sm:gap-4">
-            @for (_ of [1,2,3]; track $index) {
-            <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 animate-pulse"
-                style="background:var(--surface-0);border:1px solid var(--border)">
-                <div class="h-4 rounded w-1/3 mb-3" style="background:var(--skeleton)"></div>
-                <div class="h-2 rounded w-full mb-2" style="background:var(--skeleton)"></div>
-                <div class="h-3 rounded w-1/4" style="background:var(--skeleton)"></div>
+        <!-- Section Header with Search, Filter & Sort -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold tracking-tight text-[var(--text-1)]">Learning Subjects</h2>
+                <span class="text-xs text-[var(--text-3)] font-mono">{{ subjects().length }} total</span>
             </div>
-            }
-        </div>
 
-        } @else if (subjects().length === 0 && !showAddSubject()) {
-        <!-- Empty State -->
-        <div class="text-center py-12 sm:py-16 rounded-2xl sm:rounded-3xl animate-fade-in shadow-xl hover:shadow-2xl transition-all duration-300"
-            style="background:var(--surface-0);border:2px dashed var(--accent)">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                style="background:var(--accent-dim)">
-                <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="1.5" style="color:var(--accent)">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-            </div>
-            <h3 class="font-bold text-base sm:text-lg mb-1 tahoma" style="color:var(--text-1)">Create your first
-                Subject</h3>
-            <p class="text-xs max-w-xs mx-auto leading-relaxed mb-5 sm:mb-6 px-4 tahoma" style="color:var(--text-3)">
-                Add topics to
-                break down
-                skills and master content cleanly.</p>
-            <button (click)="showAddSubject.set(true)"
-                class="tahoma bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-full shadow-md min-h-[44px] touch-manipulation">
-                Add New Subject
-            </button>
-        </div>
-
-        } @else {
-
-        <!-- Search, filter and sort (shown once there are a few subjects) -->
-        @if (showListTools()) {
-        <div class="mb-3 sm:mb-4 space-y-2.5">
-            <div class="flex flex-col sm:flex-row gap-2">
-                <div class="relative flex-1">
-                    <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--text-4)"
-                        aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-                    </svg>
-                    <input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
-                        (keydown.escape)="searchQuery.set('')" placeholder="Search subjects and topics"
-                        aria-label="Search subjects and topics" autocomplete="off"
-                        class="tahoma w-full h-11 rounded-xl pl-10 pr-10 text-sm outline-none"
-                        style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)" />
-                    @if (searchQuery()) {
-                    <button type="button" (click)="searchQuery.set('')" aria-label="Clear search"
-                        class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg touch-manipulation"
-                        style="color:var(--text-3)">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <!-- List controls (Search, filter, sort) -->
+            @if (showListTools()) {
+            <div class="space-y-2.5">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <!-- Search Input -->
+                    <div class="relative flex-1">
+                        <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-4)] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
                         </svg>
+                        <input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                            (keydown.escape)="searchQuery.set('')" placeholder="Filter subjects or topics..."
+                            aria-label="Search subjects and topics"
+                            class="input h-9 pl-9 pr-8 text-xs font-sans" />
+                        @if (searchQuery()) {
+                        <button type="button" (click)="searchQuery.set('')" aria-label="Clear search"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-3)] hover:text-[var(--text-1)] p-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        }
+                    </div>
+
+                    <!-- Sort select -->
+                    <select [ngModel]="sortBy()" (ngModelChange)="setSort($event)" aria-label="Sort subjects"
+                        class="input h-9 text-xs font-medium sm:w-44 cursor-pointer">
+                        @for (option of sortOptions; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Filter tabs -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1" role="group" aria-label="Filter subjects">
+                    @for (f of statusFilters; track f.value) {
+                    @if (f.value !== 'shared' || hasSharedSubjects() || statusFilter() === 'shared') {
+                    <button type="button" (click)="setStatusFilter(f.value)" [attr.aria-pressed]="statusFilter() === f.value"
+                        class="px-2.5 py-1 rounded text-xs font-medium transition-colors border"
+                        [style.background]="statusFilter() === f.value ? 'var(--accent)' : 'var(--surface-0)'"
+                        [style.color]="statusFilter() === f.value ? '#ffffff' : 'var(--text-2)'"
+                        [style.border-color]="statusFilter() === f.value ? 'var(--accent)' : 'var(--border)'">
+                        {{ f.label }}
+                    </button>
+                    }
+                    }
+                    @if (viewChanged()) {
+                    <button type="button" (click)="clearView()" class="text-xs text-[var(--accent)] hover:underline ml-2">
+                        Clear filters
                     </button>
                     }
                 </div>
-                <select [ngModel]="sortBy()" (ngModelChange)="setSort($event)" aria-label="Sort subjects"
-                    class="tahoma h-11 rounded-xl px-3 text-xs font-bold outline-none cursor-pointer sm:w-44"
-                    style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-2)">
-                    @for (option of sortOptions; track option.value) {
-                    <option [value]="option.value">{{ option.label }}</option>
-                    }
-                </select>
             </div>
-
-            <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" role="group" aria-label="Filter by progress">
-                @for (f of statusFilters; track f.value) {
-                @if (f.value !== 'shared' || hasSharedSubjects() || statusFilter() === 'shared') {
-                <button type="button" (click)="setStatusFilter(f.value)" [attr.aria-pressed]="statusFilter() === f.value"
-                    class="tahoma text-xs font-bold px-3.5 py-2 rounded-full whitespace-nowrap flex-shrink-0 min-h-[36px] touch-manipulation transition-colors"
-                    [style.background]="statusFilter() === f.value ? 'var(--accent)' : 'var(--surface-2)'"
-                    [style.color]="statusFilter() === f.value ? '#fff' : 'var(--text-2)'">
-                    {{ f.label }}
-                </button>
-                }
-                }
-            </div>
-
-            @if (viewChanged()) {
-            <div class="flex items-center justify-between text-xs tahoma" style="color:var(--text-3)" aria-live="polite">
-                <span>Showing {{ visibleSubjects().length }} of {{ subjects().length }}</span>
-                <button type="button" (click)="clearView()" class="font-bold hover:underline min-h-[32px] touch-manipulation"
-                    style="color:var(--accent)">Clear</button>
-            </div>
-            @if (!canReorder() && visibleSubjects().length > 1) {
-            <p class="text-[11px] tahoma" style="color:var(--text-4)">Dragging to reorder is off while you search, filter or sort. Press Clear to reorder.</p>
-            }
             }
         </div>
-        }
 
-        @if (visibleSubjects().length === 0 && subjects().length > 0) {
-        <!-- Nothing matches -->
-        <div class="text-center py-10 rounded-2xl" style="background:var(--surface-0);border:1px dashed var(--border)">
-            <p class="font-bold text-sm tahoma mb-1" style="color:var(--text-1)">No subjects match</p>
-            <p class="text-xs tahoma mb-4 px-4" style="color:var(--text-3)">
-                @if (searchQuery().trim()) {
-                Nothing found for "{{ searchQuery().trim() }}" with the current filter.
-                } @else {
-                No subjects fit this filter.
-                }
+        <!-- Subjects Loading Skeletons -->
+        @if (loading()) {
+        <div class="space-y-3">
+            @for (_ of [1, 2, 3]; track $index) {
+            <div class="p-4 rounded-lg border border-[var(--border)] bg-[var(--surface-0)] animate-pulse space-y-2">
+                <div class="h-4 w-1/3 rounded bg-[var(--skeleton)]"></div>
+                <div class="h-1.5 w-full rounded bg-[var(--skeleton)]"></div>
+            </div>
+            }
+        </div>
+
+        <!-- Empty State -->
+        } @else if (subjects().length === 0 && !showAddSubject()) {
+        <div class="text-center py-16 rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-0)] p-8">
+            <div class="w-10 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center bg-[var(--surface-1)] text-[var(--text-3)]">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-[var(--text-1)]">No subjects yet</h3>
+            <p class="text-xs text-[var(--text-3)] max-w-xs mx-auto mt-1 mb-5">
+                Create your first subject domain to organize topics and start tracking progress.
             </p>
-            <button type="button" (click)="clearView()"
-                class="tahoma text-xs font-bold px-5 py-2.5 rounded-full min-h-[40px] touch-manipulation"
-                style="background:var(--surface-2);color:var(--text-2)">Clear search and filters</button>
+            <button (click)="showAddSubject.set(true)" class="btn-primary text-xs py-2 px-4">
+                Add Subject
+            </button>
         </div>
-        }
+
+        <!-- Filter Empty State -->
+        } @else if (visibleSubjects().length === 0 && subjects().length > 0) {
+        <div class="text-center py-12 rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-0)] p-6">
+            <p class="text-xs font-medium text-[var(--text-1)]">No matching subjects</p>
+            <p class="text-xs text-[var(--text-3)] mt-1 mb-4">No subjects match the current search or status filter.</p>
+            <button type="button" (click)="clearView()" class="btn-ghost text-xs py-1.5 px-3">
+                Clear Filters
+            </button>
+        </div>
 
         <!-- Subject List -->
-        <div cdkDropList (cdkDropListDropped)="onSubjectDrop($event)" class="space-y-2 sm:space-y-3">
+        } @else {
+        <div cdkDropList (cdkDropListDropped)="onSubjectDrop($event)" class="space-y-2">
             @for (sub of visibleSubjects(); track sub.id) {
 
             @if (editingSubjectId() === sub.id) {
-            <!-- Edit Mode -->
-            <div class="rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-3 shadow-md animate-scale-in"
-                style="background:var(--surface-0);border:1px solid var(--accent-dim)">
-                <h4 class="text-xs font-bold tahoma" style="color:var(--text-3)">Edit Subject</h4>
-                <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Inline Edit Subject Card -->
+            <div class="p-4 rounded-lg border border-[var(--accent)] bg-[var(--surface-0)] space-y-3">
+                <span class="text-xs font-mono text-[var(--text-3)]">EDIT SUBJECT</span>
+                <div class="flex items-center gap-2">
                     <input [(ngModel)]="editSubjectName" (input)="editSubjectName = toTitleCase(editSubjectName)"
-                        class="tahoma w-full h-11 sm:h-12 rounded-xl px-4 text-sm outline-none"
-                        style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-1)"
-                        placeholder="Subject name" />
+                        class="input h-9 text-xs flex-1" placeholder="Subject name" />
                     <input [(ngModel)]="editSubjectColor" type="color"
-                        class="tahoma w-11 h-11 sm:w-12 sm:h-12 rounded-xl p-1 cursor-pointer flex-shrink-0"
-                        style="background:var(--surface-0);border:1px solid var(--border)" />
+                        class="w-9 h-9 p-0.5 rounded cursor-pointer border border-[var(--border)] bg-[var(--surface-1)]" />
                 </div>
                 <div class="flex gap-2">
-                    <button (click)="saveEditSubject($event, sub.id)"
-                        class="tahoma bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl min-h-[40px] touch-manipulation">Save
-                        Changes</button>
-                    <button (click)="cancelEditSubject($event)"
-                        class="tahoma text-xs font-bold px-4 py-2.5 rounded-xl min-h-[40px] touch-manipulation"
-                        style="background:var(--surface-2);color:var(--text-2)">Cancel</button>
+                    <button (click)="saveEditSubject($event, sub.id)" class="btn-primary text-xs py-1.5 px-3">Save</button>
+                    <button (click)="cancelEditSubject($event)" class="btn-ghost text-xs py-1.5 px-3">Cancel</button>
                 </div>
             </div>
 
             } @else {
-            <!-- Display Mode -->
-            <div cdkDrag [cdkDragData]="sub" [cdkDragDisabled]="!canReorder()" class="relative group/subject">
-                <div *cdkDragPlaceholder class="cdk-drag-placeholder my-2 min-h-[72px]"></div>
+            <!-- Standard Subject Card -->
+            <div cdkDrag [cdkDragData]="sub" [cdkDragDisabled]="!canReorder()" class="group/subject">
+                <div *cdkDragPlaceholder class="cdk-drag-placeholder my-2 min-h-[64px]"></div>
                 <div (click)="openSubject(sub.id)" role="button" tabindex="0" [attr.aria-label]="'Open ' + sub.name"
                     (keydown.enter)="$event.target === $event.currentTarget && openSubject(sub.id)"
-                    class="rounded-2xl p-4 sm:p-5 min-h-[84px] sm:min-h-0 flex items-center justify-between gap-2 sm:gap-4 cursor-pointer transition-all animate-scale-in active:scale-[0.99] touch-manipulation"
-                    style="background:var(--surface-0);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.02)">
+                    class="p-4 rounded-lg border border-[var(--border)] bg-[var(--surface-0)] hover:border-[var(--border-hover)] flex items-center justify-between gap-4 cursor-pointer transition-colors">
 
                     <!-- Drag Handle -->
                     <div cdkDragHandle (click)="$event.stopPropagation()"
-                        class="drag-handle p-2 -ml-1 sm:ml-0 sm:p-1 transition-colors flex items-center justify-center rounded-lg flex-shrink-0"
+                        class="drag-handle text-[var(--text-4)] hover:text-[var(--text-2)] p-1 -ml-1 rounded flex-shrink-0"
                         [style.cursor]="canReorder() ? 'grab' : 'default'"
-                        [class.opacity-30]="!canReorder()"
-                        style="color:var(--text-4)" [title]="canReorder() ? 'Drag to reorder' : 'Clear search, filter and sort to reorder'">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="9" cy="6" r="1.5" />
-                            <circle cx="15" cy="6" r="1.5" />
-                            <circle cx="9" cy="12" r="1.5" />
-                            <circle cx="15" cy="12" r="1.5" />
-                            <circle cx="9" cy="18" r="1.5" />
-                            <circle cx="15" cy="18" r="1.5" />
+                        [class.opacity-25]="!canReorder()"
+                        [title]="canReorder() ? 'Drag to reorder' : 'Reordering is disabled during active filters'">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+                            <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                            <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
                         </svg>
                     </div>
 
-                    <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <!-- Color Bar -->
-                        <div class="w-3 sm:w-4 h-10 sm:h-12 rounded-full flex-shrink-0"
-                            [style.background-color]="sub.color"></div>
+                    <!-- Subject Info + Progress -->
+                    <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                        <!-- Subject Color Indicator -->
+                        <span class="w-2 h-8 rounded-full flex-shrink-0" [style.background-color]="sub.color"></span>
 
-                        <!-- Name + Progress -->
-                        <div class="min-w-0 flex-1">
+                        <div class="min-w-0 flex-1 space-y-1.5">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <h3 class="font-bold text-base truncate tahoma" style="color:var(--text-1)">{{
-                                    sub.name }}</h3>
+                                <h3 class="text-sm font-semibold text-[var(--text-1)] truncate">{{ sub.name }}</h3>
                                 @if (sub.is_shared) {
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
-                                      style="background: var(--surface-2); border-color: var(--border); color: var(--text-2);">
-                                    <span>👥</span>
-                                    <span class="truncate max-w-[90px]">{{ sub.partner?.display_name || 'Shared' }}</span>
+                                <span class="badge badge-zinc text-[11px]">
+                                    <span>Shared with {{ sub.partner?.display_name || 'Partner' }}</span>
                                     @if (sub.partner_percent !== undefined) {
-                                    <span class="text-emerald-400 font-bold">({{ sub.partner_percent }}%)</span>
+                                    <span class="font-mono text-emerald-500">({{ sub.partner_percent }}%)</span>
                                     }
                                 </span>
                                 }
                             </div>
+
                             @if (topicMatches(sub).length) {
-                            <p class="text-[11px] tahoma truncate mt-0.5" style="color:var(--text-3)">
-                                Topic: {{ topicMatches(sub).join(' · ') }}
+                            <p class="text-[11px] text-[var(--text-3)] truncate">
+                                Matched: {{ topicMatches(sub).join(', ') }}
                             </p>
                             }
-                            <div class="flex items-center gap-2 mt-1">
-                                <div class="w-full rounded-full h-1.5" style="background:var(--surface-2)">
-                                    <div class="h-1.5 rounded-full transition-all" [style.width.%]="sub.percent"
-                                        [style.background-color]="sub.color"></div>
+
+                            <!-- Slim Progress Bar -->
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-full bg-[var(--surface-2)] h-1 rounded-full overflow-hidden flex-1">
+                                    <div class="h-full rounded-full transition-all duration-300"
+                                        [style.width.%]="sub.percent" [style.background-color]="sub.color"></div>
                                 </div>
-                                <span class="tahoma text-xs font-bold flex-shrink-0" style="color:var(--text-3)">{{
-                                    sub.percent
-                                    }}%</span>
+                                <span class="text-xs font-mono text-[var(--text-3)] flex-shrink-0">{{ sub.percent }}%</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-                        <div class="text-right hidden sm:block">
-                            <span class="text-xs font-bold tahoma" style="color:var(--text-3)">{{ sub.completedCount
-                                }}/{{ sub.totalCount
-                                }}
-                                topics</span>
-                        </div>
-                        <div class="text-right sm:hidden">
-                            <span class="text-xs font-bold tahoma" style="color:var(--text-3)">{{
-                                sub.completedCount }}/{{
-                                sub.totalCount
-                                }}</span>
-                        </div>
+                    <!-- Actions & Stats -->
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <span class="text-xs font-mono text-[var(--text-3)] hidden sm:inline-block">
+                            {{ sub.completedCount }}/{{ sub.totalCount }} topics
+                        </span>
+                        <span class="text-xs font-mono text-[var(--text-3)] sm:hidden">
+                            {{ sub.completedCount }}/{{ sub.totalCount }}
+                        </span>
 
-                        <button (click)="openActionSheet($event, sub)" [attr.aria-label]="'Options for ' + sub.name" aria-haspopup="dialog"
-                            class="tahoma sm:hidden w-11 h-11 min-w-[44px] -mr-2 rounded-xl flex items-center justify-center touch-manipulation"
-                            style="color:var(--text-3)">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" />
+                        <!-- Mobile Action Menu -->
+                        <button (click)="openActionSheet($event, sub)" [attr.aria-label]="'Options for ' + sub.name"
+                            class="sm:hidden p-1.5 rounded text-[var(--text-3)] hover:text-[var(--text-1)]">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" />
                             </svg>
                         </button>
 
+                        <!-- Desktop Edit -->
                         <button (click)="startEditSubject($event, sub)" [attr.aria-label]="'Edit ' + sub.name"
-                            class="tahoma hidden sm:flex w-8 h-8 min-w-[32px] rounded-xl transition-all flex items-center justify-center touch-manipulation"
-                            style="color:var(--text-4)">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            class="hidden sm:inline-flex p-1.5 rounded text-[var(--text-4)] hover:text-[var(--text-2)] hover:bg-[var(--surface-1)] transition-colors"
+                            title="Edit Subject">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </button>
 
+                        <!-- Desktop Delete -->
                         <button (click)="deleteSubject($event, sub)" [attr.aria-label]="(sub.is_shared && !sub.is_owner ? 'Leave ' : 'Delete ') + sub.name"
-                            class="tahoma hidden sm:flex w-8 h-8 min-w-[32px] rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all items-center justify-center touch-manipulation"
-                            [title]="sub.is_shared && !sub.is_owner ? 'Leave shared subject' : 'Delete subject'"
-                            style="color:var(--text-4)">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            class="hidden sm:inline-flex p-1.5 rounded text-[var(--text-4)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                            [title]="sub.is_shared && !sub.is_owner ? 'Leave shared subject' : 'Delete subject'">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </button>
                     </div>
@@ -474,192 +405,100 @@
         </div>
         }
 
-
     </main>
 
-    <!-- ── Bottom menu ───────────────────────────── -->
+    <!-- ── Bottom Navigation ───────────────────────── -->
     <app-bottom-nav active="home" />
 
-    <!-- Phone: Edit / Delete menu for a subject card -->
+    <!-- ── Phone Action Sheet for a Subject ────────── -->
     @if (actionSheetSub(); as sheetSub) {
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] flex items-end justify-center animate-fade-in sm:hidden"
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-end justify-center sm:hidden"
         role="dialog" aria-modal="true" [attr.aria-label]="'Options for ' + sheetSub.name"
         (click)="closeActionSheet()" (keydown.escape)="closeActionSheet()">
-        <div class="w-full rounded-t-[28px] p-4 pb-6 shadow-2xl animate-slide-up flex flex-col gap-2"
-            style="background:var(--bg)" (click)="$event.stopPropagation()">
-            <div class="w-10 h-1 rounded-full mx-auto mb-2 flex-shrink-0" style="background:var(--text-4)"></div>
-            <p class="px-2 pb-1 text-sm font-bold truncate tahoma" style="color:var(--text-3)">{{ sheetSub.name }}</p>
+        <div class="w-full rounded-t-xl p-4 pb-6 bg-[var(--surface-0)] border-t border-[var(--border)] flex flex-col gap-2"
+            (click)="$event.stopPropagation()">
+            <div class="w-8 h-1 rounded-full mx-auto mb-2 bg-[var(--surface-3)]"></div>
+            <p class="px-2 pb-1 text-xs font-mono text-[var(--text-3)]">{{ sheetSub.name }}</p>
 
             <button (click)="closeActionSheet(); startEditSubject($event, sheetSub)"
-                class="tahoma w-full min-h-[56px] rounded-2xl px-4 flex items-center gap-3 text-base font-bold touch-manipulation"
-                style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                class="w-full p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] flex items-center gap-3 text-xs font-medium text-[var(--text-1)]">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Rename or change colour
+                <span>Rename or change color</span>
             </button>
 
             <button (click)="closeActionSheet(); deleteSubject($event, sheetSub)"
-                class="tahoma w-full min-h-[56px] rounded-2xl px-4 flex items-center gap-3 text-base font-bold text-red-500 touch-manipulation"
-                style="background:var(--surface-0);border:1px solid var(--border)">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                class="w-full p-3 rounded-lg border border-red-500/20 bg-red-500/5 text-red-500 flex items-center gap-3 text-xs font-medium">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                {{ sheetSub.is_shared && !sheetSub.is_owner ? 'Leave this subject' : 'Delete subject' }}
+                <span>{{ sheetSub.is_shared && !sheetSub.is_owner ? 'Leave shared subject' : 'Delete subject' }}</span>
             </button>
 
-            <button (click)="closeActionSheet()"
-                class="tahoma w-full min-h-[52px] rounded-2xl text-base font-bold mt-1 touch-manipulation"
-                style="background:var(--surface-2);color:var(--text-2)">Cancel</button>
+            <button (click)="closeActionSheet()" class="w-full p-2.5 rounded-lg text-xs font-medium mt-1 text-[var(--text-3)]">
+                Cancel
+            </button>
         </div>
     </div>
     }
 
-    <!-- Add Subject Bottom Sheet -->
+    <!-- ── Add Subject Modal ───────────────────────── -->
     @if (showAddSubject()) {
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-end justify-center animate-fade-in"
-        role="dialog" aria-modal="true" aria-label="Add a subject"
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+        role="dialog" aria-modal="true" aria-label="Add a new subject"
         (click)="showAddSubject.set(false)" (keydown.escape)="showAddSubject.set(false)">
-        <div class="w-full max-w-md rounded-t-[28px] sm:rounded-t-[32px] p-5 sm:p-6 shadow-2xl animate-slide-up flex flex-col gap-4 sm:gap-5 max-h-[92vh] overflow-y-auto relative"
-            style="background:var(--bg)" (click)="$event.stopPropagation()">
+        <div class="w-full max-w-md rounded-xl p-6 bg-[var(--surface-0)] border border-[var(--border)] shadow-xl flex flex-col gap-5 relative max-h-[90vh] overflow-y-auto"
+            (click)="$event.stopPropagation()">
 
-            <!-- Drag Handle -->
-            <div class="w-10 h-1 rounded-full mx-auto mt-[-6px] mb-1 flex-shrink-0" style="background:var(--text-4)">
-            </div>
-
-            <!-- Title Row -->
             <div class="flex items-center justify-between">
-                <h2 class="text-xl sm:text-2xl font-black tracking-tight tahoma" style="color:var(--text-1)">New
-                    Subject</h2>
+                <div>
+                    <h3 class="text-base font-bold text-[var(--text-1)]">New Learning Subject</h3>
+                    <p class="text-xs text-[var(--text-3)] mt-0.5">Define a skill domain to track</p>
+                </div>
                 <button (click)="showAddSubject.set(false)" aria-label="Close"
-                    class="tahoma w-9 h-9 min-w-[36px] rounded-full flex items-center justify-center transition-colors touch-manipulation"
-                    style="background:var(--surface-3);color:var(--text-3)">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    class="p-1 rounded text-[var(--text-3)] hover:text-[var(--text-1)]">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
             <!-- Subject Name -->
-            <div class="space-y-2">
-                <span class="text-[10px] font-bold uppercase tracking-widest tahoma"
-                    style="color:var(--text-3)">Subject Name</span>
-                <input [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)"
+            <div class="space-y-1.5">
+                <label for="new-subject-name" class="text-xs font-medium text-[var(--text-2)]">Subject Name</label>
+                <input id="new-subject-name" [(ngModel)]="newSubjectName" (input)="newSubjectName = toTitleCase(newSubjectName)"
                     (keydown.enter)="addSubject()"
-                    class="tahoma w-full h-13 sm:h-14 rounded-2xl px-4 text-base font-bold outline-none"
-                    style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-1)"
-                    placeholder="e.g. Master React Native" />
+                    class="input h-10 text-sm"
+                    placeholder="e.g. Distributed Systems, Rust, or UI Architecture" />
             </div>
 
-            <!-- Icons -->
+            <!-- Subject Accent Color -->
             <div class="space-y-2">
-                <span class="text-[10px] font-bold uppercase tracking-widest tahoma"
-                    style="color:var(--text-3)">Visual
-                    Identity</span>
-                <div class="grid grid-cols-4 gap-2 sm:gap-3">
-                    @for (icon of icons; track icon) {
-                    <button (click)="selectedIcon.set(icon)" [attr.aria-label]="'Icon: ' + icon" [attr.aria-pressed]="selectedIcon() === icon"
-                        class="h-14 sm:h-16 rounded-2xl flex items-center justify-center transition-all shadow-sm touch-manipulation"
-                        [class.bg-blue-600]="selectedIcon() === icon" [class.text-white]="selectedIcon() === icon"
-                        [style.background]="selectedIcon() !== icon ? 'var(--surface-2)' : null"
-                        [style.color]="selectedIcon() !== icon ? 'var(--accent)' : null">
-
-                        @switch (icon) {
-                        @case ('code') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-                        </svg>
-                        }
-                        @case ('palette') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.006-.616A16.075 16.075 0 0019.5 8.375a3.375 3.375 0 00-3.375-3.375 16.114 16.114 0 00-8.15 2.237m-.005 0A15.998 15.998 0 004.03 14.28m15.47-5.905a1.5 1.5 0 11-3.001-.004 1.5 1.5 0 013.001.004zm-3.496 5.992a1.5 1.5 0 11-3.002-.003 1.5 1.5 0 013.002.003z" />
-                        </svg>
-                        }
-                        @case ('terminal') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0022.5 18V6a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25z" />
-                        </svg>
-                        }
-                        @case ('fitness') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19.5 12h-15m0 0V9.75m0 2.25m15-2.25V9.75m0 2.25v2.25m-11.25-2.25h7.5m-9 0v-3.75m0 3.75v3.75m10.5-7.5v7.5" />
-                        </svg>
-                        }
-                        @case ('language') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 5.418A9.004 9.004 0 0112 3m8.716 11.253a9.004 9.004 0 01-17.432 0" />
-                        </svg>
-                        }
-                        @case ('architecture') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
-                        }
-                        @case ('science') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9.75 3.75H14.25M12 3.75v11.25M3.75 20.25h16.5m-2.25-7.5h-10.5M7.5 20.25h9m-9 0L12 11.25m0 0L16.5 20.25" />
-                        </svg>
-                        }
-                        @case ('music') {
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 9l10.5-3v12m-10.5-9v12m0-12a3 3 0 100 6 3 3 0 000-6zm10.5-3a3 3 0 100 6 3 3 0 000-6z" />
-                        </svg>
-                        }
-                        }
-                    </button>
-                    }
-                </div>
-            </div>
-
-            <!-- Accent Colors -->
-            <div class="space-y-3">
-                <span class="text-[10px] font-bold uppercase tracking-widest tahoma"
-                    style="color:var(--text-3)">Accent Color</span>
-                <div class="flex flex-wrap items-center gap-4 sm:gap-6 py-1 sm:py-2">
+                <span class="text-xs font-medium text-[var(--text-2)] block">Theme Color</span>
+                <div class="flex items-center gap-3">
                     @for (color of colors; track color) {
-                    <button (click)="newSubjectColor = color" [attr.aria-label]="'Colour ' + color" [attr.aria-pressed]="newSubjectColor === color"
-                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all flex items-center justify-center relative touch-manipulation"
-                        [style.background-color]="color">
-                        @if (newSubjectColor === color) {
-                        <div class="absolute w-13 h-13 sm:w-14 sm:h-14 rounded-full border-2 flex-shrink-0 pointer-events-none"
-                            [style.border-color]="color"></div>
-                        }
+                    <button (click)="newSubjectColor = color" [attr.aria-label]="'Color ' + color"
+                        class="w-7 h-7 rounded-full border-2 transition-transform"
+                        [style.background-color]="color"
+                        [style.border-color]="newSubjectColor === color ? 'var(--text-1)' : 'transparent'">
                     </button>
                     }
                 </div>
             </div>
 
-            <!-- CTA -->
-            <button (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()"
-                class=" w-full mt-2 sm:mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black rounded-2xl py-3.5 sm:py-4 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-[52px] touch-manipulation">
-                <span>Create Subject</span>
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </button>
-
+            <!-- Action buttons -->
+            <div class="flex items-center gap-3 pt-2">
+                <button (click)="showAddSubject.set(false)" class="btn-ghost text-xs py-2 px-4 flex-1">
+                    Cancel
+                </button>
+                <button (click)="addSubject()" [disabled]="savingSubject() || !newSubjectName.trim()"
+                    class="btn-primary text-xs py-2 px-4 flex-1">
+                    {{ savingSubject() ? 'Creating...' : 'Create Subject' }}
+                </button>
+            </div>
         </div>
     </div>
     }
-</div>
 
-<app-toast />
+</div>

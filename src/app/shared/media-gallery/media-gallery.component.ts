@@ -182,7 +182,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
                 title: errors.length === 1 ? 'File Not Allowed' : `${errors.length} Files Not Allowed`,
                 html: `
         <div style="text-align:left; font-size:13px; color:#94a3b8; line-height:1.6">
-          ${errors.map(e => `<div style="margin-bottom:6px">⚠️ ${e}</div>`).join('')}
+          ${errors.map(e => `<div style="margin-bottom:6px"><span style="color:#f59e0b; margin-right:6px">•</span> ${e}</div>`).join('')}
           ${isMixed ? `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #334155; color:#64748b">
             ${valid.length} valid file${valid.length > 1 ? 's' : ''} will still be uploaded.
           </div>` : ''}

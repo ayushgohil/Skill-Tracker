@@ -28,7 +28,7 @@ export interface ProgressStep {
 @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, ActivityHeatmapComponent, ToastComponent, BottomNavComponent],
+    imports: [CommonModule, FormsModule, RouterModule, ActivityHeatmapComponent, BottomNavComponent],
     templateUrl: './profile.component.html',
     animations: [staggerList, fadeSlideInOut]
 })
@@ -310,10 +310,10 @@ export class ProfileComponent implements OnInit {
                             <p style="margin-bottom:10px">Are you sure you want to put data into your Google Drive?</p>
                             <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:10px; font-size:12px; color:#cbd5e1">
                                 <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px">
-                                    <span style="color:#38bdf8">📁</span> <strong>Folder:</strong> NextLyr SkillTracker / Backups
+                                    <strong>Folder:</strong> NextLyr SkillTracker / Backups
                                 </div>
                                 <div style="display:flex; align-items:center; gap:6px">
-                                    <span style="color:#34d399">📦</span> <strong>Includes:</strong> All subjects, topics, subtopics, checkmarks, notes, weekly goals & heatmap
+                                    <strong>Includes:</strong> All subjects, topics, subtopics, checkmarks, notes, weekly goals & heatmap
                                 </div>
                             </div>
                         </div>
@@ -502,7 +502,7 @@ export class ProfileComponent implements OnInit {
         const cutOff = this.backupService.findPossiblyCutOffTables(backupData);
         const cutOffWarning = cutOff.length
             ? `<div style="background:#451a03; border:1px solid #b45309; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#fcd34d">
-                    ⚠️ This backup may be incomplete: <strong>${cutOff.join(', ')}</strong> ${cutOff.length === 1 ? 'has' : 'have'} exactly
+                    This backup may be incomplete: <strong>${cutOff.join(', ')}</strong> ${cutOff.length === 1 ? 'has' : 'have'} exactly
                     a round number of rows (1000, 2000...). Older backups were cut off at 1000 rows per table.
                     If this file was made before this update, restoring it could leave out some of your data.
                     Your current data is downloaded as a safety backup first.
@@ -518,15 +518,15 @@ export class ProfileComponent implements OnInit {
                     </p>
                     <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:12px; margin-bottom:12px">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px; color:#cbd5e1">
-                            <div>📚 <strong>Subjects:</strong> ${backupData.subjects.length}</div>
-                            <div>📝 <strong>Topics:</strong> ${backupData.topics.length}</div>
-                            <div>📌 <strong>Subtopics:</strong> ${backupData.subtopics.length}</div>
-                            <div>✅ <strong>Progress items:</strong> ${backupData.user_progress.length}</div>
+                            <div><strong>Subjects:</strong> ${backupData.subjects.length}</div>
+                            <div><strong>Topics:</strong> ${backupData.topics.length}</div>
+                            <div><strong>Subtopics:</strong> ${backupData.subtopics.length}</div>
+                            <div><strong>Progress items:</strong> ${backupData.user_progress.length}</div>
                         </div>
                     </div>
                     ${cutOffWarning}
-                    <p style="margin-bottom:12px; font-size:12px; color:#34d399">🛟 Before anything is changed, a backup of your <strong>current</strong> data will download to your device, so you can always go back.</p>
-                    <p style="font-size:12px; color:#f59e0b">⚠️ Are you sure you want to overwrite and revert to this state?</p>
+                    <p style="margin-bottom:12px; font-size:12px; color:#34d399">Before anything is changed, a backup of your <strong>current</strong> data will download to your device, so you can always go back.</p>
+                    <p style="font-size:12px; color:#f59e0b">Are you sure you want to overwrite and revert to this state?</p>
                 </div>
             `,
             icon: 'warning',

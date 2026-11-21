@@ -90,7 +90,7 @@ export class DrivePromptService {
             cancelButtonText: 'No thanks',
             background: '#0f172a',
             color: '#f1f5f9',
-            confirmButtonColor: '#6366f1',
+            confirmButtonColor: '#2563eb',
             cancelButtonColor: '#3f3f46',
             customClass: { popup: 'swal-dark-popup' }
         });

@@ -31,7 +31,7 @@ const SHOW_TOOLS_FROM = 4;
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ToastComponent, BottomNavComponent, FormsModule, RouterLink, DragDropModule],
+    imports: [BottomNavComponent, FormsModule, RouterLink, DragDropModule],
     templateUrl: './dashboard.component.html',
     animations: [staggerList, fadeSlideInOut]
 })

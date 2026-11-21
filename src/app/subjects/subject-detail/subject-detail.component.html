@@ -1,38 +1,36 @@
 <!-- src/app/subjects/subject-detail/subject-detail.component.html -->
-<div class="min-h-screen pb-28 phone-text" style="background:var(--bg);color:var(--text-1)">
+<div class="min-h-screen pb-28 bg-[var(--bg)] text-[var(--text-1)]">
 
     <!-- ── Collapsed Sticky Header ─────────────── -->
     <div class="collapsed-header" [class.visible]="headerCollapsed()">
         <div class="collapsed-header-inner">
-            <div class="flex items-center gap-2.5 min-w-0">
-                <button (click)="goBack()" class="flex items-center gap-1 text-xs font-bold transition-colors"
-                    style="color:var(--text-2)">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="flex items-center gap-3 min-w-0">
+                <button (click)="goBack()" class="flex items-center gap-1 text-xs font-medium text-[var(--text-2)] hover:text-[var(--text-1)] transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span class="hidden xs:inline">Back</span>
+                    <span>Back</span>
                 </button>
 
                 @if (subject(); as sub) {
-                <div class="w-px h-4" style="background:var(--border)"></div>
-                <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" [style.background-color]="sub.color"></div>
-                <span class="text-xs sm:text-sm font-bold truncate" style="color:var(--text-1)">{{ sub.name }}</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full hidden sm:inline-flex"
-                    style="background:var(--accent-dim);color:var(--accent)">{{ percent() }}%</span>
+                <div class="w-px h-3.5 bg-[var(--border)]"></div>
+                <div class="w-2 h-2 rounded-full flex-shrink-0" [style.background-color]="sub.color"></div>
+                <span class="text-xs sm:text-sm font-semibold truncate text-[var(--text-1)]">{{ sub.name }}</span>
+                <span class="text-[11px] font-mono px-2 py-0.5 rounded border border-[var(--border)] text-[var(--text-3)] hidden sm:inline-flex">
+                    {{ percent() }}%
+                </span>
                 }
             </div>
 
             <div class="flex items-center gap-2">
                 <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle-collapsed" title="Toggle theme">
                     @if (themeService.isDark()) {
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     } @else {
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                     }
                 </button>
@@ -40,103 +38,105 @@
         </div>
     </div>
 
-    <!-- ── Header Area ────────────────────────────── -->
-    <header class="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 pt-8 pb-7 sm:py-8 text-white rounded-b-[28px] sm:rounded-b-[32px] shadow-lg animate-fade-in relative">
-        <div class="max-w-3xl mx-auto flex flex-col gap-4 relative z-10">
-            <!-- Back, Progress & Theme Toggle row -->
+    <!-- ── Calm Subject Header ────────────────────── -->
+    <header class="border-b border-[var(--border)] bg-[var(--surface-0)] px-4 sm:px-6 pt-6 pb-5">
+        <div class="max-w-3xl mx-auto flex flex-col gap-4">
+            <!-- Breadcrumbs / Top Navigation Row -->
             <div class="flex items-center justify-between">
-                <button (click)="goBack()" aria-label="Go back" class="flex items-center justify-center gap-2 text-white/90 hover:text-white text-sm font-bold group touch-manipulation w-11 h-11 sm:w-auto sm:h-auto rounded-2xl bg-white/15 sm:bg-transparent">
-                    <svg class="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                <button (click)="goBack()" aria-label="Go back to Dashboard"
+                    class="flex items-center gap-1.5 text-xs text-[var(--text-3)] hover:text-[var(--text-1)] font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span class="hidden sm:inline">Back</span>
+                    <span>Dashboard</span>
                 </button>
 
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-2">
                     @if (subject(); as sub) {
-                    <!-- Study Partner Button -->
-                    <button (click)="showShareModal.set(true)" 
-                            class="flex items-center gap-1.5 text-xs font-bold bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 px-2.5 sm:px-3 py-1.5 rounded-full transition-all touch-manipulation flex-shrink-0"
-                            title="Collaborate with a Study Partner">
-                        <span>👥</span>
+                    <!-- Partner Sharing Button -->
+                    <button (click)="showShareModal.set(true)"
+                        class="btn-ghost text-xs py-1 px-2.5"
+                        title="Study Partner Collaboration">
                         @if (sub.partner) {
-                            <span class="text-white truncate max-w-[70px] sm:max-w-[110px]">{{ sub.partner.display_name }}</span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span class="truncate max-w-[100px]">{{ sub.partner.display_name }}</span>
                         } @else {
-                            <span class="hidden xs:inline text-white">Study </span><span class="text-white">Partner</span>
+                        <span>Share with Partner</span>
                         }
                     </button>
-
-                    <div class="flex items-center gap-2 text-xs font-bold bg-white/15 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
-                        <span class="text-white">{{ percent() }}% Mastered</span>
-                    </div>
                     }
 
-                    <!-- Theme Toggle in Header -->
-                    <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle touch-manipulation" title="Toggle theme">
+                    <button (click)="themeService.toggle()" aria-label="Switch between light and dark theme" class="theme-toggle" title="Toggle theme">
                         @if (themeService.isDark()) {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                         } @else {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                         </svg>
                         }
                     </button>
                 </div>
             </div>
 
-            <!-- Subject Title Block -->
+            <!-- Subject Title & Progress Summary -->
             @if (subject(); as sub) {
-            <div class="flex items-center gap-3 mt-1">
-                <div class="w-4 h-4 rounded-full flex-shrink-0 border-2 border-white" [style.background-color]="sub.color"></div>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight truncate flex-1 tahoma">{{ sub.name }}</h1>
-            </div>
+            <div class="space-y-3">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-3.5 h-3.5 rounded-sm flex-shrink-0" [style.background-color]="sub.color"></span>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-1)] truncate">{{ sub.name }}</h1>
+                    </div>
+                    <span class="text-xs font-mono text-[var(--text-3)] flex-shrink-0 pt-1">
+                        {{ percent() }}% complete
+                    </span>
+                </div>
 
-            @if (sub.partner; as p) {
-            <div class="flex items-center gap-2 text-xs bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 w-fit max-w-full">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></span>
-                <span class="font-medium text-white/90 truncate max-w-[130px] sm:max-w-none">Partner: {{ p.display_name }}</span>
-                <span class="text-white/60">•</span>
-                <span class="text-white/80 flex-shrink-0">{{ partnerPercent() }}% Done</span>
+                <!-- Slim Progress Track -->
+                <div class="w-full bg-[var(--surface-2)] h-1 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                        [style.width.%]="percent()" [style.background-color]="sub.color"></div>
+                </div>
+
+                @if (sub.partner; as p) {
+                <div class="flex items-center gap-2 text-xs text-[var(--text-3)] font-mono">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>Partner: {{ p.display_name }} ({{ partnerPercent() }}% complete)</span>
+                </div>
+                }
             </div>
-            }
             }
         </div>
     </header>
 
-    <!-- ── Main Content ───────────────────────────── -->
-    <main class="max-w-3xl mx-auto px-4 sm:px-5 py-6 sm:py-8 tahoma">
+    <!-- ── Main Content Area ────────────────────────── -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
         @if (loading()) {
-        <!-- Loading state -->
+        <!-- Loading State -->
         <div class="space-y-3">
-            @for (_ of [1,2,3]; track $index) {
-            <div class="rounded-2xl p-5 animate-pulse flex items-center gap-3"
-                style="background:var(--surface-0);border:1px solid var(--border)">
-                <div class="w-5 h-5 rounded-md" style="background:var(--skeleton)"></div>
-                <div class="h-4 rounded w-1/2" style="background:var(--skeleton)"></div>
+            @for (_ of [1, 2, 3]; track $index) {
+            <div class="p-4 rounded-lg border border-[var(--border)] bg-[var(--surface-0)] animate-pulse flex items-center gap-3">
+                <div class="w-4 h-4 rounded bg-[var(--skeleton)]"></div>
+                <div class="h-4 rounded w-1/2 bg-[var(--skeleton)]"></div>
             </div>
             }
         </div>
 
         } @else if (subject(); as sub) {
 
-        <!-- Search & Sort Panel -->
-        <div class="flex items-center gap-2 sm:gap-3 mb-5 sm:mb-6 relative z-[200]">
+        <!-- Search & Sort Controls -->
+        <div class="flex items-center gap-2.5 relative z-20">
             <div class="relative flex-1">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style="color:var(--text-4)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-4)] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text" placeholder="Search topics..."
-                    class="w-full h-11 sm:h-12 pl-11 pr-4 rounded-xl text-sm outline-none transition-all"
-                    style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-1)" />
+                <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" type="text" placeholder="Filter topics in this subject..."
+                    class="input h-9 pl-9 pr-8 text-xs font-sans" />
                 @if (isSearching()) {
-                <button (click)="searchQuery.set('')" aria-label="Clear search" class="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-100 transition-opacity" style="color:var(--text-3)">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button (click)="searchQuery.set('')" aria-label="Clear search" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-3)] hover:text-[var(--text-1)]">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 }
             </div>
@@ -144,22 +144,20 @@
             <!-- Sort Menu -->
             <div class="relative sort-menu-container">
                 <button (click)="showSortMenu.update(v => !v)"
-                    class="h-11 sm:h-12 px-3 sm:px-4 rounded-xl flex items-center gap-1.5 sm:gap-2 font-bold text-xs transition-all touch-manipulation"
-                    style="background:var(--surface-0);border:1px solid var(--border);color:var(--text-2)">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/></svg>
-                    <span class="truncate max-w-[110px] sm:max-w-none">{{ sortLabels[sortOption()] }}</span>
+                    class="btn-ghost h-9 px-3 text-xs font-medium gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[var(--text-3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/></svg>
+                    <span class="truncate max-w-[100px] sm:max-w-none">{{ sortLabels[sortOption()] }}</span>
                 </button>
 
                 @if (showSortMenu()) {
-                <div class="absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-xl z-30 py-1.5 overflow-hidden animate-scale-in"
-                    style="background:var(--surface-0);border:1px solid var(--border)">
+                <div class="absolute right-0 top-full mt-1.5 w-48 rounded-lg shadow-lg z-30 py-1 bg-[var(--surface-0)] border border-[var(--border)] overflow-hidden">
                     @for (entry of $any(Object.entries(sortLabels)); track entry[0]) {
                     <button (click)="setSort(entry[0])"
-                        class="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center justify-between hover:bg-white/[0.04]"
+                        class="w-full text-left px-3.5 py-2 text-xs font-medium transition-colors flex items-center justify-between hover:bg-[var(--surface-1)]"
                         [style.color]="sortOption() === entry[0] ? 'var(--accent)' : 'var(--text-2)'">
-                        {{ entry[1] }}
+                        <span>{{ entry[1] }}</span>
                         @if (sortOption() === entry[0]) {
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         }
                     </button>
                     }
@@ -169,24 +167,20 @@
         </div>
 
         <!-- Topics Overview -->
-        <div cdkDropList (cdkDropListDropped)="onTopicDrop($event)" [cdkDropListDisabled]="sortOption() !== 'default' || isSearching()" class="space-y-3 relative z-10">
+        <div cdkDropList (cdkDropListDropped)="onTopicDrop($event)" [cdkDropListDisabled]="sortOption() !== 'default' || isSearching()" class="space-y-2">
             @for (topic of filteredTopics(); track topic.id) {
-            <div cdkDrag [cdkDragData]="topic" class="relative group/topic" [style.z-index]="9999 - $index">
-                <div *cdkDragPlaceholder class="cdk-drag-placeholder my-2 min-h-[52px]"></div>
+            <div cdkDrag [cdkDragData]="topic" class="group/topic" [style.z-index]="9999 - $index">
+                <div *cdkDragPlaceholder class="cdk-drag-placeholder my-1.5 min-h-[48px]"></div>
                 <div class="flex items-center gap-1.5">
                     @if (sortOption() === 'default' && !isSearching()) {
                     <!-- Drag Handle -->
                     <div cdkDragHandle
-                        class="drag-handle cursor-grab active:cursor-grabbing p-1 transition-colors flex items-center justify-center rounded-lg touch-none flex-shrink-0"
-                        style="color:var(--text-4)"
+                        class="drag-handle text-[var(--text-4)] hover:text-[var(--text-2)] p-1 rounded cursor-grab active:cursor-grabbing flex-shrink-0"
                         title="Drag to reorder topic">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="9" cy="6" r="1.5"/>
-                            <circle cx="15" cy="6" r="1.5"/>
-                            <circle cx="9" cy="12" r="1.5"/>
-                            <circle cx="15" cy="12" r="1.5"/>
-                            <circle cx="9" cy="18" r="1.5"/>
-                            <circle cx="15" cy="18" r="1.5"/>
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                            <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                            <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
                         </svg>
                     </div>
                     }
@@ -202,45 +196,47 @@
             </div>
             }
 
-            <!-- Empty state -->
+            <!-- Empty Topic State -->
             @if (filteredTopics().length === 0 && !isSearching()) {
-            <div class="text-center py-16 rounded-3xl animate-fade-in"
-                style="background:var(--surface-0);border:1px dashed var(--border)">
-                <p class="text-xs" style="color:var(--text-3)">No topics yet — add something to learn below!</p>
+            <div class="text-center py-12 rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-0)] p-6">
+                <p class="text-xs text-[var(--text-3)]">No topics yet in this subject. Add your first topic below.</p>
             </div>
             }
         </div>
 
-        <!-- Add Topic -->
+        <!-- Add Topic Form -->
         @if (!isSearching()) {
-        <div class="mt-4">
+        <div class="pt-2">
             @if (showAddTopic()) {
-            <div class="rounded-2xl p-5 space-y-3 shadow-lg animate-slide-up"
-                style="background:var(--surface-0);border:1px solid var(--border)">
-                <h4 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-3)">New Topic</h4>
-                <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic Title" (input)="newTopicTitle = toTitleCase(newTopicTitle)" (keydown.enter)="addTopic()"
-                    class="w-full h-12 px-4 rounded-xl text-sm outline-none"
-                    style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-1)" />
-                
-                <div class="flex items-center gap-3">
-                    <select [(ngModel)]="newTopicDepth" class="h-12 px-4 rounded-xl text-sm outline-none flex-1"
-                        style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-1)">
+            <div class="p-4 rounded-lg border border-[var(--border)] bg-[var(--surface-0)] space-y-3">
+                <span class="text-xs font-mono text-[var(--text-3)]">NEW TOPIC</span>
+                <input [(ngModel)]="newTopicTitle" type="text" placeholder="Topic title (e.g. Memory Layout, Generics)"
+                    (input)="newTopicTitle = toTitleCase(newTopicTitle)" (keydown.enter)="addTopic()"
+                    class="input h-9 text-xs" />
+
+                <div class="flex items-center gap-2">
+                    <select [(ngModel)]="newTopicDepth" class="input h-9 text-xs flex-1 cursor-pointer">
                         <option value="shallow">Shallow (Overview)</option>
                         <option value="medium">Medium (Core Competency)</option>
-                        <option value="deep">Deep (Expertise)</option>
+                        <option value="deep">Deep (System Expertise)</option>
                     </select>
-                    
-                    <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-3.5 rounded-xl disabled:opacity-50 flex-shrink-0 touch-manipulation">
+
+                    <button (click)="addTopic()" [disabled]="savingTopic() || !newTopicTitle.trim()"
+                        class="btn-primary text-xs py-2 px-4 flex-shrink-0">
                         {{ savingTopic() ? 'Adding...' : 'Add Topic' }}
                     </button>
+                    <button (click)="showAddTopic.set(false)" class="btn-ghost text-xs py-2 px-3">
+                        Cancel
+                    </button>
                 </div>
-                <button (click)="showAddTopic.set(false)" class="w-full text-center text-xs font-bold py-1 touch-manipulation" style="color:var(--text-3)">Cancel</button>
             </div>
             } @else {
             <button (click)="showAddTopic.set(true)"
-                class="w-full text-sm font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 touch-manipulation"
-                style="border:1px dashed var(--border);color:var(--accent);background:var(--surface-0)">
-                + Add Topic
+                class="w-full py-2.5 rounded-lg border border-dashed border-[var(--border)] hover:border-[var(--border-hover)] bg-[var(--surface-0)] text-xs font-medium text-[var(--accent)] hover:bg-[var(--surface-1)] transition-colors flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Topic</span>
             </button>
             }
         </div>
@@ -249,7 +245,7 @@
         }
     </main>
 
-    <!-- ── Bottom menu ───────────────────────────── -->
+    <!-- ── Bottom Navigation ───────────────────────── -->
     <app-bottom-nav active="home" />
 
 </div>

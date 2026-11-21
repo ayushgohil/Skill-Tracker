@@ -1,308 +1,273 @@
 <!-- src/app/dashboard/topic-item/topic-item.component.html -->
-<div class="rounded-xl transition-all duration-200 relative" [class.z-50]="showMenu()"
-    style="background: var(--surface-0); border: 1px solid var(--border);"
-    [style.border-color]="isTopicChecked() ? 'var(--accent-glow)' : 'var(--border)'">
+<div class="rounded-lg border border-[var(--border)] bg-[var(--surface-0)] transition-colors relative"
+    [class.z-30]="showMenu()"
+    [style.border-color]="isTopicChecked() ? 'var(--border)' : null">
 
     <!-- ── Inline Edit Mode ─────────────────────── -->
     @if (editing()) {
-    <div class="px-3 sm:px-4 py-3 space-y-2 rounded-xl" (click)="$event.stopPropagation()">
+    <div class="p-3.5 space-y-2.5 rounded-lg" (click)="$event.stopPropagation()">
         <input [(ngModel)]="editTitle" type="text" (input)="editTitle = toTitleCase(editTitle)"
-            (keydown.enter)="saveEdit()" (keydown.escape)="cancelEdit()" class="input text-sm w-full"
+            (keydown.enter)="saveEdit()" (keydown.escape)="cancelEdit()" class="input text-xs w-full h-8"
             placeholder="Topic title" />
         <div class="flex items-center gap-2 flex-wrap">
-            <select [(ngModel)]="editDepth" class="input text-xs py-1.5 min-h-[36px]" style="width:auto;">
+            <select [(ngModel)]="editDepth" class="input text-xs h-8 cursor-pointer" style="width:auto;">
                 <option value="shallow">Shallow</option>
                 <option value="medium">Medium</option>
                 <option value="deep">Deep</option>
             </select>
-            <button (click)="saveEdit($event)"
-                class="btn-primary text-xs py-1.5 px-3 min-h-[36px] touch-manipulation">Save</button>
-            <button (click)="cancelEdit()"
-                class="btn-ghost text-xs py-1.5 min-h-[36px] touch-manipulation">Cancel</button>
+            <button (click)="saveEdit($event)" class="btn-primary text-xs py-1 px-3 h-8">Save</button>
+            <button (click)="cancelEdit()" class="btn-ghost text-xs py-1 px-3 h-8">Cancel</button>
         </div>
     </div>
 
     } @else {
     <!-- ── Normal View Mode ─────────────────────── -->
-    <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 sm:py-3 cursor-pointer select-none group/row transition-colors hover:bg-white/[0.02] active:bg-white/[0.04] rounded-xl min-h-[64px] sm:min-h-[52px]"
+    <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer select-none group/row rounded-lg hover:bg-[var(--surface-1)] transition-colors"
         (click)="onToggle()" role="button" tabindex="0" [attr.aria-expanded]="isOpen()"
         (keydown.enter)="$event.target === $event.currentTarget && onToggle()">
 
         <!-- Checkbox -->
-        <button (click)="onCheck($event)" [attr.aria-label]="topic().title" [attr.aria-pressed]="isTopicChecked()" [attr.aria-disabled]="hasSubtopics() ? true : null" class="topic-checkbox flex-shrink-0 touch-manipulation"
+        <button (click)="onCheck($event)" [attr.aria-label]="topic().title" [attr.aria-pressed]="isTopicChecked()" [attr.aria-disabled]="hasSubtopics() ? true : null"
+            class="topic-checkbox flex-shrink-0"
             [class.checked]="isTopicChecked()"
             [attr.title]="hasSubtopics() ? 'Completion is automatic when all subtopics are done' : null">
             @if (isTopicChecked()) {
-            <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                stroke-width="3.5">
+            <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             }
         </button>
 
-        <!-- Title + small tags: stacked on phones, side by side on bigger screens -->
-        <div class="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-        <span class="sm:flex-1 text-[15px] sm:text-sm font-semibold sm:font-medium transition-colors leading-snug sm:leading-tight min-w-0"
-            [style.color]="isTopicChecked() ? 'var(--text-4)' : 'var(--text-1)'"
-            [class.line-through]="isTopicChecked()">
-            {{ topic().title }}
-        </span>
+        <!-- Topic Title + Tags -->
+        <div class="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+            <span class="sm:flex-1 text-xs sm:text-sm font-medium transition-colors truncate"
+                [style.color]="isTopicChecked() ? 'var(--text-4)' : 'var(--text-1)'"
+                [class.line-through]="isTopicChecked()">
+                {{ topic().title }}
+            </span>
 
-        <div class="flex items-center flex-wrap gap-1.5 sm:flex-nowrap">
-        <!-- Subtopic progress badge -->
-        @if (hasSubtopics()) {
-        <span class="badge flex-shrink-0 text-[11px] sm:text-xs" [class.badge-green]="allSubtopicsComplete()"
-            [class.badge-zinc]="!allSubtopicsComplete()">
-            {{ subtopicCompletedCount() }}/{{ subtopicTotalCount() }}
-        </span>
-        }
+            <div class="flex items-center flex-wrap gap-1.5 sm:flex-nowrap">
+                <!-- Subtopics Progress Badge -->
+                @if (hasSubtopics()) {
+                <span class="badge badge-zinc text-[11px] font-mono" [class.badge-green]="allSubtopicsComplete()">
+                    {{ subtopicCompletedCount() }}/{{ subtopicTotalCount() }}
+                </span>
+                }
 
-        <!-- Depth badge - hidden on very small screens -->
-        <span class="badge flex-shrink-0 text-[11px] sm:text-xs"
-            [class.depth-shallow]="topic().depth === 'shallow'" [class.depth-medium]="topic().depth === 'medium'"
-            [class.depth-deep]="topic().depth === 'deep'">
-            {{ depthConfig[topic().depth].label }}
-        </span>
+                <!-- Depth Badge -->
+                <span class="badge text-[11px]"
+                    [class.depth-shallow]="topic().depth === 'shallow'"
+                    [class.depth-medium]="topic().depth === 'medium'"
+                    [class.depth-deep]="topic().depth === 'deep'">
+                    {{ depthConfig[topic().depth].label }}
+                </span>
 
-        <!-- Study Partner Completion Badge -->
-        @if (partnerName()) {
-        <span class="badge flex-shrink-0 text-[11px] sm:text-xs flex items-center gap-1 cursor-default"
-            [class.badge-green]="topic().partner_completed"
-            [class.badge-zinc]="!topic().partner_completed"
-            [attr.title]="partnerName() + (topic().partner_completed ? ' has completed this topic' : ' has not completed this topic yet')">
-            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                [class.bg-emerald-400]="topic().partner_completed"
-                [class.bg-zinc-500]="!topic().partner_completed"></span>
-            <span class="hidden sm:inline truncate max-w-[80px]">{{ partnerName() }}:</span>
-            <span class="sm:hidden font-bold">{{ partnerName()?.charAt(0) }}:</span>
-            <span>{{ topic().partner_completed ? '✓' : '○' }}</span>
-        </span>
-        }
-
-        </div>
+                <!-- Partner Badge -->
+                @if (partnerName()) {
+                <span class="badge badge-zinc text-[11px] flex items-center gap-1 cursor-default"
+                    [class.badge-green]="topic().partner_completed"
+                    [attr.title]="partnerName() + (topic().partner_completed ? ' completed' : ' not completed')">
+                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        [class.bg-emerald-500]="topic().partner_completed"
+                        [class.bg-zinc-400]="!topic().partner_completed"></span>
+                    <span class="truncate max-w-[70px]">{{ partnerName() }}</span>
+                </span>
+                }
+            </div>
         </div>
 
-        <!-- Starred -->
+        <!-- Starred Indicator -->
         @if (topic().starred) {
-        <span class="text-sm flex-shrink-0">⭐</span>
+        <span class="text-xs text-amber-500 flex-shrink-0 font-mono" title="Starred for Weekly Focus">★</span>
         }
 
-        <!-- Notes dot -->
+        <!-- Notes Indicator Dot -->
         @if (topic().notes) {
-        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500/60 flex-shrink-0"></div>
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" title="Has notes"></span>
         }
 
-        <!-- Pomodoro button -->
-        <button (click)="pomodoro.startSession(topic().id, topic().title); $event.stopPropagation()" [attr.aria-label]="'Start a focus session for ' + topic().title"
-            class="w-11 h-11 min-w-[44px] sm:w-7 sm:h-7 sm:min-w-[28px] -mx-1 sm:mx-0 rounded-xl sm:rounded-lg flex items-center justify-center hover:text-emerald-400 hover:bg-emerald-500/[0.1] transition-all flex-shrink-0 touch-manipulation"
-            style="color:var(--text-3)"
-            title="Start Focus Session">
-            <svg class="w-5 h-5 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <!-- Pomodoro Action Button -->
+        <button (click)="pomodoro.startSession(topic().id, topic().title); $event.stopPropagation()"
+            [attr.aria-label]="'Start a focus session for ' + topic().title"
+            class="p-1.5 rounded text-[var(--text-3)] hover:text-emerald-500 hover:bg-emerald-500/10 transition-colors flex-shrink-0"
+            title="Start Pomodoro Focus">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="9" />
                 <path stroke-linecap="round" d="M12 7v5l3 3" />
             </svg>
         </button>
 
-        <!-- Kebab Menu -->
-        <div class="relative topic-kebab-menu flex-shrink-0" (click)="$event.stopPropagation()">
-
+        <!-- Kebab Options Menu -->
+        <div class="relative flex-shrink-0" (click)="$event.stopPropagation()">
             <button (click)="toggleMenu($event)" [attr.aria-label]="'More options for ' + topic().title" aria-haspopup="menu" [attr.aria-expanded]="showMenu()"
-                class="w-11 h-11 min-w-[44px] sm:w-7 sm:h-7 sm:min-w-[28px] -mx-1 sm:mx-0 rounded-xl sm:rounded-lg flex items-center justify-center hover:bg-white/[0.07] transition-all touch-manipulation"
-                style="color:var(--text-3)"
-                title="More options">
-                <svg class="w-5 h-5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="5" r="1.5" />
-                    <circle cx="12" cy="12" r="1.5" />
-                    <circle cx="12" cy="19" r="1.5" />
+                class="p-1.5 rounded text-[var(--text-4)] hover:text-[var(--text-2)] hover:bg-[var(--surface-2)] transition-colors"
+                title="Options">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" />
                 </svg>
             </button>
 
             @if (showMenu()) {
-            <div class="absolute right-0 top-full mt-1 w-44 sm:w-36 z-[100] rounded-xl shadow-2xl overflow-hidden animate-scale-in"
-                style="background: var(--surface-0); border: 1px solid var(--border);" (click)="$event.stopPropagation()">
-
+            <div class="absolute right-0 top-full mt-1 w-32 z-50 rounded-lg shadow-lg border border-[var(--border)] bg-[var(--surface-0)] py-1 overflow-hidden"
+                (click)="$event.stopPropagation()">
                 <button (click)="startEdit($event)"
-                    class="w-full flex items-center gap-2.5 px-4 sm:px-3 py-3 text-base sm:text-sm transition-colors rounded-t-xl min-h-[48px] sm:min-h-[44px] touch-manipulation"
-                    style="color:var(--text-2)"
-                    [style.background]="'transparent'">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-1)] transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    Edit
+                    <span>Edit</span>
                 </button>
-
                 <button (click)="onDelete($event)"
-                    class="w-full flex items-center gap-2.5 px-4 sm:px-3 py-3 text-base sm:text-sm text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors rounded-b-xl min-h-[48px] sm:min-h-[44px] touch-manipulation">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-red-500/10 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Delete
+                    <span>Delete</span>
                 </button>
             </div>
             }
         </div>
 
-        <!-- Arrow -->
-        <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5 transition-transform duration-200 flex-shrink-0"
-            [class.rotate-180]="isOpen()" style="color:var(--text-3)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        <!-- Expansion Chevron -->
+        <svg class="w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 flex-shrink-0"
+            [class.rotate-180]="isOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
     </div>
 
-    <!-- ── Expanded Panel ───────────────────────── -->
+    <!-- ── Expanded Details Panel ───────────────── -->
     @if (isOpen()) {
-    <div style="overflow: hidden;">
-        <div class="px-3 sm:px-4 pb-4 pt-3 border-t" style="border-color:var(--border)" (click)="$event.stopPropagation()">
+    <div class="px-3.5 pb-4 pt-3 border-t border-[var(--border)] space-y-4" (click)="$event.stopPropagation()">
 
-            <!-- Notes header & tabs -->
-            <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                <div class="flex items-center gap-2">
-                    <label class="text-xs flex items-center gap-2" style="color:var(--text-2)">
-                        Notes
-                        @if (saveStatus() === 'saving') {
-                        <span class="text-amber-500 text-xs flex items-center gap-1 transition-opacity">
-                            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                            Saving…
-                        </span>
-                        } @else if (saveStatus() === 'saved') {
-                        <span class="text-emerald-500 text-xs flex items-center gap-1 transition-opacity">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Saved
-                        </span>
-                        } @else if (saveStatus() === 'failed') {
-                        <button type="button" (click)="retryNoteSave($event)"
-                            class="text-red-400 hover:text-red-300 text-xs font-semibold flex items-center gap-1 underline underline-offset-2">
-                            Not saved · Retry
-                        </button>
-                        }
-                    </label>
-                </div>
-
-                @if (partnerName()) {
-                <div class="flex items-center gap-1 p-0.5 rounded-lg border text-xs"
-                     style="background: var(--surface-1); border-color: var(--border);">
-                    <button type="button" (click)="activeNotesTab.set('mine')"
-                        class="px-2 py-0.5 rounded-md font-medium transition-colors"
-                        [style.background]="activeNotesTab() === 'mine' ? 'var(--surface-2)' : 'transparent'"
-                        [style.color]="activeNotesTab() === 'mine' ? 'var(--text-1)' : 'var(--text-3)'">
-                        My Notes
-                    </button>
-                    <button type="button" (click)="activeNotesTab.set('partner')"
-                        class="px-2 py-0.5 rounded-md font-medium transition-colors flex items-center gap-1"
-                        [style.background]="activeNotesTab() === 'partner' ? 'var(--surface-2)' : 'transparent'"
-                        [style.color]="activeNotesTab() === 'partner' ? 'var(--text-1)' : 'var(--text-3)'">
-                        <span class="truncate max-w-[100px] sm:max-w-none">{{ partnerName() }}'s Notes</span>
-                        @if (topic().partner_notes) {
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></span>
-                        }
-                    </button>
-                </div>
+        <!-- Notes Header & Save Status -->
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-medium text-[var(--text-2)]">Topic Notes</span>
+                @if (saveStatus() === 'saving') {
+                <span class="text-xs text-amber-500 flex items-center gap-1 font-mono">
+                    <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    Saving...
+                </span>
+                } @else if (saveStatus() === 'saved') {
+                <span class="text-xs text-emerald-500 font-mono">✓ Saved</span>
+                } @else if (saveStatus() === 'failed') {
+                <button type="button" (click)="retryNoteSave($event)" class="text-xs text-red-500 underline font-mono">
+                    Retry save
+                </button>
                 }
             </div>
 
-            <app-media-gallery [topicId]="topic().id" [subjectId]="topic().subject_id" [subjectName]="subjectName()"
-                [topicTitle]="topic().title" />
-
-            @if (activeNotesTab() === 'mine') {
-                <quill-editor [(ngModel)]="localNotes" (ngModelChange)="onNotesInput()" (onBlur)="onNotesBlur()"
-                    placeholder="Paste resources, write what you learned, note open questions..."
-                    class="w-full block">
-                </quill-editor>
-            } @else {
-                <div class="p-3 sm:p-4 rounded-xl border text-sm min-h-[120px] transition-all"
-                     style="background: var(--surface-1); border-color: var(--border); color: var(--text-2);">
+            <!-- Notes Tab for Collaboration -->
+            @if (partnerName()) {
+            <div class="flex items-center gap-1 p-0.5 rounded border border-[var(--border)] bg-[var(--surface-1)] text-xs">
+                <button type="button" (click)="activeNotesTab.set('mine')"
+                    class="px-2 py-0.5 rounded text-[11px] font-medium transition-colors"
+                    [style.background]="activeNotesTab() === 'mine' ? 'var(--surface-0)' : 'transparent'"
+                    [style.color]="activeNotesTab() === 'mine' ? 'var(--text-1)' : 'var(--text-3)'">
+                    My Notes
+                </button>
+                <button type="button" (click)="activeNotesTab.set('partner')"
+                    class="px-2 py-0.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1"
+                    [style.background]="activeNotesTab() === 'partner' ? 'var(--surface-0)' : 'transparent'"
+                    [style.color]="activeNotesTab() === 'partner' ? 'var(--text-1)' : 'var(--text-3)'">
+                    <span>{{ partnerName() }}'s Notes</span>
                     @if (topic().partner_notes) {
-                        <div class="text-xs font-semibold mb-2 flex items-center gap-2 pb-2 border-b"
-                             style="color: var(--text-3); border-color: var(--border);">
-                            <span>👁 Read-only notes by {{ partnerName() }}</span>
-                        </div>
-                        <div class="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed"
-                             [innerHTML]="topic().partner_notes"></div>
-                    } @else {
-                        <div class="py-8 text-center text-xs italic" style="color: var(--text-4);">
-                            {{ partnerName() }} hasn't added notes for this topic yet.
-                        </div>
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                     }
-                </div>
+                </button>
+            </div>
             }
+        </div>
 
-            <!-- Subtopics -->
-            <div class="border-t mt-3 pt-3" style="border-color:var(--border)">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="section-title" style="color:var(--text-3)">Subtopics</span>
-                    @if (subtopicTotalCount() > 0) {
-                    <span class="badge" [class.badge-green]="allSubtopicsComplete()"
-                        [class.badge-zinc]="!allSubtopicsComplete()">
-                        {{ subtopicCompletedCount() }}/{{ subtopicTotalCount() }}
-                    </span>
-                    }
-                </div>
+        <!-- Media Gallery -->
+        <app-media-gallery [topicId]="topic().id" [subjectId]="topic().subject_id" [subjectName]="subjectName()"
+            [topicTitle]="topic().title" />
 
-                <!-- Subtopic rows -->
+        <!-- Rich Text Notes Editor -->
+        @if (activeNotesTab() === 'mine') {
+            <quill-editor [(ngModel)]="localNotes" (ngModelChange)="onNotesInput()" (onBlur)="onNotesBlur()"
+                placeholder="Write code snippets, key learnings, or open questions..."
+                class="w-full block text-xs">
+            </quill-editor>
+        } @else {
+            <div class="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-xs min-h-[100px]">
+                @if (topic().partner_notes) {
+                    <div class="text-[11px] text-[var(--text-3)] mb-2 font-mono">Notes by {{ partnerName() }}</div>
+                    <div class="prose dark:prose-invert max-w-none text-xs leading-relaxed" [innerHTML]="topic().partner_notes"></div>
+                } @else {
+                    <div class="py-6 text-center text-xs text-[var(--text-3)] italic">
+                        {{ partnerName() }} has not added notes for this topic yet.
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Subtopics Hierarchy -->
+        <div class="border-t border-[var(--border)] pt-3 space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-mono text-[var(--text-3)] uppercase tracking-wider">SUBTOPICS</span>
+                @if (subtopicTotalCount() > 0) {
+                <span class="text-[11px] font-mono text-[var(--text-3)]">
+                    {{ subtopicCompletedCount() }} of {{ subtopicTotalCount() }} complete
+                </span>
+                }
+            </div>
+
+            <!-- Subtopic checklist -->
+            <div class="space-y-1">
                 @for (st of topic().subtopics; track st.id) {
-                <div
-                    class="flex items-center gap-2.5 min-h-[36px] group/st px-1 rounded-lg hover:bg-white/[0.02] transition-colors">
+                <div class="flex items-center gap-2.5 py-1 px-1.5 rounded hover:bg-[var(--surface-1)] transition-colors group/st">
                     <button (click)="onSubtopicCheck(st.id, st.completed)" [attr.aria-label]="st.title" [attr.aria-pressed]="st.completed"
-                        class="topic-checkbox w-4 h-4 min-w-[16px] flex-shrink-0 touch-manipulation"
+                        class="topic-checkbox w-3.5 h-3.5 flex-shrink-0"
                         [class.checked]="st.completed">
                         @if (st.completed) {
-                        <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="4">
+                        <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         }
                     </button>
 
-                    <span class="flex-1 text-sm transition-colors"
+                    <span class="flex-1 text-xs transition-colors truncate"
                         [style.color]="st.completed ? 'var(--text-4)' : 'var(--text-2)'"
                         [class.line-through]="st.completed">
                         {{ st.title }}
                     </span>
 
                     <button (click)="onSubtopicDelete($event, st.id)" [attr.aria-label]="'Delete ' + st.title"
-                        class="w-7 h-7 min-w-[28px] rounded flex items-center justify-center hover:text-red-400 hover:bg-red-500/[0.08] transition-all flex-shrink-0 opacity-0 group-hover/st:opacity-100 touch-manipulation"
-                        style="color:var(--text-4)">
+                        class="p-1 rounded text-[var(--text-4)] hover:text-red-500 opacity-0 group-hover/st:opacity-100 transition-opacity"
+                        title="Delete subtopic">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
                 }
-
-                <!-- Add subtopic -->
-                @if (addingSubtopic()) {
-                <div class="flex items-center gap-2 mt-2 px-1 flex-wrap">
-                    <input [(ngModel)]="newSubtopicTitle" type="text" placeholder="Subtopic title"
-                        (input)="newSubtopicTitle = toTitleCase(newSubtopicTitle)" (keydown.enter)="submitSubtopic()"
-                        (keydown.escape)="cancelAddSubtopic()" class="input flex-1 py-1.5 text-sm min-w-[120px]" />
-                    <button (click)="submitSubtopic()" [disabled]="!newSubtopicTitle.trim()"
-                        class="btn-primary text-xs py-1.5 px-3 min-h-[36px] touch-manipulation">Add</button>
-                    <button (click)="cancelAddSubtopic()"
-                        class="btn-ghost text-xs py-1.5 min-h-[36px] touch-manipulation">Cancel</button>
-                </div>
-                } @else {
-                <button (click)="addingSubtopic.set(true)"
-                    class="text-xs hover:opacity-100 transition-opacity mt-2 px-1 flex items-center gap-1.5 min-h-[32px] touch-manipulation"
-                    style="color:var(--text-3)">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add subtopic
-                </button>
-                }
             </div>
+
+            <!-- Add Subtopic Inline -->
+            @if (addingSubtopic()) {
+            <div class="flex items-center gap-2 pt-1">
+                <input [(ngModel)]="newSubtopicTitle" type="text" placeholder="Subtopic title"
+                    (input)="newSubtopicTitle = toTitleCase(newSubtopicTitle)" (keydown.enter)="submitSubtopic()"
+                    (keydown.escape)="cancelAddSubtopic()" class="input h-8 text-xs flex-1" />
+                <button (click)="submitSubtopic()" [disabled]="!newSubtopicTitle.trim()"
+                    class="btn-primary text-xs py-1 px-3 h-8">Add</button>
+                <button (click)="cancelAddSubtopic()"
+                    class="btn-ghost text-xs py-1 px-2.5 h-8">Cancel</button>
+            </div>
+            } @else {
+            <button (click)="addingSubtopic.set(true)"
+                class="text-xs text-[var(--text-3)] hover:text-[var(--text-1)] flex items-center gap-1.5 py-1 px-1.5 transition-colors">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add subtopic</span>
+            </button>
+            }
         </div>
     </div>
     }
+
     }
 
 </div>
