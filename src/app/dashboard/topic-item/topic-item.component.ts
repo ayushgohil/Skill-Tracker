@@ -1,5 +1,5 @@
 // src/app/dashboard/topic-item/topic-item.component.ts
-import { Component, input, output, signal, computed, effect, untracked, OnDestroy, OnInit, HostListener } from '@angular/core';
+import { Component, input, output, signal, computed, effect, untracked, viewChild, ElementRef, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { TopicWithProgress, Depth } from '../../core/models';
@@ -101,6 +101,22 @@ export class TopicItemComponent implements OnDestroy, OnInit {
     private notesSubscription?: Subscription;
     private savedTimeout?: ReturnType<typeof setTimeout>;
 
+    // ── Notes full screen ─────────────────────────────
+    notesFullscreen = signal(false);
+    /** Shown after the first Esc: "Press Esc again to close". */
+    escHint = signal(false);
+    private notesWrap = viewChild<ElementRef<HTMLElement>>('notesWrap');
+    private fsBtn = viewChild<ElementRef<HTMLButtonElement>>('fsBtn');
+    /** Marks where the notes section lives, while it is moved to <body> for full screen. */
+    private fsPlaceholder?: Comment;
+    private fsClosing = false;
+    private lastEscAt = 0;
+    private escHintTimeout?: ReturnType<typeof setTimeout>;
+    private closeTimeout?: ReturnType<typeof setTimeout>;
+    private readonly ESC_WINDOW_MS = 1500;
+    private readonly CLOSE_ANIM_MS = 170;
+    private boundFsKeydown = (e: KeyboardEvent) => this.onFullscreenKeydown(e);
+
     editing = signal(false);
     editTitle = '';
     editDepth: Depth = 'medium';
@@ -187,6 +203,102 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         }
         this.notesSubscription?.unsubscribe();
         if (this.savedTimeout) clearTimeout(this.savedTimeout);
+        // If the topic goes away while full screen is open, the section was moved to <body>
+        // and Angular would leave it behind, so clean it up.
+        this.teardownFullscreen(false);
+    }
+
+    // ── Notes full screen ─────────────────────────────
+
+    /**
+     * Opens the notes section (header with save status + editor) over the whole screen.
+     *
+     * The same element is moved to <body> instead of being re-created, so the editor keeps its
+     * text, cursor and autosave. Moving it also avoids `position: fixed` being trapped by a
+     * transformed or clipped parent (the topic panel sits inside an expand animation).
+     */
+    openNotesFullscreen(event?: Event) {
+        event?.stopPropagation();
+        const el = this.notesWrap()?.nativeElement;
+        if (!el || !isPlatformBrowser(this.platformId) || this.notesFullscreen()) return;
+
+        this.fsPlaceholder = document.createComment('notes-fullscreen');
+        el.parentNode?.insertBefore(this.fsPlaceholder, el);
+        document.body.appendChild(el);
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('keydown', this.boundFsKeydown, true);
+
+        this.lastEscAt = 0;
+        this.fsClosing = false;
+        this.notesFullscreen.set(true);
+    }
+
+    /** Closes full screen with a short fade-out, then puts the section back in place. */
+    closeNotesFullscreen() {
+        const el = this.notesWrap()?.nativeElement;
+        if (!el || !this.notesFullscreen() || this.fsClosing) return;
+        this.fsClosing = true;
+        this.escHint.set(false);
+        el.classList.add('notes-fs-closing');
+
+        // Save anything typed but not yet saved, without waiting for the autosave timer.
+        if (this.notesDirty) this.performNoteSave();
+
+        this.closeTimeout = setTimeout(() => {
+            this.teardownFullscreen(true);
+            // The Full screen button is created again once the signal flips, so focus it after render.
+            setTimeout(() => this.fsBtn()?.nativeElement.focus(), 0);
+        }, this.CLOSE_ANIM_MS);
+    }
+
+    /** Puts the section back where it came from (or drops it when the component is going away). */
+    private teardownFullscreen(restore: boolean) {
+        if (this.closeTimeout) clearTimeout(this.closeTimeout);
+        if (this.escHintTimeout) clearTimeout(this.escHintTimeout);
+        if (!this.fsPlaceholder) return;
+
+        const el = this.notesWrap()?.nativeElement;
+        if (el) {
+            el.classList.remove('notes-fs-closing');
+            if (restore && this.fsPlaceholder.parentNode) {
+                this.fsPlaceholder.parentNode.insertBefore(el, this.fsPlaceholder);
+            } else {
+                el.remove();
+            }
+        }
+        this.fsPlaceholder.remove();
+        this.fsPlaceholder = undefined;
+
+        if (isPlatformBrowser(this.platformId)) {
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', this.boundFsKeydown, true);
+        }
+        this.fsClosing = false;
+        this.escHint.set(false);
+        if (restore) this.notesFullscreen.set(false);
+    }
+
+    /** Esc twice within 1.5 s closes. A single Esc only shows a hint, so it cannot close by accident. */
+    private onFullscreenKeydown(e: KeyboardEvent) {
+        if (e.key !== 'Escape' || !this.notesFullscreen() || this.fsClosing) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const now = Date.now();
+        if (now - this.lastEscAt <= this.ESC_WINDOW_MS) {
+            this.lastEscAt = 0;
+            this.closeNotesFullscreen();
+            return;
+        }
+        this.lastEscAt = now;
+        this.escHint.set(true);
+        if (this.escHintTimeout) clearTimeout(this.escHintTimeout);
+        this.escHintTimeout = setTimeout(() => this.escHint.set(false), this.ESC_WINDOW_MS);
+    }
+
+    /** While moved to <body>, clicks no longer reach the component host, so open links here. */
+    onNotesWrapClick(event: MouseEvent) {
+        if (this.notesFullscreen()) this.onLinkClick(event);
     }
 
     private closeMenuOnOutsideClick(e: MouseEvent) {

@@ -1210,3 +1210,59 @@ html, body { overscroll-behavior-y: contain; }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
+
+/* ── Notes full screen (topic notes: header + editor) ─────────────── */
+.notes-fs {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: var(--bg);
+  animation: notes-fs-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.notes-fs.notes-fs-closing {
+  animation: notes-fs-out 170ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+.notes-fs .notes-head,
+.notes-fs quill-editor,
+.notes-fs .notes-partner {
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.notes-fs quill-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+}
+.notes-fs quill-editor .ql-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.notes-fs quill-editor .ql-editor {
+  height: 100%;
+  overflow-y: auto;
+}
+.notes-fs .notes-partner {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@keyframes notes-fs-in {
+  from { opacity: 0; transform: scale(0.985); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes notes-fs-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.985); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notes-fs,
+  .notes-fs.notes-fs-closing { animation-duration: 1ms; }
+}
