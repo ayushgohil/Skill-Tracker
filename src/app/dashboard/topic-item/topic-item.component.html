@@ -219,22 +219,27 @@
                 }
                 @if (!notesFullscreen()) {
                 <button #fsBtn type="button" (click)="openNotesFullscreen($event)"
-                    aria-label="Open notes full screen" title="Full screen"
-                    class="p-1.5 rounded-lg border transition-colors touch-manipulation"
+                    aria-label="Open notes full screen" aria-keyshortcuts="Alt+N"
+                    [attr.title]="'Full screen (' + shortcutLabel + ')'"
+                    class="notes-action-btn"
                     style="background: var(--surface-1); border-color: var(--border); color: var(--text-2);">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
                     </svg>
+                    <span class="hidden sm:inline">Full screen</span>
+                    <span class="kbd-hint" aria-hidden="true"><kbd class="kbd">{{ modKeyLabel }}</kbd><kbd class="kbd">N</kbd></span>
                 </button>
                 } @else {
                 <button type="button" (click)="closeNotesFullscreen()"
-                    aria-label="Close full screen" title="Close (press Esc twice)"
-                    class="px-2.5 py-1.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-colors touch-manipulation"
+                    aria-label="Close full screen" aria-keyshortcuts="Escape Alt+N"
+                    [attr.title]="'Close (press Esc twice, or ' + shortcutLabel + ')'"
+                    class="notes-action-btn"
                     style="background: var(--surface-1); border-color: var(--border); color: var(--text-1);">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Close
+                    <span>Close</span>
+                    <span class="kbd-hint" aria-hidden="true"><kbd class="kbd">Esc</kbd><kbd class="kbd">Esc</kbd></span>
                 </button>
                 }
                 </div>

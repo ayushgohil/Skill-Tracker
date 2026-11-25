@@ -126,6 +126,68 @@ describe('TopicItemComponent: notes full screen', () => {
         expect(component.escHint()).toBe(false);
     });
 
+    describe('Alt+N shortcut', () => {
+        const press = (init: KeyboardEventInit) =>
+            document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }));
+        const altN = (init: KeyboardEventInit = {}) => press({ code: 'KeyN', key: 'n', altKey: true, ...init });
+
+        it('opens full screen, and closes it again on a second press', () => {
+            altN();
+            expect(component.notesFullscreen()).toBe(true);
+
+            altN();
+            vi.advanceTimersByTime(200);
+            expect(component.notesFullscreen()).toBe(false);
+        });
+
+        it('works on a Mac, where Option+N types "˜" instead of "n"', () => {
+            altN({ key: '˜' });
+            expect(component.notesFullscreen()).toBe(true);
+        });
+
+        it('does nothing for other key combinations', () => {
+            press({ code: 'KeyN', key: 'n' });                          // plain N (typing)
+            altN({ ctrlKey: true });
+            altN({ metaKey: true });
+            altN({ shiftKey: true });
+            press({ code: 'KeyM', key: 'm', altKey: true });
+            expect(component.notesFullscreen()).toBe(false);
+        });
+
+        it('ignores a held-down key, so it does not flicker open and closed', () => {
+            altN({ repeat: true });
+            expect(component.notesFullscreen()).toBe(false);
+        });
+
+        it('does nothing while the topic is collapsed', () => {
+            fixture.componentRef.setInput('isOpen', false);
+            fixture.detectChanges();
+            altN();
+            expect(component.notesFullscreen()).toBe(false);
+        });
+
+        it('with several topics open, only the one you last worked in responds', () => {
+            const second = TestBed.createComponent(TopicItemComponent);
+            second.componentRef.setInput('topic', topic());
+            second.componentRef.setInput('isOpen', true);
+            second.componentRef.setInput('subjectName', 'Maths');
+            second.detectChanges();
+
+            component.markActive();
+            altN();
+
+            expect(component.notesFullscreen()).toBe(true);
+            expect(second.componentInstance.notesFullscreen()).toBe(false);
+            second.destroy();
+        });
+
+        it('stops listening once the topic is destroyed', () => {
+            fixture.destroy();
+            expect(() => altN()).not.toThrow();
+            expect(component.notesFullscreen()).toBe(false);
+        });
+    });
+
     it('removes the section from <body> if the topic is destroyed while full screen is open', () => {
         component.openNotesFullscreen();
         expect(document.body.contains(wrap)).toBe(true);

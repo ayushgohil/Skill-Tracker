@@ -117,6 +117,18 @@ export class TopicItemComponent implements OnDestroy, OnInit {
     private readonly CLOSE_ANIM_MS = 170;
     private boundFsKeydown = (e: KeyboardEvent) => this.onFullscreenKeydown(e);
 
+    // ── Alt+N shortcut ────────────────────────────────
+    /** Topics that are expanded right now, so the shortcut knows which one you mean. */
+    private static openTopics = new Set<TopicItemComponent>();
+    /** The topic you last clicked or typed in. */
+    private static lastActive?: TopicItemComponent;
+    private static readonly isMac =
+        typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
+    /** Key shown in the badge: Option (⌥) on Mac, Alt elsewhere. */
+    readonly modKeyLabel = TopicItemComponent.isMac ? '⌥' : 'Alt';
+    readonly shortcutLabel = TopicItemComponent.isMac ? 'Option+N' : 'Alt+N';
+    private boundShortcutKeydown = (e: KeyboardEvent) => this.onShortcutKeydown(e);
+
     editing = signal(false);
     editTitle = '';
     editDepth: Depth = 'medium';
@@ -174,6 +186,8 @@ export class TopicItemComponent implements OnDestroy, OnInit {
             const open = this.isOpen();
             const notes = this.topic().notes;
             untracked(() => {
+                if (open) TopicItemComponent.openTopics.add(this);
+                else TopicItemComponent.openTopics.delete(this);
                 // Never overwrite what the user is typing, or notes that are still being
                 // saved or that failed to save.
                 const status = this.saveStatus();
@@ -184,6 +198,8 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         });
         if (isPlatformBrowser(this.platformId)) {
             document.addEventListener('click', this.boundCloseMenu);
+            // Capture phase, so the editor cannot swallow the shortcut before it gets here.
+            document.addEventListener('keydown', this.boundShortcutKeydown, true);
             ensureQuillPlugins();
         }
     }
@@ -200,7 +216,10 @@ export class TopicItemComponent implements OnDestroy, OnInit {
     ngOnDestroy() {
         if (isPlatformBrowser(this.platformId)) {
             document.removeEventListener('click', this.boundCloseMenu);
+            document.removeEventListener('keydown', this.boundShortcutKeydown, true);
         }
+        TopicItemComponent.openTopics.delete(this);
+        if (TopicItemComponent.lastActive === this) TopicItemComponent.lastActive = undefined;
         this.notesSubscription?.unsubscribe();
         if (this.savedTimeout) clearTimeout(this.savedTimeout);
         // If the topic goes away while full screen is open, the section was moved to <body>
@@ -294,6 +313,34 @@ export class TopicItemComponent implements OnDestroy, OnInit {
         this.escHint.set(true);
         if (this.escHintTimeout) clearTimeout(this.escHintTimeout);
         this.escHintTimeout = setTimeout(() => this.escHint.set(false), this.ESC_WINDOW_MS);
+    }
+
+    /** Remembers which topic you are working in, for the Alt+N shortcut. */
+    @HostListener('focusin')
+    @HostListener('pointerdown')
+    markActive() {
+        TopicItemComponent.lastActive = this;
+    }
+
+    /**
+     * Alt+N (Option+N on Mac) opens or closes full screen for the topic you are working in.
+     * It uses the physical key (`code`), because Option+N on a Mac types a "˜" character and
+     * `key` would not say "n". With only one topic expanded, that one is used; with several,
+     * the one you last clicked or typed in.
+     */
+    private onShortcutKeydown(e: KeyboardEvent) {
+        if (e.code !== 'KeyN' || !e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.repeat) return;
+        if (!this.isOpen() || this.fsClosing || !this.ownsShortcut()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.notesFullscreen()) this.closeNotesFullscreen();
+        else this.openNotesFullscreen();
+    }
+
+    private ownsShortcut(): boolean {
+        if (this.notesFullscreen()) return true;
+        const open = TopicItemComponent.openTopics;
+        return open.size === 1 ? open.has(this) : TopicItemComponent.lastActive === this;
     }
 
     /** While moved to <body>, clicks no longer reach the component host, so open links here. */

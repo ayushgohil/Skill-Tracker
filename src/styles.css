@@ -1266,3 +1266,53 @@ html, body { overscroll-behavior-y: contain; }
   .notes-fs,
   .notes-fs.notes-fs-closing { animation-duration: 1ms; }
 }
+
+/* ── Keyboard shortcut hints (the small key badges next to a button) ─── */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+/* Only show hints where there is a keyboard: not on touch-only phones and tablets. */
+.kbd-hint {
+  display: none;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.125rem;
+}
+@media (hover: hover) and (pointer: fine) {
+  .kbd-hint { display: inline-flex; }
+}
+
+/* Small bordered button used in the notes header (Full screen / Close). */
+.notes-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+.notes-action-btn:hover { border-color: var(--border-hover) !important; color: var(--text-1) !important; }
+.notes-action-btn:hover .kbd { color: var(--text-2); }
+.notes-action-btn:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
