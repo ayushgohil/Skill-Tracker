@@ -370,32 +370,54 @@
             (click)="closeLightbox()">
 
             <!-- ── Top Header Bar ───────────────────────────────── -->
-            <div class="relative z-30 w-full px-3 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-b from-black/80 via-black/50 to-transparent flex items-center justify-between gap-3"
+            @if (!immersiveMode()) {
+            <div class="relative z-30 w-full px-3 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-b from-black/80 via-black/50 to-transparent flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0"
                 (click)="$event.stopPropagation()">
 
                 <!-- Left: Back/Close + File Info -->
-                <div class="flex items-center gap-3 min-w-0">
-                    <button (click)="closeLightbox()" aria-label="Close"
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <button (click)="closeLightbox()" aria-label="Back to topic"
                         class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-all duration-150 backdrop-blur-md border border-white/10 flex-shrink-0"
-                        title="Close (Esc)">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        title="Back (Esc)">
+                        <svg class="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <svg class="w-5 h-5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
 
                     <div class="min-w-0">
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-xs sm:text-sm font-semibold text-white truncate max-w-[160px] sm:max-w-[340px] md:max-w-[500px]"
+                        <div class="flex items-center gap-1.5 sm:gap-2">
+                            <h3 class="text-xs sm:text-sm font-semibold text-white truncate max-w-[130px] sm:max-w-[340px] md:max-w-[500px]"
                                 [title]="media()[lightboxIndex()].file_name">
                                 {{ media()[lightboxIndex()].file_name }}
                             </h3>
                             @if (media().length > 1) {
-                            <span class="text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 flex-shrink-0">
-                                {{ lightboxIndex() + 1 }} / {{ media().length }}
-                            </span>
+                            <div class="flex items-center gap-0.5 flex-shrink-0">
+                                @if (isPdfSlide()) {
+                                <button (click)="prevSlide()" aria-label="Previous file"
+                                    class="sm:hidden w-6 h-6 rounded-full bg-white/10 text-slate-200 flex items-center justify-center">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                }
+                                <span class="text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 flex-shrink-0">
+                                    {{ lightboxIndex() + 1 }} / {{ media().length }}
+                                </span>
+                                @if (isPdfSlide()) {
+                                <button (click)="nextSlide()" aria-label="Next file"
+                                    class="sm:hidden w-6 h-6 rounded-full bg-white/10 text-slate-200 flex items-center justify-center">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                }
+                            </div>
                             }
                         </div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 truncate max-w-[200px] sm:max-w-xs">
+                        <p class="text-[10px] sm:text-xs text-slate-400 truncate max-w-[160px] sm:max-w-xs">
                             {{ subjectName }} <span class="text-slate-600">•</span> {{ topicTitle }}
                         </p>
                     </div>
@@ -457,16 +479,26 @@
                     </button>
 
                     <!-- Direct Download -->
-                    <button (click)="downloadCurrentFile()"
-                        class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white flex items-center gap-1.5 text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all duration-150"
+                    <button (click)="downloadCurrentFile()" [disabled]="downloading()"
+                        class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white flex items-center gap-1.5 text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all duration-150 disabled:opacity-60"
                         title="Download file">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" [class.animate-bounce]="downloading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        <span class="hidden sm:inline">Download</span>
+                        <span class="hidden sm:inline">{{ downloading() ? 'Saving…' : 'Download' }}</span>
                     </button>
 
-                    <!-- Fullscreen (Desktop/Tablet) -->
+                    <!-- Fullscreen / Immersive Reading -->
+                    @if (isPdfSlide()) {
+                    <button (click)="toggleImmersive()" aria-label="Toggle full screen reading"
+                        class="flex w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white items-center justify-center backdrop-blur-md border border-white/10 transition-all duration-150"
+                        title="Full screen reading">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                    </button>
+                    } @else {
                     <button (click)="toggleFullscreen()" aria-label="Toggle full screen"
                         class="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white items-center justify-center backdrop-blur-md border border-white/10 transition-all duration-150"
                         title="Toggle Fullscreen (F)">
@@ -481,11 +513,22 @@
                         </svg>
                         }
                     </button>
+                    }
                 </div>
             </div>
+            } @else {
+            <button (click)="closeLightbox(); $event.stopPropagation()" aria-label="Back to topic"
+                class="fixed top-3 left-3 z-40 w-9 h-9 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white flex items-center justify-center backdrop-blur-md border border-white/15 shadow-lg"
+                title="Back to topic">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            }
 
             <!-- ── Main Interactive Canvas Area ──────────────────── -->
-            <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden touch-none"
+            <div class="relative flex-1 w-full h-full min-h-0 flex items-center justify-center overflow-hidden"
+                [class.touch-none]="isImageSlide()"
                 (wheel)="onWheel($event)"
                 (mousedown)="onMouseDown($event)"
                 (mousemove)="onMouseMove($event)"
@@ -494,8 +537,8 @@
                 (touchstart)="onTouchStart($event)"
                 (touchmove)="onTouchMove($event)"
                 (touchend)="onTouchEnd($event)"
-                [class.cursor-grab]="zoomLevel() > 1 && !isDragging()"
-                [class.cursor-grabbing]="isDragging()"
+                [class.cursor-grab]="isImageSlide() && zoomLevel() > 1 && !isDragging()"
+                [class.cursor-grabbing]="isImageSlide() && isDragging()"
                 [class.cursor-zoom-in]="zoomLevel() === 1 && isImage(media()[lightboxIndex()].mime_type)"
                 (click)="$event.stopPropagation()">
 
@@ -542,12 +585,13 @@
                             class="max-w-full max-h-[78vh] rounded-2xl shadow-2xl bg-black border border-white/10 outline-none">
                         </video>
                     </div>
-                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'pdf' && safeLightboxUrl()) {
-                    <!-- PDF Viewer (the only kind of file shown in a frame) -->
-                    <div class="w-full h-full max-w-5xl max-h-[78vh] p-3 sm:p-6 flex flex-col items-center justify-center">
-                        <iframe [src]="safeLightboxUrl()!" title="PDF preview"
-                            class="w-full h-full rounded-2xl shadow-2xl border border-white/10 bg-slate-900">
-                        </iframe>
+                    } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'pdf' && lightboxPdfBlob()) {
+                    <!-- Full-bleed in-app PDF viewer (works in Android APK/PWA & Desktop) -->
+                    <div class="w-full h-full flex-1 min-h-0 flex flex-col">
+                        <app-pdf-viewer class="w-full h-full flex-1 min-h-0 block"
+                            [pdfBlob]="lightboxPdfBlob()!"
+                            [isImmersive]="immersiveMode()"
+                            (toggleImmersive)="toggleImmersive()" />
                     </div>
                     } @else if (kindOf(media()[lightboxIndex()].mime_type) === 'text' && lightboxText()) {
                     <!-- Plain text: the words are shown as text, never run as a page -->
@@ -587,6 +631,7 @@
             </div>
 
             <!-- ── Bottom Floating Controls & Thumbnail Strip ──── -->
+            @if (!isPdfSlide() && !immersiveMode()) {
             <div class="relative z-30 w-full flex flex-col items-center gap-2.5 pb-3 sm:pb-5 px-3 sm:px-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent"
                 (click)="$event.stopPropagation()">
 
@@ -695,11 +740,14 @@
                 }
 
                 <!-- Subtle mobile swipe gesture helper -->
+                @if (isImage(media()[lightboxIndex()].mime_type)) {
                 <p class="sm:hidden text-[10px] text-slate-500/80 font-medium">
                     Swipe down to close <span class="text-slate-700">•</span> Double tap or pinch to zoom
                 </p>
+                }
 
             </div>
+            }
 
         </div>
         }

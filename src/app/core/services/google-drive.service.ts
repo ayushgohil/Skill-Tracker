@@ -229,8 +229,8 @@ export class GoogleDriveService {
         });
     }
 
-    // Fetch file as a blob URL for display
-    async getFileUrl(fileId: string, forceType?: string): Promise<string> {
+    /** Fetch file as a Blob (preserving or enforcing MIME type). */
+    async getFileBlob(fileId: string, forceType?: string): Promise<Blob> {
         const token = await this.getAccessToken();
         if (!token) throw new Error('NO_DRIVE_ACCESS');
 
@@ -243,6 +243,12 @@ export class GoogleDriveService {
         // The type stored with the file is not trusted: a PDF is always opened as a PDF
         // (never as a web page), whatever the file claims to be.
         if (forceType && blob.type !== forceType) blob = new Blob([blob], { type: forceType });
+        return blob;
+    }
+
+    // Fetch file as a blob URL for display
+    async getFileUrl(fileId: string, forceType?: string): Promise<string> {
+        const blob = await this.getFileBlob(fileId, forceType);
         const url = URL.createObjectURL(blob);
         this.activeBlobUrls.add(url);
         return url;

@@ -164,13 +164,16 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
         }
 
         const searchParam = this.route.snapshot.queryParamMap.get('search');
+        const topicParam = this.route.snapshot.queryParamMap.get('topic');
         if (searchParam) {
             this.searchQuery.set(searchParam);
         }
 
         await this.load();
 
-        if (searchParam) {
+        if (topicParam && this.topics().some(t => t.id === topicParam)) {
+            this.expandedTopicId.set(topicParam);
+        } else if (searchParam) {
             const matchingTopic = this.topics().find(t => t.title.toLowerCase() === searchParam.toLowerCase());
             if (matchingTopic) {
                 this.expandedTopicId.set(matchingTopic.id);
@@ -256,7 +259,14 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
 
     // ── Accordion ──────────────────────────────────────
     onToggleTopic(topicId: string) {
-        this.expandedTopicId.update(id => id === topicId ? null : topicId);
+        const nextId = this.expandedTopicId() === topicId ? null : topicId;
+        this.expandedTopicId.set(nextId);
+        void this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: nextId ? { topic: nextId } : { topic: null, media: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+        });
     }
 
     /**

@@ -286,4 +286,27 @@ describe('SubjectDetailComponent: failed saves and undo', () => {
             expect(subtopicsService['updateTopicProgress']).toHaveBeenCalledWith('t1', true);
         });
     });
+
+    describe('topic query param sync', () => {
+        it('syncs expanded topic id into the URL with replaceUrl when toggling', () => {
+            const router = TestBed.inject(Router) as unknown as { navigate: ReturnType<typeof vi.fn> };
+            component.topics.set([topic('t1')]);
+
+            component.onToggleTopic('t1');
+            expect(component.expandedTopicId()).toBe('t1');
+            expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({
+                queryParams: { topic: 't1' },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+            }));
+
+            component.onToggleTopic('t1');
+            expect(component.expandedTopicId()).toBeNull();
+            expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({
+                queryParams: { topic: null, media: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+            }));
+        });
+    });
 });

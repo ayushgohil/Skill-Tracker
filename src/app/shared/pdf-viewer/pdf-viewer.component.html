@@ -1,0 +1,103 @@
+<div class="relative w-full h-full flex flex-col bg-slate-950 select-none">
+
+    @if (loading()) {
+    <div class="flex-1 flex flex-col items-center justify-center gap-3">
+        <div class="w-10 h-10 rounded-full border-3 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+        <span class="text-xs text-slate-400 font-medium">Rendering PDF…</span>
+    </div>
+    } @else if (error()) {
+    <div class="flex-1 flex flex-col items-center justify-center text-center px-6 text-slate-300">
+        <p class="font-semibold text-sm mb-1">Couldn't render this PDF.</p>
+        <p class="text-xs text-slate-400">Try Download or Open in Drive from the top bar.</p>
+    </div>
+    } @else {
+
+    <!-- Scrollable full-bleed PDF pages canvas container -->
+    <div #scrollContainer
+        class="flex-1 w-full h-full overflow-auto overscroll-contain px-1 sm:px-4 pt-2 pb-20"
+        style="touch-action: pan-x pan-y pinch-zoom; -webkit-overflow-scrolling: touch;">
+        <div class="min-w-full flex flex-col items-center gap-2 sm:gap-3">
+            @for (pageNum of pages(); track pageNum) {
+            <div #pageWrapper
+                [attr.data-page]="pageNum"
+                class="relative bg-white shadow-xl rounded-sm sm:rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center"
+                [style.width.px]="getPageWidth(pageNum)"
+                [style.height.px]="getPageHeight(pageNum)">
+                <canvas #pageCanvas [attr.data-page]="pageNum" class="block"></canvas>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Floating compact PDF controls bar -->
+    <div class="pointer-events-none absolute bottom-3 left-0 right-0 flex justify-center px-3 z-30">
+        <div class="pointer-events-auto flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/15 shadow-2xl text-slate-200">
+
+            @if (totalPages() > 1) {
+            <button type="button" (click)="prevPage()" [disabled]="currentPage() <= 1" aria-label="Previous page"
+                class="w-7 h-7 rounded-full hover:bg-white/10 disabled:opacity-30 flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            <span class="text-[11px] font-mono px-1.5 text-slate-300 whitespace-nowrap">
+                {{ currentPage() }} / {{ totalPages() }}
+            </span>
+
+            <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages()" aria-label="Next page"
+                class="w-7 h-7 rounded-full hover:bg-white/10 disabled:opacity-30 flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+
+            <div class="w-px h-4 bg-white/15 mx-0.5"></div>
+            }
+
+            <button type="button" (click)="zoomOut()" [disabled]="zoom() <= 0.5" aria-label="Zoom out"
+                class="w-7 h-7 rounded-full hover:bg-white/10 disabled:opacity-30 flex items-center justify-center transition-colors"
+                title="Zoom out">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" />
+                </svg>
+            </button>
+
+            <button type="button" (click)="resetZoom()"
+                class="px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold transition-colors"
+                [class]="zoom() !== 1 ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-300 hover:bg-white/20'"
+                title="Fit to width">
+                {{ zoom() === 1 ? 'Fit' : Math.round(zoom() * 100) + '%' }}
+            </button>
+
+            <button type="button" (click)="zoomIn()" [disabled]="zoom() >= 3" aria-label="Zoom in"
+                class="w-7 h-7 rounded-full hover:bg-white/10 disabled:opacity-30 flex items-center justify-center transition-colors"
+                title="Zoom in">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+
+            <div class="w-px h-4 bg-white/15 mx-0.5"></div>
+
+            <button type="button" (click)="toggleImmersive.emit()" [attr.aria-label]="isImmersive() ? 'Show top bar' : 'Full screen reading'"
+                class="w-7 h-7 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+                [class.text-indigo-400]="isImmersive()"
+                [title]="isImmersive() ? 'Show top bar' : 'Full screen reading'">
+                @if (isImmersive()) {
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4H4m0 0l5 5M15 9V4h5m0 0l-5 5M9 15v5H4m0 0l5-5M15 15v5h5m0 0l-5-5" />
+                </svg>
+                } @else {
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+                }
+            </button>
+
+        </div>
+    </div>
+
+    }
+
+</div>

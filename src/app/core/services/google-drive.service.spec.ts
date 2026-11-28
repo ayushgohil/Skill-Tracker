@@ -85,4 +85,15 @@ describe('GoogleDriveService: account deletion helpers', () => {
         await expect(drive.trashAppFolder()).rejects.toThrow('NO_DRIVE_ACCESS');
         await expect(drive.getAppFolderSummary()).rejects.toThrow('NO_DRIVE_ACCESS');
     });
+
+    it('fetches a file Blob and enforces the requested MIME type', async () => {
+        vi.stubGlobal('fetch', vi.fn(async () => ({
+            ok: true,
+            status: 200,
+            blob: async () => new Blob(['%PDF-1.4'], { type: 'application/octet-stream' })
+        })));
+
+        const blob = await drive.getFileBlob('file-1', 'application/pdf');
+        expect(blob.type).toBe('application/pdf');
+    });
 });

@@ -1,6 +1,6 @@
-import { ApplicationConfig, isDevMode } from '@angular/core';
+import { ApplicationConfig, inject, isDevMode } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
-import { TitleStrategy, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import { Router, TitleStrategy, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideQuillConfig } from 'ngx-quill/config';
 import { routes } from './app.routes';
@@ -16,9 +16,22 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(
       routes,
-      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
-      // Soft fade between pages (browsers without support just switch instantly).
-      withViewTransitions()
+      // Page-to-page scroll-to-top is handled in App only when the route path changes,
+      // so expanding topics (?topic=...) or opening media (?media=...) never jumps to top.
+      withInMemoryScrolling({ scrollPositionRestoration: 'disabled', anchorScrolling: 'enabled' }),
+      // Soft fade between pages (skipped when only query params/fragment change on the same page).
+      withViewTransitions({
+        onViewTransitionCreated: ({ transition }) => {
+          const router = inject(Router);
+          const targetUrl = router.currentNavigation()?.finalUrl;
+          if (!targetUrl) return;
+          const currentPath = router.url.split('?')[0].split('#')[0];
+          const targetPath = router.serializeUrl(targetUrl).split('?')[0].split('#')[0];
+          if (currentPath === targetPath) {
+            transition.skipTransition();
+          }
+        }
+      })
     ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideAnimationsAsync(prefersReducedMotion ? 'noop' : 'animations'),

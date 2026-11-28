@@ -3,21 +3,23 @@ import {
     ViewChild, TemplateRef, ViewContainerRef, ApplicationRef,
     Injector, PLATFORM_ID
 } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TopicMedia, TopicMediaService } from '../../core/services/topic-media.service';
 import { GoogleDriveService } from '../../core/services/google-drive.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PendingDeleteService } from '../../core/services/pending-delete.service';
 import { validateFiles, previewKind, PreviewKind } from '../../core/utils/file-validation';
+import { PdfViewerComponent } from '../pdf-viewer/pdf-viewer.component';
 import Swal from 'sweetalert2';
 
 
 @Component({
     selector: 'app-media-gallery',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, PdfViewerComponent],
     templateUrl: './media-gallery.component.html'
 })
 export class MediaGalleryComponent implements OnInit, OnDestroy {
@@ -37,9 +39,16 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     private appRef = inject(ApplicationRef);
     private injector = inject(Injector);
     private platformId = inject(PLATFORM_ID);
-    private sanitizer = inject(DomSanitizer);
+    private route = inject(ActivatedRoute, { optional: true });
+    private router = inject(Router, { optional: true });
+    private location = inject(Location, { optional: true });
 
     private portalOutlet?: DomPortalOutlet;
+    private queryParamsSub?: Subscription;
+    private pushedLightboxHistory = false;
+    private loadSeq = 0;
+    private currentPdfItemId: string | null = null;
+    private currentPdfBlob: Blob | null = null;
 
 
     media = signal<TopicMedia[]>([]);
@@ -59,8 +68,9 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     lightboxOpen = signal(false);
     lightboxIndex = signal(0);
     lightboxUrl = signal<string | null>(null);
-    safeLightboxUrl = signal<SafeResourceUrl | null>(null);
+    lightboxPdfBlob = signal<Blob | null>(null);
     lightboxLoading = signal(false);
+    downloading = signal(false);
     /** Words of a plain text attachment, shown as text only. */
     lightboxText = signal<{ text: string; truncated: boolean } | null>(null);
     lightboxError = signal(false);
@@ -68,6 +78,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     panOffset = signal<{ x: number; y: number }>({ x: 0, y: 0 });
     rotation = signal<number>(0);
     isFullscreen = signal<boolean>(false);
+    immersiveMode = signal<boolean>(false);
     showControls = signal<boolean>(true);
     isDragging = signal<boolean>(false);
     touchSwipeY = signal<number>(0);
@@ -90,16 +101,35 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
+        if (this.route?.queryParamMap) {
+            this.queryParamsSub = this.route.queryParamMap.subscribe(params => {
+                const mediaId = params.get('media');
+                if (!mediaId) {
+                    if (this.lightboxOpen()) {
+                        this.teardownLightbox();
+                    }
+                    return;
+                }
+                const idx = this.media().findIndex(m => m.id === mediaId);
+                if (idx >= 0) {
+                    if (!this.lightboxOpen()) {
+                        this.openLightboxUI(idx);
+                    } else if (this.lightboxIndex() !== idx) {
+                        this.resetTransform();
+                        this.lightboxIndex.set(idx);
+                        void this.loadLightboxFile(idx);
+                    }
+                }
+            });
+        }
+
         this.hasDriveAccess.set(await this.drive.hasDriveAccess());
         if (this.hasDriveAccess()) await this.loadMedia();
     }
 
     ngOnDestroy() {
-        if (isPlatformBrowser(this.platformId)) {
-            document.removeEventListener('keydown', this.onKey);
-            document.removeEventListener('fullscreenchange', this.onFullscreenChange);
-        }
-        this.detachModal();
+        this.queryParamsSub?.unsubscribe();
+        this.teardownLightbox();
         this.portalOutlet?.dispose();
     }
 
@@ -111,6 +141,14 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
             const items = fetched.filter(i => !this.pendingDelete.isPending(`media:${i.id}`));
             this.media.set(items);
             items.filter(i => this.isImage(i.mime_type)).forEach(i => this.loadThumb(i));
+
+            const initialMediaId = this.route?.snapshot?.queryParamMap?.get('media');
+            if (initialMediaId && !this.lightboxOpen()) {
+                const idx = items.findIndex(i => i.id === initialMediaId);
+                if (idx >= 0) {
+                    this.openLightboxUI(idx);
+                }
+            }
         } finally {
             this.loading.set(false);
         }
@@ -371,10 +409,27 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
 
     openLightbox(index: number) {
+        const item = this.media()[index];
+        if (!item) return;
+
+        this.openLightboxUI(index);
+
+        if (this.router && this.route && this.route.snapshot?.queryParamMap?.get('media') !== item.id) {
+            this.pushedLightboxHistory = true;
+            void this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { media: item.id },
+                queryParamsHandling: 'merge'
+            });
+        }
+    }
+
+    private openLightboxUI(index: number) {
         this.lightboxIndex.set(index);
         this.lightboxOpen.set(true);
+        this.immersiveMode.set(false);
         this.resetTransform();
-        this.loadLightboxFile(index);
+        void this.loadLightboxFile(index);
         if (isPlatformBrowser(this.platformId)) {
             document.addEventListener('keydown', this.onKey);
             document.addEventListener('fullscreenchange', this.onFullscreenChange);
@@ -385,9 +440,30 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
 
     closeLightbox() {
+        const shouldPopHistory = this.pushedLightboxHistory;
+        this.teardownLightbox();
+
+        if (shouldPopHistory && this.location) {
+            this.location.back();
+        } else if (this.router && this.route && this.route.snapshot?.queryParamMap?.get('media')) {
+            void this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { media: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+            });
+        }
+    }
+
+    private teardownLightbox() {
+        this.loadSeq++;
+        this.pushedLightboxHistory = false;
         this.lightboxOpen.set(false);
+        this.immersiveMode.set(false);
         this.lightboxUrl.set(null);
-        this.safeLightboxUrl.set(null);
+        this.lightboxPdfBlob.set(null);
+        this.currentPdfItemId = null;
+        this.currentPdfBlob = null;
         this.lightboxText.set(null);
         this.resetTransform();
         if (isPlatformBrowser(this.platformId)) {
@@ -448,13 +524,28 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
         this.isFullscreen.set(!!document.fullscreenElement);
     };
 
+    toggleImmersive() {
+        this.immersiveMode.update(v => !v);
+    }
+
     toggleControls() {
         this.showControls.update(s => !s);
+    }
+
+    isImageSlide(): boolean {
+        const item = this.media()[this.lightboxIndex()];
+        return !!item && this.isImage(item.mime_type);
+    }
+
+    isPdfSlide(): boolean {
+        const item = this.media()[this.lightboxIndex()];
+        return !!item && this.kindOf(item.mime_type) === 'pdf';
     }
 
     // ── Mouse Event Handlers ────────────────────────────────────
 
     onWheel(event: WheelEvent) {
+        if (!this.isImageSlide()) return;
         event.preventDefault();
         event.stopPropagation();
         const delta = event.deltaY < 0 ? 0.2 : -0.2;
@@ -466,7 +557,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
 
     onMouseDown(event: MouseEvent) {
-        if (this.zoomLevel() <= 1) return;
+        if (!this.isImageSlide() || this.zoomLevel() <= 1) return;
         event.preventDefault();
         this.isDragging.set(true);
         this.dragStart = { x: event.clientX, y: event.clientY };
@@ -501,6 +592,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     // ── Touch Gesture Handlers (Mobile) ──────────────────────────
 
     onTouchStart(event: TouchEvent) {
+        if (!this.isImageSlide()) return;
         if (event.touches.length === 2) {
             // Pinch to zoom start
             const t1 = event.touches[0];
@@ -530,6 +622,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
 
     onTouchMove(event: TouchEvent) {
+        if (!this.isImageSlide()) return;
         if (event.touches.length === 2) {
             event.preventDefault();
             const t1 = event.touches[0];
@@ -563,6 +656,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
 
     onTouchEnd(event: TouchEvent) {
+        if (!this.isImageSlide()) return;
         if (this.touchSwipeY() > 120) {
             this.closeLightbox();
             return;
@@ -587,17 +681,30 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
 
     // ── File actions ───────────────────────────────────────────
 
-    downloadCurrentFile() {
+    async downloadCurrentFile() {
         const item = this.media()[this.lightboxIndex()];
         if (!item) return;
-        const dlUrl = this.drive.getDriveDownloadLink(item.drive_file_id);
-        const a = document.createElement('a');
-        a.href = dlUrl;
-        a.download = item.file_name;
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+
+        try {
+            this.downloading.set(true);
+            const blob = (this.currentPdfItemId === item.id && this.currentPdfBlob)
+                ? this.currentPdfBlob
+                : await this.drive.getFileBlob(item.drive_file_id);
+
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = item.file_name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        } catch {
+            const dlUrl = this.drive.getDriveDownloadLink(item.drive_file_id);
+            window.open(dlUrl, '_blank', 'noopener');
+        } finally {
+            this.downloading.set(false);
+        }
     }
 
     openInDrive() {
@@ -613,8 +720,11 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     async loadLightboxFile(index: number) {
         const item = this.media()[index];
         if (!item) return;
+        const seq = ++this.loadSeq;
         this.lightboxUrl.set(null);
-        this.safeLightboxUrl.set(null);
+        this.lightboxPdfBlob.set(null);
+        this.currentPdfItemId = null;
+        this.currentPdfBlob = null;
         this.lightboxText.set(null);
         this.lightboxError.set(false);
 
@@ -626,40 +736,59 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
         try {
             if (kind === 'text') {
                 const result = await this.drive.getFileText(item.drive_file_id);
-                if (index === this.lightboxIndex()) this.lightboxText.set(result);
+                if (seq === this.loadSeq && index === this.lightboxIndex()) this.lightboxText.set(result);
+            } else if (kind === 'pdf') {
+                const blob = await this.drive.getFileBlob(item.drive_file_id, 'application/pdf');
+                if (seq === this.loadSeq && index === this.lightboxIndex()) {
+                    this.currentPdfItemId = item.id;
+                    this.currentPdfBlob = blob;
+                    this.lightboxPdfBlob.set(blob);
+                }
             } else {
-                const url = await this.drive.getFileUrl(item.drive_file_id, kind === 'pdf' ? 'application/pdf' : undefined);
-                this.lightboxUrl.set(url);
-                if (kind === 'pdf') {
-                    this.safeLightboxUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+                const url = await this.drive.getFileUrl(item.drive_file_id);
+                if (seq === this.loadSeq && index === this.lightboxIndex()) {
+                    this.lightboxUrl.set(url);
                 }
             }
         } catch {
-            this.lightboxError.set(true);
+            if (seq === this.loadSeq && index === this.lightboxIndex()) {
+                this.lightboxError.set(true);
+            }
         } finally {
-            this.lightboxLoading.set(false);
+            if (seq === this.loadSeq && index === this.lightboxIndex()) {
+                this.lightboxLoading.set(false);
+            }
         }
     }
 
     prevSlide() {
-        this.resetTransform();
         const i = (this.lightboxIndex() - 1 + this.media().length) % this.media().length;
-        this.lightboxIndex.set(i);
-        this.loadLightboxFile(i);
+        this.selectSlide(i);
     }
 
     nextSlide() {
-        this.resetTransform();
         const i = (this.lightboxIndex() + 1) % this.media().length;
-        this.lightboxIndex.set(i);
-        this.loadLightboxFile(i);
+        this.selectSlide(i);
     }
 
     goToSlide(i: number) {
         if (i === this.lightboxIndex()) return;
+        this.selectSlide(i);
+    }
+
+    private selectSlide(i: number) {
         this.resetTransform();
         this.lightboxIndex.set(i);
-        this.loadLightboxFile(i);
+        void this.loadLightboxFile(i);
+        const item = this.media()[i];
+        if (item && this.router && this.route) {
+            void this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { media: item.id },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+            });
+        }
     }
 
     onKey = (e: KeyboardEvent) => {
